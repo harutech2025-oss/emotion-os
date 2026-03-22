@@ -139,14 +139,17 @@ const RK=["R1","R2","R3","R4","R5"],RS={R1:"인지",R2:"조절",R3:"공명",R4:"
 function R5Radar({pr,result}){const rL={R1:0,R2:0,R3:0,R4:0,R5:0};QS.forEach(q=>{if(q.r1)rL[q.r1]=Math.max(rL[q.r1],result.nm[q.pq]||0);});const cx=75,cy=75,rd=55,as=2*Math.PI/5,sa=-Math.PI/2;const pts=RK.map((k,i)=>{const a=sa+i*as,r=rd*Math.max(Math.min(rL[k]/100,1),0.08);return{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a),k};});const lps=RK.map((k,i)=>{const a=sa+i*as,r=rd+16;return{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a),k};});return(<div style={{display:"flex",justifyContent:"center",margin:"12px 0 8px"}}><svg width={150} height={150} viewBox="0 0 150 150">{[.33,.66,1].map(s=>(<polygon key={s} points={RK.map((k,i)=>{const a=sa+i*as,r=rd*s;return`${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;}).join(" ")} fill="none" stroke={C.border} strokeWidth=".5"/>))}{RK.map((k,i)=><line key={i} x1={cx} y1={cy} x2={cx+rd*Math.cos(sa+i*as)} y2={cy+rd*Math.sin(sa+i*as)} stroke={C.border} strokeWidth=".5"/>)}<polygon points={pts.map(p=>`${p.x},${p.y}`).join(" ")} fill={`${C.accent}20`} stroke={C.accent} strokeWidth="1.5"/>{pts.map((p,i)=><circle key={i} cx={p.x} cy={p.y} r={p.k===pr?4:2.5} fill={p.k===pr?C.accent:C.dim}/>)}{lps.map((p,i)=>(<text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" style={{fontSize:9,fontWeight:p.k===pr?800:500,fill:p.k===pr?C.accent:C.dim,fontFamily:FF}}>{RS[p.k]}</text>))}</svg></div>);}
 
 // ─── HOME ───────────────────────────────────────────────
-function Home({hs,onScan,onRc,onCp}){
+function Home({hs,hist,onScan,onRc,onCp,onClear}){
   if(hs.source==="empty")return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:"40px 20px",textAlign:"center"}}><div style={{width:64,height:64,borderRadius:16,background:C.cardH,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20}}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h2 style={{fontSize:18,fontWeight:700,color:C.text,marginBottom:8}}>아직 시스템 데이터가 없습니다</h2><p style={{fontSize:13,color:C.dim,marginBottom:28,lineHeight:1.6}}>먼저 2분 스캔으로 현재 감정 OS 상태를 확인하세요</p><Btn primary onClick={onScan} style={{maxWidth:280}}>지금 스캔 시작하기</Btn></div>);
   const b=BAND[hs.band],fx=getHotFixes(hs.qpr),top=fx[0];
   return(<div style={{padding:"20px 16px 100px"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}><div><div style={{fontSize:10,letterSpacing:4,color:C.accent,textTransform:"uppercase",fontWeight:700}}>Emotion OS</div><div style={{fontSize:18,fontWeight:700,color:C.text,marginTop:2}}>Kernel Dashboard</div></div>{hs.isRc&&hs.delta!=null&&<DBadge delta={hs.delta}/>}</div>
     <Card accent={`${b.c}30`} style={{background:b.bg}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><span style={{fontSize:12,color:C.dim}}>시스템 가동성</span><Badge text={b.l} color={b.c}/></div><ANum value={hs.avail} color={b.c} size={28} suffix="%"/><MiniBar pct={hs.avail} color={b.c} h={6}/><p style={{fontSize:12,color:C.dim,marginTop:8,lineHeight:1.5}}>{b.d}</p>{hs.spread&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:`${C.amber}06`,border:`1px solid ${C.amber}20`}}><span style={{fontSize:11,fontWeight:600,color:C.amber}}>복수 영역 동시 부하 감지</span></div>}{hs.source==="recheck_overlay"&&<p style={{fontSize:10,color:C.muted,marginTop:6}}>가동성은 최근 Re-check 기준입니다</p>}</Card>
+    <HistoryGraph history={hist}/>
     <Card><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><span style={{fontSize:12,color:C.muted}}>현재 활성 패턴</span>{hs.source==="recheck_overlay"&&<span style={{fontSize:9,color:C.muted}}>Full Scan 기준</span>}</div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><span style={{fontSize:15,fontWeight:700,color:C.accent}}>{QL[hs.pq]}</span><Badge text={hs.leak} color={C.blue}/><Badge text={RL[hs.r1]} color={C.purple}/></div>{hs.mode&&<p style={{fontSize:12,color:C.dim,marginTop:8}}><strong style={{color:C.teal}}>{hs.mode}</strong> — {hs.modeD}</p>}</Card>
     {top&&<Card accent={`${C.teal}30`} style={{background:`${C.teal}05`}}><div style={{fontSize:11,color:C.muted,marginBottom:6}}>Quick Patch</div><div style={{fontSize:15,fontWeight:700,color:C.teal,marginBottom:4}}>{top.label}</div><p style={{fontSize:12,color:C.dim,lineHeight:1.5}}>{top.desc}</p><div style={{marginTop:10}}><Btn primary small style={{maxWidth:200}}>{top.cta}</Btn></div></Card>}
-    <div style={{display:"flex",gap:8,marginTop:4}}><Btn small onClick={onRc} style={{flex:1}}>Re-check</Btn><Btn small onClick={onCp} style={{flex:1}}>Couple Sync</Btn></div></div>);
+    <div style={{display:"flex",gap:8,marginTop:4}}><Btn small onClick={onRc} style={{flex:1}}>Re-check</Btn><Btn small onClick={onCp} style={{flex:1}}>Couple Sync</Btn></div>
+    <div style={{marginTop:12,textAlign:"center"}}><button onClick={onClear} style={{background:"none",border:"none",fontSize:10,color:C.muted,cursor:"pointer",fontFamily:FF,padding:4}}>데이터 초기화</button></div>
+  </div>);
 }
 
 // ─── SCAN FLOW ──────────────────────────────────────────
@@ -184,6 +187,7 @@ function Result({result,onDone,isRc}){const b=BAND[result.band],hi=result.band==
     <Card accent={`${C.teal}30`} style={{background:`${C.teal}05`}}><div style={{fontSize:12,color:C.muted,marginBottom:6}}>추천 운영 자세</div><div style={{fontSize:16,fontWeight:700,color:C.teal,marginBottom:4}}>{result.mode}</div><p style={{fontSize:12,color:C.dim,lineHeight:1.5}}>{result.modeD}</p><p style={{fontSize:10,color:C.muted,marginTop:8}}>성격을 바꾸라는 뜻이 아니라, 지금 시스템을 덜 망가지게 운영하기 위한 임시 자세입니다.</p></Card>
     <Card><div style={{fontSize:12,color:C.muted,marginBottom:8}}>연결 Bug / Patch</div><a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none",display:"block"}}><div style={{padding:"10px 14px",borderRadius:8,background:C.bg,marginBottom:6,fontSize:12,color:C.text,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}}><span><span style={{color:C.accent,fontWeight:600,marginRight:6,fontSize:11}}>{result.bug}</span>{result.bugL}</span><span style={{color:C.muted,fontSize:11}}>→</span></div></a><a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none",display:"block"}}><div style={{padding:"10px 14px",borderRadius:8,background:C.bg,fontSize:12,color:C.teal,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}}><span>→ {result.patchL}</span><span style={{color:C.muted,fontSize:11}}>→</span></div></a><p style={{fontSize:10,color:C.muted,marginTop:8}}>탭하면 해당 카드의 노션 페이지로 이동합니다</p></Card>
     <Card><p style={{fontSize:12,color:C.dim,lineHeight:1.7}}>{hi?b.act:"반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p><p style={{fontSize:11,color:C.muted,marginTop:8}}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p><div style={{display:"flex",gap:6,marginTop:12,flexWrap:"wrap"}}><a href={NL.q} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}><Badge text="Q유형 총론" color={C.blue}/></a><a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}><Badge text="5R 구조" color={C.purple}/></a>{hi&&<a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}><Badge text="리커버리 프로토콜" color={C.teal}/></a>}</div></Card>
+    <ShareBtn result={result}/>
     <Btn primary onClick={onDone}>Dashboard로 돌아가기</Btn></div>);}
 
 // ─── LOADING ────────────────────────────────────────────
@@ -197,14 +201,81 @@ function Couple({onBack}){const[code]=useState(()=>{const c="ABCDEFGHJKLMNPQRSTU
     <p style={{fontSize:11,color:C.muted,marginTop:16,maxWidth:300,lineHeight:1.5}}>상대의 상세 점수는 직접 노출되지 않으며, 관계 상태 요약만 제공됩니다.</p>
     <div style={{marginTop:16,maxWidth:300,width:"100%"}}><Btn small onClick={onBack}>돌아가기</Btn></div></div>);}
 
+// ─── LOCALSTORAGE HELPERS ────────────────────────────────
+const STORAGE_KEY="emotion-os-v1";
+function saveState(fs,lr,hist){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({fs,lr,hist,v:2}));}catch(e){}}
+function loadState(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));if(d&&d.v===2)return d;return null;}catch(e){return null;}}
+function clearState(){try{localStorage.removeItem(STORAGE_KEY);}catch(e){}}
+
+// ─── HISTORY MINI GRAPH ─────────────────────────────────
+function HistoryGraph({history}){
+  if(!history||history.length<2)return null;
+  const recent=history.slice(-10);
+  const w=280,h=80,px=12,py=10;
+  const gw=w-px*2,gh=h-py*2;
+  const mn=Math.min(...recent.map(p=>p.avail)),mx=Math.max(...recent.map(p=>p.avail));
+  const range=Math.max(mx-mn,10);
+  const pts=recent.map((p,i)=>{const x=px+(i/(recent.length-1))*gw;const y=py+gh-(((p.avail-mn)/range)*gh);return{x,y,avail:p.avail,type:p.type};});
+  const pathD=pts.map((p,i)=>i===0?`M${p.x},${p.y}`:`L${p.x},${p.y}`).join(" ");
+  const areaD=pathD+` L${pts[pts.length-1].x},${h-py} L${pts[0].x},${h-py} Z`;
+  return(
+    <Card>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <span style={{fontSize:12,color:C.muted}}>가동성 변화 추이</span>
+        <span style={{fontSize:10,color:C.muted}}>최근 {recent.length}회</span>
+      </div>
+      <div style={{display:"flex",justifyContent:"center"}}>
+        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+          {[0,.5,1].map(r=>(<line key={r} x1={px} y1={py+gh*(1-r)} x2={w-px} y2={py+gh*(1-r)} stroke={C.border} strokeWidth=".5" strokeDasharray="3,3"/>))}
+          <path d={areaD} fill={`${C.accent}08`}/>
+          <path d={pathD} fill="none" stroke={C.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          {pts.map((p,i)=>(<circle key={i} cx={p.x} cy={p.y} r={i===pts.length-1?4:2.5} fill={i===pts.length-1?C.accent:C.dim} stroke={i===pts.length-1?C.bg:"none"} strokeWidth={i===pts.length-1?2:0}/>))}
+          <text x={px} y={h-2} style={{fontSize:8,fill:C.muted}}>{mn}%</text>
+          <text x={w-px} y={py-2} style={{fontSize:8,fill:C.muted,textAnchor:"end"}}>{mx}%</text>
+        </svg>
+      </div>
+      {recent.length>=2&&(()=>{const last=recent[recent.length-1].avail,prev=recent[recent.length-2].avail,d=last-prev;return d!==0?<p style={{fontSize:11,color:d>0?C.green:C.red,marginTop:6,textAlign:"center"}}>직전 대비 {d>0?"+":""}{d}%</p>:null;})()}
+    </Card>
+  );
+}
+
+// ─── SHARE UTILITY ──────────────────────────────────────
+function buildShareText(r){
+  const lines=[`📊 Emotion OS 진단 결과`,``,`가동성: ${r.avail}% (${BAND[r.band].l})`,`핵심 패턴: ${QL[r.pq]}`,`누수 지점: ${r.leak}`,`추천 자세: ${r.mode}`,``,`— Emotion OS by Haru-Tech Lab`,`https://emotion-os.vercel.app`];
+  return lines.join("\n");
+}
+function ShareBtn({result}){
+  const[copied,setCopied]=useState(false);
+  const share=async()=>{
+    const text=buildShareText(result);
+    if(navigator.share){try{await navigator.share({title:"Emotion OS 진단 결과",text});return;}catch(e){}}
+    try{await navigator.clipboard.writeText(text);setCopied(true);setTimeout(()=>setCopied(false),2000);}catch(e){
+      const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();
+      try{document.execCommand("copy");setCopied(true);setTimeout(()=>setCopied(false),2000);}catch(e2){}document.body.removeChild(ta);
+    }
+  };
+  return(<button onClick={share} style={{width:"100%",padding:"14px",borderRadius:12,border:`1px solid ${copied?C.green:C.accent}40`,background:copied?`${C.green}12`:`${C.accent}08`,color:copied?C.green:C.accent,fontSize:14,fontWeight:600,fontFamily:FF,cursor:"pointer",marginBottom:8}}>{copied?"✓ 복사 완료":"진단 결과 공유하기"}</button>);
+}
+
 // ─── MAIN APP ───────────────────────────────────────────
 export default function EmotionOSApp(){
-  const[tab,setTab]=useState("home");const[scr,setScr]=useState("tabs");const[fs,setFs]=useState(null);const[lr,setLr]=useState(null);const[rcQs,setRcQs]=useState([]);
+  const[tab,setTab]=useState("home");const[scr,setScr]=useState("tabs");
+  const[fs,setFs]=useState(null);const[lr,setLr]=useState(null);const[rcQs,setRcQs]=useState([]);
+  const[hist,setHist]=useState([]);
+
+  // Load from localStorage on mount
+  useEffect(()=>{const d=loadState();if(d){setFs(d.fs);setLr(d.lr);setHist(d.hist||[]);};},[]);
+  // Save to localStorage on state change
+  useEffect(()=>{if(fs||lr)saveState(fs,lr,hist);},[fs,lr,hist]);
+
   const hs=deriveHS(fs,lr),cr=lr||fs;
+
+  const addToHist=(r)=>{const entry={avail:r.avail,band:r.band,pq:r.pq,type:r.type,ts:r.ts};setHist(h=>[...h.slice(-19),entry]);};
+
   return(<div style={{fontFamily:FF,background:C.bg,color:C.text,minHeight:"100vh",WebkitFontSmoothing:"antialiased"}}><link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet"/>
-    {scr==="tabs"&&<>{tab==="home"&&<Home hs={hs} onScan={()=>setScr("scan")} onRc={()=>{const b=fs||lr;if(!b)return;setRcQs(getRecheckQs(b));setScr("rc");}} onCp={()=>setScr("cp")}/>}{tab==="scan"&&<ScanTab result={cr} onScan={()=>setScr("scan")} onRc={()=>{const b=fs||lr;if(!b)return;setRcQs(getRecheckQs(b));setScr("rc");}} onCp={()=>setScr("cp")}/>}{tab==="action"&&<ActionTab result={cr}/>}{tab==="library"&&<LibTab/>}<BNav tab={tab} setTab={setTab}/></>}
-    {scr==="scan"&&<ScanFlow onComplete={a=>{setScr("ld");setTimeout(()=>{const r=calcFull(a);setFs(r);setLr(r);setScr("res");},1800);}}/>}
-    {scr==="rc"&&<ScanFlow onComplete={(a,q)=>{setScr("ld");const b=fs||lr;setTimeout(()=>{setLr(calcRecheck(a,q,b));setScr("rcRes");},1500);}} isRc rcQs={rcQs}/>}
+    {scr==="tabs"&&<>{tab==="home"&&<Home hs={hs} hist={hist} onScan={()=>setScr("scan")} onRc={()=>{const b=fs||lr;if(!b)return;setRcQs(getRecheckQs(b));setScr("rc");}} onCp={()=>setScr("cp")} onClear={()=>{clearState();setFs(null);setLr(null);setHist([]);}}/>}{tab==="scan"&&<ScanTab result={cr} onScan={()=>setScr("scan")} onRc={()=>{const b=fs||lr;if(!b)return;setRcQs(getRecheckQs(b));setScr("rc");}} onCp={()=>setScr("cp")}/>}{tab==="action"&&<ActionTab result={cr}/>}{tab==="library"&&<LibTab/>}<BNav tab={tab} setTab={setTab}/></>}
+    {scr==="scan"&&<ScanFlow onComplete={a=>{setScr("ld");setTimeout(()=>{const r=calcFull(a);setFs(r);setLr(r);addToHist(r);setScr("res");},1800);}}/>}
+    {scr==="rc"&&<ScanFlow onComplete={(a,q)=>{setScr("ld");const b=fs||lr;setTimeout(()=>{const r=calcRecheck(a,q,b);setLr(r);addToHist(r);setScr("rcRes");},1500);}} isRc rcQs={rcQs}/>}
     {scr==="ld"&&<Loading msg="시스템 패턴 분석 중"/>}
     {scr==="res"&&cr&&<Result result={cr} onDone={()=>{setScr("tabs");setTab("home");}}/>}
     {scr==="rcRes"&&cr&&<Result result={cr} onDone={()=>{setScr("tabs");setTab("home");}} isRc/>}
