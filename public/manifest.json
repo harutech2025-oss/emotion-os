@@ -1,0 +1,20 @@
+{
+  "name": "감정 OS · 하루테크랩 감정공학연구소",
+  "short_name": "감정 OS",
+  "description": "감정 운영체제 진단 · Emotion OS by Haru-Tech Lab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060a14",
+  "theme_color": "#060a14",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-48x48.png",   "sizes": "48x48",   "type": "image/png" },
+    { "src": "/icons/icon-72x72.png",   "sizes": "72x72",   "type": "image/png" },
+    { "src": "/icons/icon-96x96.png",   "sizes": "96x96",   "type": "image/png" },
+    { "src": "/icons/icon-120x120.png", "sizes": "120x120", "type": "image/png" },
+    { "src": "/icons/icon-152x152.png", "sizes": "152x152", "type": "image/png" },
+    { "src": "/icons/icon-180x180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
