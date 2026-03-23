@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   EMOTION OS v4.2.0 — Standalone (Auto-generated)
+   EMOTION OS v4.3.0 — Standalone (Auto-generated)
    Haru-Tech Lab
 
    ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
    수정은 src/ 모듈에서 먼저 하고, 이 스크립트로 재생성하세요.
-   생성 시각: 2026-03-23T05:37:30.155Z
+   생성 시각: 2026-03-23T07:18:42.961Z
    ═══════════════════════════════════════════════════════════════════ */
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -141,6 +141,23 @@ const PLinks = {"Slow-Down Patch":"https://www.notion.so/Slow-Down-Patch-326604b
 // M2: THEME — 색상 팔레트, 밴드 정의, 폰트
 
 const FF = `'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
+
+/**
+ * 뷰포트 반응형 폰트 사이즈
+ * - 375px(iPhone SE) 기준 약간 확대 (+1px)
+ * - 414px(iPhone 14): 자연스럽게 더 확대
+ * - 768px(iPad): max 제한으로 과도한 확대 방지
+ * - 절대 최소 12px 보장 (접근성)
+ * @param {number} px - 기준 폰트 크기
+ * @returns {string} clamp(min, vw, max) CSS 값
+ */
+function fs(px) {
+  const boosted = px + 1;
+  const min = Math.max(boosted, 12);
+  const vw = +(boosted / 375 * 100).toFixed(2);
+  const max = Math.round(boosted * 1.2);
+  return `clamp(${min}px, ${vw}vw, ${max}px)`;
+}
 
 const C = {
   bg:"#060a14", card:"#0c1120", cardH:"#101828",
@@ -404,7 +421,7 @@ function ShareBtn({ result }) {
     document.body.removeChild(ta);
   };
   return (
-    <button onClick={share} style={{ width:"100%", padding:"14px", borderRadius:12, border:`1px solid ${copied ? C.green : C.accent}40`, background:copied ? `${C.green}12` : `${C.accent}08`, color:copied ? C.green : C.accent, fontSize:14, fontWeight:600, fontFamily:FF, cursor:"pointer", marginBottom:8 }}>
+    <button onClick={share} style={{ width:"100%", padding:"14px", borderRadius:12, border:`1px solid ${copied ? C.green : C.accent}40`, background:copied ? `${C.green}12` : `${C.accent}08`, color:copied ? C.green : C.accent, fontSize:fs(14), fontWeight:600, fontFamily:FF, cursor:"pointer", marginBottom:8 }}>
       {copied ? "✓ 복사 완료" : "진단 결과 공유하기"}
     </button>
   );
@@ -470,7 +487,7 @@ function useCountUp(t, dur = 1000) {
 
 const ANum = ({ value, color, size=24, suffix="" }) => {
   const d = useCountUp(value);
-  return <span style={{ fontSize:size, fontWeight:800, color, fontFamily:FF }}>{d}{suffix}</span>;
+  return <span style={{ fontSize:fs(size), fontWeight:800, color, fontFamily:FF }}>{d}{suffix}</span>;
 };
 
 const DBadge = ({ delta, big }) => {
@@ -494,7 +511,7 @@ const Card = ({ children, accent, style:s, onClick }) => (
 );
 
 const Badge = ({ text, color }) => (
-  <span style={{ display:"inline-block", padding:"3px 10px", borderRadius:16, fontSize:10, fontWeight:700, color, background:`${color}15`, border:`1px solid ${color}25`, fontFamily:FF }}>
+  <span style={{ display:"inline-block", padding:"3px 10px", borderRadius:16, fontSize:fs(10), fontWeight:700, color, background:`${color}15`, border:`1px solid ${color}25`, fontFamily:FF }}>
     {text}
   </span>
 );
@@ -520,8 +537,8 @@ function Accordion({ title, children, defaultOpen = false }) {
   return (
     <Card>
       <button onClick={() => setO(!o)} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%", background:"none", border:"none", padding:0, cursor:"pointer", fontFamily:FF }}>
-        <span style={{ fontSize:12, color:C.muted }}>{title}</span>
-        <span style={{ fontSize:14, color:C.muted, transform:o?"rotate(180deg)":"rotate(0)", transition:"transform 0.3s" }}>▾</span>
+        <span style={{ fontSize:fs(12), color:C.muted }}>{title}</span>
+        <span style={{ fontSize:fs(14), color:C.muted, transform:o?"rotate(180deg)":"rotate(0)", transition:"transform 0.3s" }}>▾</span>
       </button>
       {o && <div style={{ marginTop:10 }}>{children}</div>}
     </Card>
@@ -534,10 +551,10 @@ function ConfirmModal({ open, message, onConfirm, onCancel }) {
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.65)", zIndex:999, display:"flex", alignItems:"center", justifyContent:"center", padding:"0 24px", animation:"esFadeIn 0.2s ease" }}>
       <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"28px 24px", maxWidth:320, width:"100%", textAlign:"center", animation:"esSlideUp 0.25s ease" }}>
-        <p style={{ fontSize:14, color:C.text, lineHeight:1.65, marginBottom:22 }}>{message}</p>
+        <p style={{ fontSize:fs(14), color:C.text, lineHeight:1.65, marginBottom:22 }}>{message}</p>
         <div style={{ display:"flex", gap:8 }}>
           <Btn small onClick={onCancel} style={{ flex:1 }}>취소</Btn>
-          <button onClick={onConfirm} style={{ flex:1, padding:"10px 0", borderRadius:12, border:"none", background:`linear-gradient(135deg,${C.accent},#d4523a)`, color:"#fff", fontSize:13, fontWeight:700, fontFamily:FF, cursor:"pointer" }}>초기화</button>
+          <button onClick={onConfirm} style={{ flex:1, padding:"10px 0", borderRadius:12, border:"none", background:`linear-gradient(135deg,${C.accent},#d4523a)`, color:"#fff", fontSize:fs(13), fontWeight:700, fontFamily:FF, cursor:"pointer" }}>초기화</button>
         </div>
       </div>
     </div>
@@ -561,7 +578,7 @@ function BNav({ tab, setTab }) {
         return (
           <button key={t.id} onClick={() => setTab(t.id)} style={{ background:"none", border:"none", display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer", padding:"4px 12px", opacity:a?1:0.55 }}>
             <t.I a={a} />
-            <span style={{ fontSize:10, fontWeight:a?700:500, color:a?C.accent:C.muted, fontFamily:FF }}>{t.l}</span>
+            <span style={{ fontSize:fs(10), fontWeight:a?700:500, color:a?C.accent:C.muted, fontFamily:FF }}>{t.l}</span>
           </button>
         );
       })}
@@ -590,7 +607,7 @@ function R5RadarInner({ pr, result }) {
         {RK.map((k,i) => <line key={i} x1={cx} y1={cy} x2={cx+rd*Math.cos(sa+i*as)} y2={cy+rd*Math.sin(sa+i*as)} stroke={C.border} strokeWidth=".5" />)}
         <polygon points={pts.map(p => `${p.x},${p.y}`).join(" ")} fill={`${C.accent}20`} stroke={C.accent} strokeWidth="1.5" />
         {pts.map((p,i) => <circle key={i} cx={p.x} cy={p.y} r={p.k===pr?4:2.5} fill={p.k===pr?C.accent:C.dim} />)}
-        {lps.map((p,i) => <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize:9, fontWeight:p.k===pr?800:500, fill:p.k===pr?C.accent:C.dim, fontFamily:FF }}>{RS[p.k]}</text>)}
+        {lps.map((p,i) => <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize:fs(9), fontWeight:p.k===pr?800:500, fill:p.k===pr?C.accent:C.dim, fontFamily:FF }}>{RS[p.k]}</text>)}
       </svg>
     </div>
   );
@@ -634,10 +651,10 @@ function HistoryGraphInner({ history, actionLog }) {
   return (
     <Card>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-        <span style={{ fontSize:12, color:C.muted }}>가동성 변화 추이</span>
+        <span style={{ fontSize:fs(12), color:C.muted }}>가동성 변화 추이</span>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          {actionPts.length > 0 && <span style={{ display:"flex", alignItems:"center", gap:3, fontSize:9, color:C.green }}><svg width="6" height="6"><polygon points="3,0 6,6 0,6" fill={C.green}/></svg>실행</span>}
-          <span style={{ fontSize:10, color:C.muted }}>최근 {recent.length}회</span>
+          {actionPts.length > 0 && <span style={{ display:"flex", alignItems:"center", gap:3, fontSize:fs(9), color:C.green }}><svg width="6" height="6"><polygon points="3,0 6,6 0,6" fill={C.green}/></svg>실행</span>}
+          <span style={{ fontSize:fs(10), color:C.muted }}>최근 {recent.length}회</span>
         </div>
       </div>
       <div style={{ display:"flex", justifyContent:"center" }}>
@@ -649,14 +666,14 @@ function HistoryGraphInner({ history, actionLog }) {
           {actionPts.map((a,i) => (
             <g key={`a${i}`}>
               <polygon points={`${a.x},${a.y} ${a.x+4},${a.y+7} ${a.x-4},${a.y+7}`} fill={C.green} opacity={a.isPending ? 0.5 : 0.85} strokeDasharray={a.isPending ? "2,1" : "none"} stroke={a.isPending ? C.green : "none"} strokeWidth={a.isPending ? 0.5 : 0} />
-              {a.count > 1 && <><circle cx={a.x} cy={a.y-6} r={6} fill={C.green} /><text x={a.x} y={a.y-5.5} textAnchor="middle" dominantBaseline="middle" style={{ fontSize:7, fill:"#fff", fontWeight:700, fontFamily:FF }}>{a.count}</text></>}
+              {a.count > 1 && <><circle cx={a.x} cy={a.y-6} r={6} fill={C.green} /><text x={a.x} y={a.y-5.5} textAnchor="middle" dominantBaseline="middle" style={{ fontSize:fs(7), fill:"#fff", fontWeight:700, fontFamily:FF }}>{a.count}</text></>}
             </g>
           ))}
-          <text x={px} y={h-2} style={{ fontSize:8, fill:C.muted }}>{mn}%</text>
-          <text x={w-px} y={py-2} style={{ fontSize:8, fill:C.muted, textAnchor:"end" }}>{mx}%</text>
+          <text x={px} y={h-2} style={{ fontSize:fs(8), fill:C.muted }}>{mn}%</text>
+          <text x={w-px} y={py-2} style={{ fontSize:fs(8), fill:C.muted, textAnchor:"end" }}>{mx}%</text>
         </svg>
       </div>
-      {recent.length >= 2 && (() => { const last = recent[recent.length-1].avail, prev = recent[recent.length-2].avail, d = last - prev; return d !== 0 ? <p style={{ fontSize:11, color:d>0?C.green:C.red, marginTop:6, textAlign:"center" }}>직전 대비 {d>0?"+":""}{d}%</p> : null; })()}
+      {recent.length >= 2 && (() => { const last = recent[recent.length-1].avail, prev = recent[recent.length-2].avail, d = last - prev; return d !== 0 ? <p style={{ fontSize:fs(11), color:d>0?C.green:C.red, marginTop:6, textAlign:"center" }}>직전 대비 {d>0?"+":""}{d}%</p> : null; })()}
     </Card>
   );
 }
@@ -672,8 +689,8 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
       <div style={{ width:64, height:64, borderRadius:16, background:C.cardH, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:20 }}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
       </div>
-      <h2 style={{ fontSize:18, fontWeight:700, color:C.text, marginBottom:8 }}>아직 시스템 데이터가 없습니다</h2>
-      <p style={{ fontSize:13, color:C.dim, marginBottom:28, lineHeight:1.6 }}>먼저 2분 스캔으로 현재 감정 OS 상태를 확인하세요</p>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:8 }}>아직 시스템 데이터가 없습니다</h2>
+      <p style={{ fontSize:fs(13), color:C.dim, marginBottom:28, lineHeight:1.6 }}>먼저 2분 스캔으로 현재 감정 OS 상태를 확인하세요</p>
       <Btn primary onClick={onScan} style={{ maxWidth:280 }}>지금 스캔 시작하기</Btn>
     </div>
   );
@@ -693,8 +710,8 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
       {/* 헤더 */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
         <div>
-          <div style={{ fontSize:10, letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
-          <div style={{ fontSize:18, fontWeight:700, color:C.text, marginTop:2 }}>Kernel Dashboard</div>
+          <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
+          <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:2 }}>Kernel Dashboard</div>
         </div>
         {hs.isRc && hs.delta != null && <DBadge delta={hs.delta} />}
       </div>
@@ -702,14 +719,14 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
       {/* 가동성 카드 */}
       <Card accent={`${b.c}30`} style={{ background:b.bg }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-          <span style={{ fontSize:12, color:C.dim }}>시스템 가동성</span>
+          <span style={{ fontSize:fs(12), color:C.dim }}>시스템 가동성</span>
           <Badge text={b.l} color={b.c} />
         </div>
         <ANum value={hs.avail} color={b.c} size={28} suffix="%" />
         <MiniBar pct={hs.avail} color={b.c} h={6} />
-        <p style={{ fontSize:12, color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
-        {hs.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:11, fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
-        {hs.source === "recheck_overlay" && <p style={{ fontSize:10, color:C.muted, marginTop:6 }}>가동성은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
+        <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
+        {hs.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
+        {hs.source === "recheck_overlay" && <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>가동성은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
       </Card>
 
       <HistoryGraph history={hist} actionLog={actionLog} />
@@ -717,42 +734,42 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
       {/* 활성 패턴 */}
       <Card>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-          <span style={{ fontSize:12, color:C.muted }}>현재 활성 패턴</span>
-          {hs.source === "recheck_overlay" && <span style={{ fontSize:9, color:C.muted }}>Full Scan 기준</span>}
+          <span style={{ fontSize:fs(12), color:C.muted }}>현재 활성 패턴</span>
+          {hs.source === "recheck_overlay" && <span style={{ fontSize:fs(9), color:C.muted }}>Full Scan 기준</span>}
         </div>
         <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
-          <span style={{ fontSize:15, fontWeight:700, color:C.accent }}>{QL[hs.pq]}</span>
+          <span style={{ fontSize:fs(15), fontWeight:700, color:C.accent }}>{QL[hs.pq]}</span>
           <Badge text={hs.leak} color={C.blue} />
           <Badge text={RL[hs.r1]} color={C.purple} />
         </div>
-        {hs.mode && <p style={{ fontSize:12, color:C.dim, marginTop:8 }}><strong style={{ color:C.teal }}>{hs.mode}</strong> — {hs.modeD}</p>}
+        {hs.mode && <p style={{ fontSize:fs(12), color:C.dim, marginTop:8 }}><strong style={{ color:C.teal }}>{hs.mode}</strong> — {hs.modeD}</p>}
       </Card>
 
       {/* 스마트 폴백: 실행 직후 완충 → Hot Fix → Protocol → Practice */}
       {justCompleted ? (
         <Card accent={`${C.green}30`} style={{ background:`${C.green}05` }}>
-          <div style={{ fontSize:11, color:C.muted, marginBottom:6 }}>실행 완료</div>
-          <div style={{ fontSize:15, fontWeight:700, color:C.green, marginBottom:4 }}>잘했습니다</div>
-          <p style={{ fontSize:12, color:C.dim, lineHeight:1.6 }}>방금 실행한 패치의 효과가 안착하려면 잠시 시간이 필요합니다. 지금은 아무것도 하지 않고 현재 리듬을 유지하세요.</p>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>실행 완료</div>
+          <div style={{ fontSize:fs(15), fontWeight:700, color:C.green, marginBottom:4 }}>잘했습니다</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>방금 실행한 패치의 효과가 안착하려면 잠시 시간이 필요합니다. 지금은 아무것도 하지 않고 현재 리듬을 유지하세요.</p>
         </Card>
       ) : showExecTop ? (
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
-          <div style={{ fontSize:11, color:C.muted, marginBottom:6 }}>Quick Patch</div>
-          <div style={{ fontSize:15, fontWeight:700, color:C.teal, marginBottom:4 }}>{execTop.label}</div>
-          <p style={{ fontSize:12, color:C.dim, lineHeight:1.5 }}>{execTop.desc}</p>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>Quick Patch</div>
+          <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{execTop.label}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{execTop.desc}</p>
           <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:200 }} onClick={() => onTimer && onTimer(execTop.ref)}>{execTop.cta}</Btn></div>
         </Card>
       ) : homeProto ? (
         <Card accent={`${C.blue}20`} style={{ background:`${C.blue}05` }}>
-          <div style={{ fontSize:11, color:C.muted, marginBottom:6 }}>추천 Protocol</div>
-          <div style={{ fontSize:15, fontWeight:700, color:C.blue, marginBottom:4 }}>{homeProto.label}</div>
-          <p style={{ fontSize:12, color:C.dim, lineHeight:1.5 }}>{homeProto.desc}</p>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>추천 Protocol</div>
+          <div style={{ fontSize:fs(15), fontWeight:700, color:C.blue, marginBottom:4 }}>{homeProto.label}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{homeProto.desc}</p>
         </Card>
       ) : homePrac ? (
         <Card accent={`${C.teal}20`} style={{ background:`${C.teal}05` }}>
-          <div style={{ fontSize:11, color:C.muted, marginBottom:6 }}>추천 Practice</div>
-          <div style={{ fontSize:13, fontWeight:600, color:C.teal, marginBottom:4 }}>{homePrac.label}</div>
-          <p style={{ fontSize:12, color:C.dim, lineHeight:1.5 }}>{homePrac.desc}</p>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>추천 Practice</div>
+          <div style={{ fontSize:fs(13), fontWeight:600, color:C.teal, marginBottom:4 }}>{homePrac.label}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{homePrac.desc}</p>
         </Card>
       ) : null}
 
@@ -760,18 +777,18 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
       {recentActions.length > 0 && (
         <Card>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-            <span style={{ fontSize:11, fontWeight:700, color:C.green, letterSpacing:2, textTransform:"uppercase" }}>실행 이력</span>
-            <span style={{ fontSize:10, color:C.muted }}>최근 {recentActions.length}건</span>
+            <span style={{ fontSize:fs(11), fontWeight:700, color:C.green, letterSpacing:2, textTransform:"uppercase" }}>실행 이력</span>
+            <span style={{ fontSize:fs(10), color:C.muted }}>최근 {recentActions.length}건</span>
           </div>
           {recentActions.map((a,i) => (
             <div key={a.id||i} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderTop:i>0?`1px solid ${C.border}`:"none" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                 <div style={{ width:6, height:6, borderRadius:3, background:a.status==="cancelled"?C.amber:a.status==="unknown"?C.muted:C.green, flexShrink:0 }} />
-                <span style={{ fontSize:12, color:C.text }}>{a.label}</span>
-                {a.status==="cancelled" && <span style={{ fontSize:9, color:C.amber }}>중단</span>}
-                {a.status==="unknown" && <span style={{ fontSize:9, color:C.muted }}>기록 불완전</span>}
+                <span style={{ fontSize:fs(12), color:C.text }}>{a.label}</span>
+                {a.status==="cancelled" && <span style={{ fontSize:fs(9), color:C.amber }}>중단</span>}
+                {a.status==="unknown" && <span style={{ fontSize:fs(9), color:C.muted }}>기록 불완전</span>}
               </div>
-              <span style={{ fontSize:11, color:C.muted }}>{fmtTime(a.completedAt || a.cancelledAt || a.startedAt)}</span>
+              <span style={{ fontSize:fs(11), color:C.muted }}>{fmtTime(a.completedAt || a.cancelledAt || a.startedAt)}</span>
             </div>
           ))}
         </Card>
@@ -783,7 +800,7 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
         <Btn small onClick={onCp} style={{ flex:1 }}>Couple Sync (Beta)</Btn>
       </div>
       <div style={{ marginTop:12, textAlign:"center" }}>
-        <button onClick={onClear} style={{ background:"none", border:"none", fontSize:10, color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
+        <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
       </div>
     </div>
   );
@@ -817,19 +834,19 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
       <div style={{ maxWidth:460, width:"100%" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
           <Badge text={isRc ? "가동성 재점검" : "Full Scan"} color={C.accent} />
-          <span style={{ fontSize:12, color:C.muted }}>{idx+1} / {qs.length}</span>
+          <span style={{ fontSize:fs(12), color:C.muted }}>{idx+1} / {qs.length}</span>
         </div>
         <div style={{ width:"100%", height:3, background:C.border, borderRadius:2, overflow:"hidden", marginBottom:26 }}>
           <div style={{ width:`${((idx+1)/qs.length)*100}%`, height:"100%", background:C.accent, borderRadius:2, transition:"width 0.4s" }} />
         </div>
         <div ref={ref}>
-          <p style={{ fontSize:15, color:C.text, lineHeight:1.75, marginBottom:26, minHeight:54 }}>{q.p}</p>
+          <p style={{ fontSize:fs(15), color:C.text, lineHeight:1.75, marginBottom:26, minHeight:54 }}>{q.p}</p>
           <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
             {SCALE.map(o => {
               const sel = ans[idx] === o.v;
               return (
-                <button key={o.v} onClick={() => pick(o.v)} style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 16px", borderRadius:11, border:`1px solid ${sel?C.accent:C.border}`, background:sel?C.accentD:C.card, color:sel?C.text:C.dim, fontSize:14, fontFamily:FF, cursor:"pointer", textAlign:"left" }}>
-                  <span style={{ width:26, height:26, borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:sel?C.accent:C.muted, background:sel?`${C.accent}20`:C.border, flexShrink:0 }}>{o.v}</span>
+                <button key={o.v} onClick={() => pick(o.v)} style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 16px", borderRadius:11, border:`1px solid ${sel?C.accent:C.border}`, background:sel?C.accentD:C.card, color:sel?C.text:C.dim, fontSize:fs(14), fontFamily:FF, cursor:"pointer", textAlign:"left" }}>
+                  <span style={{ width:26, height:26, borderRadius:7, display:"flex", alignItems:"center", justifyContent:"center", fontSize:fs(12), fontWeight:700, color:sel?C.accent:C.muted, background:sel?`${C.accent}20`:C.border, flexShrink:0 }}>{o.v}</span>
                   {o.l}
                 </button>
               );
@@ -837,8 +854,8 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
           </div>
         </div>
         <div style={{ display:"flex", justifyContent:"space-between", marginTop:18 }}>
-          <button onClick={() => idx > 0 && setIdx(idx-1)} disabled={idx===0} style={{ padding:"6px 12px", borderRadius:6, border:`1px solid ${C.border}`, background:"transparent", color:idx===0?C.border:C.dim, fontSize:11, cursor:idx===0?"default":"pointer", fontFamily:FF }}>이전</button>
-          <span style={{ fontSize:10, color:C.muted }}>최근 2주 기준</span>
+          <button onClick={() => idx > 0 && setIdx(idx-1)} disabled={idx===0} style={{ padding:"6px 12px", borderRadius:6, border:`1px solid ${C.border}`, background:"transparent", color:idx===0?C.border:C.dim, fontSize:fs(11), cursor:idx===0?"default":"pointer", fontFamily:FF }}>이전</button>
+          <span style={{ fontSize:fs(10), color:C.muted }}>최근 2주 기준</span>
         </div>
       </div>
     </div>
@@ -851,23 +868,23 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
 function ScanTab({ result, onScan, onRc, onCp }) {
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:18, fontWeight:700, color:C.text, marginBottom:16 }}>Scan</h2>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:16 }}>Scan</h2>
       <Card onClick={onScan} style={{ cursor:"pointer" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.accentD, display:"flex", alignItems:"center", justifyContent:"center" }}><IS a /></div>
-          <div><div style={{ fontSize:14, fontWeight:700, color:C.text }}>New Full Scan</div><div style={{ fontSize:12, color:C.dim }}>21문항 · 약 2분</div></div>
+          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>New Full Scan</div><div style={{ fontSize:fs(12), color:C.dim }}>21문항 · 약 2분</div></div>
         </div>
       </Card>
       <Card onClick={result?onRc:null} style={{ cursor:result?"pointer":"default", opacity:result?1:0.4 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.tealD, display:"flex", alignItems:"center", justifyContent:"center" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.teal} strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>
-          <div><div style={{ fontSize:14, fontWeight:700, color:C.text }}>가동성 재점검</div><div style={{ fontSize:12, color:C.dim }}>{result ? "3~5문항 · 현재 가동성 오버레이" : "Full Scan을 먼저 진행하세요"}</div></div>
+          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>가동성 재점검</div><div style={{ fontSize:fs(12), color:C.dim }}>{result ? "3~5문항 · 현재 가동성 오버레이" : "Full Scan을 먼저 진행하세요"}</div></div>
         </div>
       </Card>
       <Card onClick={onCp} style={{ cursor:"pointer" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.blueD, display:"flex", alignItems:"center", justifyContent:"center" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-          <div><div style={{ fontSize:14, fontWeight:700, color:C.text }}>Couple Sync <span style={{ fontSize:11, color:C.amber, fontWeight:600 }}>(Beta)</span></div><div style={{ fontSize:12, color:C.dim }}>미리보기 모드 · 연결 엔진 준비 중</div></div>
+          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>Couple Sync <span style={{ fontSize:fs(11), color:C.amber, fontWeight:600 }}>(Beta)</span></div><div style={{ fontSize:fs(12), color:C.dim }}>미리보기 모드 · 연결 엔진 준비 중</div></div>
         </div>
       </Card>
     </div>
@@ -883,8 +900,8 @@ function ActionTab({ result, onTimer, actionLog }) {
 
   if (!result) return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:18, fontWeight:700, color:C.text, marginBottom:8 }}>Action</h2>
-      <p style={{ fontSize:13, color:C.dim, lineHeight:1.6 }}>스캔 결과가 있어야 맞춤형 패치를 추천할 수 있습니다.</p>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:8 }}>Action</h2>
+      <p style={{ fontSize:fs(13), color:C.dim, lineHeight:1.6 }}>스캔 결과가 있어야 맞춤형 패치를 추천할 수 있습니다.</p>
     </div>
   );
 
@@ -901,25 +918,25 @@ function ActionTab({ result, onTimer, actionLog }) {
 
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:18, fontWeight:700, color:C.text, marginBottom:4 }}>Action</h2>
-      <p style={{ fontSize:12, color:C.dim, marginBottom:18 }}>현재 상태에 맞는 개입을 실행하세요</p>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Action</h2>
+      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:18 }}>현재 상태에 맞는 개입을 실행하세요</p>
 
       {/* 실행 가능 Hot Fix */}
       {execFx.length > 0 && <>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-          <span style={{ fontSize:11, fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase" }}>Hot Fix</span>
-          <span style={{ fontSize:10, color:C.muted }}>실행 가능 {execFx.length}개</span>
+          <span style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase" }}>Hot Fix</span>
+          <span style={{ fontSize:fs(10), color:C.muted }}>실행 가능 {execFx.length}개</span>
         </div>
         {execFx.map(f => (
           <Card key={f.ref} accent={`${C.accent}30`} style={{ background:`${C.accent}05` }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-              <span style={{ fontSize:14, fontWeight:700, color:C.accent }}>{f.label}</span>
+              <span style={{ fontSize:fs(14), fontWeight:700, color:C.accent }}>{f.label}</span>
               <div style={{ display:"flex", gap:6, alignItems:"center" }}>
                 {wasExecuted(f.ref) && <Badge text="✓ 실행됨" color={C.green} />}
                 <Badge text="최우선" color={C.accent} />
               </div>
             </div>
-            <p style={{ fontSize:12, color:C.dim, lineHeight:1.5, marginBottom:10 }}>{f.desc}</p>
+            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:10 }}>{f.desc}</p>
             <Btn primary small onClick={() => onTimer && onTimer(f.ref)}>{f.cta}</Btn>
           </Card>
         ))}
@@ -928,29 +945,29 @@ function ActionTab({ result, onTimer, actionLog }) {
       {/* Protocol */}
       {!hi && proto && <>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:execFx.length>0?18:0, marginBottom:8 }}>
-          <span style={{ fontSize:11, fontWeight:700, color:C.blue, letterSpacing:2, textTransform:"uppercase" }}>Protocol</span>
-          <span style={{ fontSize:10, color:C.muted }}>자동 1개</span>
+          <span style={{ fontSize:fs(11), fontWeight:700, color:C.blue, letterSpacing:2, textTransform:"uppercase" }}>Protocol</span>
+          <span style={{ fontSize:fs(10), color:C.muted }}>자동 1개</span>
         </div>
         <Card accent={`${C.blue}20`}>
-          <div style={{ fontSize:14, fontWeight:700, color:C.text, marginBottom:4 }}>{proto.label}</div>
-          <p style={{ fontSize:12, color:C.dim, lineHeight:1.6 }}>{proto.desc}</p>
+          <div style={{ fontSize:fs(14), fontWeight:700, color:C.text, marginBottom:4 }}>{proto.label}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>{proto.desc}</p>
         </Card>
       </>}
 
       {/* Practice */}
       {!hi && prac && <>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:18, marginBottom:8 }}>
-          <span style={{ fontSize:11, fontWeight:700, color:C.teal, letterSpacing:2, textTransform:"uppercase" }}>Practice</span>
-          <span style={{ fontSize:10, color:C.muted }}>추천 {1+extra.length}개</span>
+          <span style={{ fontSize:fs(11), fontWeight:700, color:C.teal, letterSpacing:2, textTransform:"uppercase" }}>Practice</span>
+          <span style={{ fontSize:fs(10), color:C.muted }}>추천 {1+extra.length}개</span>
         </div>
         <Card accent={`${C.teal}20`}>
-          <div style={{ fontSize:13, fontWeight:600, color:C.text, marginBottom:4 }}>{prac.label}</div>
-          <p style={{ fontSize:12, color:C.dim, lineHeight:1.5 }}>{prac.desc}</p>
+          <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{prac.label}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{prac.desc}</p>
         </Card>
         {extra.map(e => (
           <Card key={e.ref}>
-            <div style={{ fontSize:13, fontWeight:600, color:C.text, marginBottom:4 }}>{e.label}</div>
-            <p style={{ fontSize:12, color:C.dim, lineHeight:1.5 }}>{e.desc}</p>
+            <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{e.label}</div>
+            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{e.desc}</p>
           </Card>
         ))}
       </>}
@@ -960,9 +977,9 @@ function ActionTab({ result, onTimer, actionLog }) {
         <Accordion title={`추천 패치 ${pendFx.length}개 (준비 중)`}>
           {pendFx.map(f => (
             <div key={f.ref} style={{ marginBottom:10 }}>
-              <div style={{ fontSize:13, fontWeight:600, color:C.text, marginBottom:3 }}>{f.label}</div>
-              <p style={{ fontSize:12, color:C.dim, lineHeight:1.5, marginBottom:4 }}>{f.desc}</p>
-              <p style={{ fontSize:10, color:C.muted }}>다음 버전에서 실행형으로 연결됩니다.</p>
+              <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:3 }}>{f.label}</div>
+              <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:4 }}>{f.desc}</p>
+              <p style={{ fontSize:fs(10), color:C.muted }}>다음 버전에서 실행형으로 연결됩니다.</p>
             </div>
           ))}
         </Accordion>
@@ -972,18 +989,18 @@ function ActionTab({ result, onTimer, actionLog }) {
       {recentActs.length > 0 && (
         <Card style={{ marginTop:8 }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-            <span style={{ fontSize:11, fontWeight:700, color:C.green, letterSpacing:2, textTransform:"uppercase" }}>실행 이력</span>
-            <span style={{ fontSize:10, color:C.muted }}>최근 {recentActs.length}건</span>
+            <span style={{ fontSize:fs(11), fontWeight:700, color:C.green, letterSpacing:2, textTransform:"uppercase" }}>실행 이력</span>
+            <span style={{ fontSize:fs(10), color:C.muted }}>최근 {recentActs.length}건</span>
           </div>
           {recentActs.map((a,i) => (
             <div key={a.id||i} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderTop:i>0?`1px solid ${C.border}`:"none" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                 <div style={{ width:6, height:6, borderRadius:3, background:a.status==="cancelled"?C.amber:a.status==="unknown"?C.muted:C.green, flexShrink:0 }} />
-                <span style={{ fontSize:12, color:C.text }}>{a.label}</span>
-                {a.status==="cancelled" && <span style={{ fontSize:9, color:C.amber }}>중단</span>}
-                {a.status==="unknown" && <span style={{ fontSize:9, color:C.muted }}>기록 불완전</span>}
+                <span style={{ fontSize:fs(12), color:C.text }}>{a.label}</span>
+                {a.status==="cancelled" && <span style={{ fontSize:fs(9), color:C.amber }}>중단</span>}
+                {a.status==="unknown" && <span style={{ fontSize:fs(9), color:C.muted }}>기록 불완전</span>}
               </div>
-              <span style={{ fontSize:11, color:C.muted }}>{fmtTime(a.completedAt || a.cancelledAt || a.startedAt)}</span>
+              <span style={{ fontSize:fs(11), color:C.muted }}>{fmtTime(a.completedAt || a.cancelledAt || a.startedAt)}</span>
             </div>
           ))}
         </Card>
@@ -991,7 +1008,7 @@ function ActionTab({ result, onTimer, actionLog }) {
 
       <div style={{ marginTop:18 }}>
         <a href={NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-          <Card style={{ textAlign:"center", cursor:"pointer" }}><span style={{ fontSize:13, color:C.dim }}>전체 Patch 라이브러리 →</span></Card>
+          <Card style={{ textAlign:"center", cursor:"pointer" }}><span style={{ fontSize:fs(13), color:C.dim }}>전체 Patch 라이브러리 →</span></Card>
         </a>
       </div>
     </div>
@@ -1005,23 +1022,23 @@ function LibTab() {
   const cc = { "핵심 프레임":C.accent, "진단 체계":C.blue, "OS 영역":C.teal, "심화 주제":C.purple, "실전 도구":C.amber };
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:18, fontWeight:700, color:C.text, marginBottom:4 }}>Library</h2>
-      <p style={{ fontSize:12, color:C.dim, marginBottom:20 }}>감정공학 백과사전 · 탭하면 노션 문서로 이동합니다</p>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Library</h2>
+      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:20 }}>감정공학 백과사전 · 탭하면 노션 문서로 이동합니다</p>
       {LCATS.map(cat => {
         const items = LIB.filter(i => i.cat === cat);
         if (!items.length) return null;
         return (
           <div key={cat} style={{ marginBottom:22 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:cc[cat]||C.dim, letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>{cat}</div>
+            <div style={{ fontSize:fs(11), fontWeight:700, color:cc[cat]||C.dim, letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>{cat}</div>
             {items.map(item => (
               <a key={item.title} href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}>
                 <Card style={{ cursor:"pointer" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:14, fontWeight:700, color:C.text, marginBottom:3 }}>{item.title}</div>
-                      <p style={{ fontSize:12, color:C.dim, margin:0 }}>{item.desc}</p>
+                      <div style={{ fontSize:fs(14), fontWeight:700, color:C.text, marginBottom:3 }}>{item.title}</div>
+                      <p style={{ fontSize:fs(12), color:C.dim, margin:0 }}>{item.desc}</p>
                     </div>
-                    <span style={{ fontSize:14, color:C.muted, marginLeft:8 }}>→</span>
+                    <span style={{ fontSize:fs(14), color:C.muted, marginLeft:8 }}>→</span>
                   </div>
                 </Card>
               </a>
@@ -1042,27 +1059,27 @@ function Result({ result, onDone, isRc }) {
   return (
     <div style={{ padding:"28px 16px 100px", maxWidth:500, margin:"0 auto" }}>
       <div style={{ textAlign:"center", marginBottom:22 }}>
-        <div style={{ fontSize:10, letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
-        <h1 style={{ fontSize:20, fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동성 재점검 결과" : "진단 결과"}</h1>
-        <p style={{ fontSize:12, color:C.muted, marginTop:4 }}>최근 2주 기준 시스템 운영 상태</p>
-        {isRc && result.delta != null && <div style={{ marginTop:10 }}><DBadge delta={result.delta} big /><p style={{ fontSize:10, color:C.muted, marginTop:4 }}>{result.baselineType === "recheck" ? "직전 재점검 대비" : "풀 스캔 대비"}</p></div>}
+        <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
+        <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동성 재점검 결과" : "진단 결과"}</h1>
+        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 기준 시스템 운영 상태</p>
+        {isRc && result.delta != null && <div style={{ marginTop:10 }}><DBadge delta={result.delta} big /><p style={{ fontSize:fs(10), color:C.muted, marginTop:4 }}>{result.baselineType === "recheck" ? "직전 재점검 대비" : "풀 스캔 대비"}</p></div>}
       </div>
       <Card accent={`${b.c}30`} style={{ background:b.bg }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}><span style={{ fontSize:12, color:C.dim }}>시스템 가동성</span><Badge text={b.l} color={b.c} /></div>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}><span style={{ fontSize:fs(12), color:C.dim }}>시스템 가동성</span><Badge text={b.l} color={b.c} /></div>
         <ANum value={result.avail} color={b.c} size={26} suffix="%" />
         <MiniBar pct={result.avail} color={b.c} h={6} />
-        <p style={{ fontSize:12, color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
-        <p style={{ fontSize:11, color:C.muted, marginTop:4, lineHeight:1.5 }}>{b.sub}</p>
-        {result.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:11, fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
+        <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
+        <p style={{ fontSize:fs(11), color:C.muted, marginTop:4, lineHeight:1.5 }}>{b.sub}</p>
+        {result.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
       </Card>
-      <Card><div style={{ fontSize:12, color:C.muted, marginBottom:8 }}>핵심 패턴</div><p style={{ fontSize:14, color:C.text, lineHeight:1.6 }}>현재 시스템에는 <strong style={{ color:C.accent }}>{QL[result.pq]} 누수 패턴</strong>이 가장 강하게 활성화되어 있습니다.</p><p style={{ fontSize:13, color:C.dim, marginTop:4 }}>보조: {QL[result.sq]}</p><p style={{ fontSize:11, color:C.muted, marginTop:8 }}>성격 판정이 아니라, 현재 에너지가 어떤 방식으로 새고 있는지 보여 주는 운영 상태입니다.</p></Card>
-      <Accordion title="Q유형 점수 분포" defaultOpen={!hi}>{Object.entries(result.nm).sort((a,b) => b[1]-a[1]).map(([k,v]) => (<div key={k} style={{ marginBottom:6 }}><div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div><MiniBar pct={v} color={k===result.pq?C.accent:k===result.sq?C.blue:C.borderL} h={4} /></div>))}</Accordion>
-      <Card><div style={{ fontSize:12, color:C.muted, marginBottom:8 }}>병목 진단</div><div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div><R5Radar pr={result.r1} result={result} /><p style={{ fontSize:12, color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p><p style={{ fontSize:12, color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p></Card>
-      <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}><div style={{ fontSize:12, color:C.muted, marginBottom:6 }}>추천 운영 자세</div><div style={{ fontSize:16, fontWeight:700, color:C.teal, marginBottom:4 }}>{result.mode}</div><p style={{ fontSize:12, color:C.dim, lineHeight:1.5 }}>{result.modeD}</p><p style={{ fontSize:10, color:C.muted, marginTop:8 }}>성격을 바꾸라는 뜻이 아니라, 지금 시스템을 덜 망가지게 운영하기 위한 임시 자세입니다.</p></Card>
-      <Card><div style={{ fontSize:12, color:C.muted, marginBottom:8 }}>연결 Bug / Patch</div><a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:6, fontSize:12, color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span><span style={{ color:C.accent, fontWeight:600, marginRight:6, fontSize:11 }}>{result.bug}</span>{result.bugL}</span><span style={{ color:C.muted, fontSize:11 }}>→</span></div></a><a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:12, color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>→ {result.patchL}</span><span style={{ color:C.muted, fontSize:11 }}>→</span></div></a><p style={{ fontSize:10, color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p></Card>
-      <Card><p style={{ fontSize:12, color:C.dim, lineHeight:1.7 }}>{hi ? b.act : "반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p><p style={{ fontSize:11, color:C.muted, marginTop:8 }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p><div style={{ display:"flex", gap:6, marginTop:12, flexWrap:"wrap" }}><a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a><a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>{hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}</div></Card>
+      <Card><div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>핵심 패턴</div><p style={{ fontSize:fs(14), color:C.text, lineHeight:1.6 }}>현재 시스템에는 <strong style={{ color:C.accent }}>{QL[result.pq]} 누수 패턴</strong>이 가장 강하게 활성화되어 있습니다.</p><p style={{ fontSize:fs(13), color:C.dim, marginTop:4 }}>보조: {QL[result.sq]}</p><p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>성격 판정이 아니라, 현재 에너지가 어떤 방식으로 새고 있는지 보여 주는 운영 상태입니다.</p></Card>
+      <Accordion title="Q유형 점수 분포" defaultOpen={!hi}>{Object.entries(result.nm).sort((a,b) => b[1]-a[1]).map(([k,v]) => (<div key={k} style={{ marginBottom:6 }}><div style={{ display:"flex", justifyContent:"space-between", fontSize:fs(11), color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div><MiniBar pct={v} color={k===result.pq?C.accent:k===result.sq?C.blue:C.borderL} h={4} /></div>))}</Accordion>
+      <Card><div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>병목 진단</div><div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div><R5Radar pr={result.r1} result={result} /><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p></Card>
+      <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}><div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 자세</div><div style={{ fontSize:fs(16), fontWeight:700, color:C.teal, marginBottom:4 }}>{result.mode}</div><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{result.modeD}</p><p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>성격을 바꾸라는 뜻이 아니라, 지금 시스템을 덜 망가지게 운영하기 위한 임시 자세입니다.</p></Card>
+      <Card><div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>연결 Bug / Patch</div><a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:6, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span><span style={{ color:C.accent, fontWeight:600, marginRight:6, fontSize:fs(11) }}>{result.bug}</span>{result.bugL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a><a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>→ {result.patchL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a><p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p></Card>
+      <Card><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.7 }}>{hi ? b.act : "반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p><p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p><div style={{ display:"flex", gap:6, marginTop:12, flexWrap:"wrap" }}><a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a><a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>{hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}</div></Card>
       <ShareBtn result={result} />
-      {isRc && <Card style={{ background:`${C.teal}05`, border:`1px solid ${C.teal}15` }}><p style={{ fontSize:11, color:C.dim, lineHeight:1.7, margin:0 }}>재점검은 핵심 패턴을 다시 분류하지 않습니다. 최근 Full Scan을 기준축으로 유지한 채, 현재 가동성 변화만 다시 확인합니다.</p></Card>}
+      {isRc && <Card style={{ background:`${C.teal}05`, border:`1px solid ${C.teal}15` }}><p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.7, margin:0 }}>재점검은 핵심 패턴을 다시 분류하지 않습니다. 최근 Full Scan을 기준축으로 유지한 채, 현재 가동성 변화만 다시 확인합니다.</p></Card>}
       <Btn primary onClick={onDone}>Dashboard로 돌아가기</Btn>
     </div>
   );
@@ -1077,8 +1094,8 @@ function Loading({ msg }) {
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", textAlign:"center", padding:40 }}>
       <div style={{ width:40, height:40, border:`3px solid ${C.border}`, borderTop:`3px solid ${C.accent}`, borderRadius:"50%", animation:"esSpin 1s linear infinite", marginBottom:20 }} />
-      <p style={{ fontSize:14, color:C.text }}>{msg}{d}</p>
-      <p style={{ fontSize:11, color:C.muted, marginTop:6 }}>성격 판정이 아닌 운영 상태 요약입니다.</p>
+      <p style={{ fontSize:fs(14), color:C.text }}>{msg}{d}</p>
+      <p style={{ fontSize:fs(11), color:C.muted, marginTop:6 }}>성격 판정이 아닌 운영 상태 요약입니다.</p>
     </div>
   );
 }
@@ -1089,31 +1106,31 @@ function Loading({ msg }) {
 function Couple({ onBack }) {
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
-      <div style={{ fontSize:10, letterSpacing:4, color:C.blue, textTransform:"uppercase", fontWeight:700, marginBottom:16 }}>Couple OS <span style={{ color:C.amber }}>(Beta)</span></div>
-      <h2 style={{ fontSize:20, fontWeight:700, color:C.text, marginBottom:16 }}>파트너 연결 미리보기</h2>
+      <div style={{ fontSize:fs(10), letterSpacing:4, color:C.blue, textTransform:"uppercase", fontWeight:700, marginBottom:16 }}>Couple OS <span style={{ color:C.amber }}>(Beta)</span></div>
+      <h2 style={{ fontSize:fs(20), fontWeight:700, color:C.text, marginBottom:16 }}>파트너 연결 미리보기</h2>
 
       <Card accent={`${C.blue}30`} style={{ background:`${C.blue}06`, maxWidth:340, width:"100%" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
-          <div style={{ fontSize:15, fontWeight:700, color:C.text }}>Couple Sync <span style={{ fontSize:11, color:C.amber, fontWeight:600 }}>(Beta)</span></div>
+          <div style={{ fontSize:fs(15), fontWeight:700, color:C.text }}>Couple Sync <span style={{ fontSize:fs(11), color:C.amber, fontWeight:600 }}>(Beta)</span></div>
           <Badge text="Preview" color={C.amber} />
         </div>
-        <p style={{ fontSize:13, color:C.dim, lineHeight:1.65, marginBottom:10 }}>현재는 관계 연결 흐름을 소개하는 미리보기 화면입니다. 실시간 코드 매칭, 파트너 인증, 결과 병합 분석은 백엔드 엔진 탑재 후 제공됩니다.</p>
+        <p style={{ fontSize:fs(13), color:C.dim, lineHeight:1.65, marginBottom:10 }}>현재는 관계 연결 흐름을 소개하는 미리보기 화면입니다. 실시간 코드 매칭, 파트너 인증, 결과 병합 분석은 백엔드 엔진 탑재 후 제공됩니다.</p>
         <div style={{ padding:"12px 14px", borderRadius:12, background:C.cardH, border:`1px dashed ${C.borderL}` }}>
-          <div style={{ fontSize:11, color:C.muted, marginBottom:6 }}>예시 연결 코드</div>
-          <div style={{ fontSize:20, fontWeight:800, color:C.blue, letterSpacing:3 }}>A7K2P1</div>
-          <p style={{ fontSize:11, color:C.muted, marginTop:8, lineHeight:1.5 }}>실제 매칭 기능은 아직 비활성 상태입니다. 현재는 향후 연결 UX를 미리 보는 단계입니다.</p>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>예시 연결 코드</div>
+          <div style={{ fontSize:fs(20), fontWeight:800, color:C.blue, letterSpacing:3 }}>A7K2P1</div>
+          <p style={{ fontSize:fs(11), color:C.muted, marginTop:8, lineHeight:1.5 }}>실제 매칭 기능은 아직 비활성 상태입니다. 현재는 향후 연결 UX를 미리 보는 단계입니다.</p>
         </div>
       </Card>
 
       <Card style={{ maxWidth:300, width:"100%", marginTop:4 }}>
-        <div style={{ fontSize:13, fontWeight:600, color:C.text, marginBottom:6 }}>향후 구현 예시</div>
-        <div style={{ fontSize:12, color:C.dim, lineHeight:1.7 }}>
+        <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:6 }}>향후 구현 예시</div>
+        <div style={{ fontSize:fs(12), color:C.dim, lineHeight:1.7 }}>
           1. 두 사람 모두 개인 Full Scan 완료<br/>
           2. 코드 기반 매칭 시스템 (구현 예정)<br/>
           3. 병합 리포트 자동 생성 (구현 예정)<br/>
           4. 관계 패턴 요약 제공 (구현 예정)
         </div>
-        <p style={{ fontSize:10, color:C.muted, marginTop:8 }}>위 흐름은 개발 예정 기능이며, 현재는 동작하지 않습니다.</p>
+        <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>위 흐름은 개발 예정 기능이며, 현재는 동작하지 않습니다.</p>
       </Card>
 
       <div style={{ display:"flex", gap:8, marginTop:12, maxWidth:300, width:"100%" }}>
@@ -1121,9 +1138,9 @@ function Couple({ onBack }) {
         <Btn small disabled style={{ flex:1 }}>병합 분석 예고</Btn>
       </div>
       <div style={{ marginTop:12, padding:"10px 16px", borderRadius:10, background:C.cardH, border:`1px solid ${C.border}`, maxWidth:300, width:"100%" }}>
-        <p style={{ fontSize:11, color:C.dim, margin:0, textAlign:"center", lineHeight:1.5 }}>Couple Sync 정식 버전은 현재 <strong style={{ color:C.blue }}>출시 준비 중</strong>입니다.</p>
+        <p style={{ fontSize:fs(11), color:C.dim, margin:0, textAlign:"center", lineHeight:1.5 }}>Couple Sync 정식 버전은 현재 <strong style={{ color:C.blue }}>출시 준비 중</strong>입니다.</p>
       </div>
-      <p style={{ fontSize:11, color:C.muted, marginTop:16, maxWidth:300, lineHeight:1.5 }}>상대의 상세 점수는 직접 노출되지 않으며, 관계 상태 요약만 제공됩니다.</p>
+      <p style={{ fontSize:fs(11), color:C.muted, marginTop:16, maxWidth:300, lineHeight:1.5 }}>상대의 상세 점수는 직접 노출되지 않으며, 관계 상태 요약만 제공됩니다.</p>
       <div style={{ marginTop:16, maxWidth:300, width:"100%" }}><Btn small onClick={onBack}>돌아가기</Btn></div>
     </div>
   );
@@ -1153,18 +1170,18 @@ function TimerScreen({ timer, onComplete, onCancel }) {
 
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
-      <div style={{ fontSize:10, letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700, marginBottom:24 }}>Emotion OS</div>
-      <h2 style={{ fontSize:22, fontWeight:800, color:C.text, marginBottom:8 }}>{timer.label}</h2>
-      <p style={{ fontSize:13, color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>아무것도 해결하려 하지 말고,<br/>호흡만 느끼세요.</p>
+      <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700, marginBottom:24 }}>Emotion OS</div>
+      <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, marginBottom:8 }}>{timer.label}</h2>
+      <p style={{ fontSize:fs(13), color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>아무것도 해결하려 하지 말고,<br/>호흡만 느끼세요.</p>
       <div style={{ position:"relative", width:200, height:200, marginBottom:32 }}>
         <svg width="200" height="200" viewBox="0 0 200 200" style={{ transform:"rotate(-90deg)" }}>
           <circle cx="100" cy="100" r={circR} fill="none" stroke={C.border} strokeWidth="4" />
           <circle cx="100" cy="100" r={circR} fill="none" stroke={done?C.green:C.accent} strokeWidth="4" strokeLinecap="round" strokeDasharray={circC} strokeDashoffset={circC * (1 - pct/100)} style={{ transition:"stroke-dashoffset 0.3s ease, stroke 0.3s" }} />
         </svg>
         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-          <span style={{ fontSize:42, fontWeight:800, color:done?C.green:C.text, fontFamily:FF }}>{mm}:{ss}</span>
-          {!done && <span style={{ fontSize:11, color:C.muted, marginTop:4 }}>남은 시간</span>}
-          {done && <span style={{ fontSize:12, color:C.green, marginTop:4, fontWeight:600 }}>완료!</span>}
+          <span style={{ fontSize:fs(42), fontWeight:800, color:done?C.green:C.text, fontFamily:FF }}>{mm}:{ss}</span>
+          {!done && <span style={{ fontSize:fs(11), color:C.muted, marginTop:4 }}>남은 시간</span>}
+          {done && <span style={{ fontSize:fs(12), color:C.green, marginTop:4, fontWeight:600 }}>완료!</span>}
         </div>
       </div>
       {!done && <Btn small onClick={onCancel} style={{ maxWidth:200, marginBottom:8 }}>중단하기</Btn>}
@@ -1175,7 +1192,7 @@ function TimerScreen({ timer, onComplete, onCancel }) {
 
 // ═══ M8: APP ═════════════════════════════════════════════════════
 // M8: APP — 메인 앱 (상태 관리 + 라우팅)
-// EMOTION OS v4.2
+// EMOTION OS v4.3
 
 function EmotionOSApp() {
   const [tab, setTab] = useState("home");
@@ -1314,10 +1331,10 @@ class ErrorBoundary extends React.Component {
     if (!this.state.hasError) return this.props.children;
     return (
       <div style={{ fontFamily:`'Pretendard',-apple-system,sans-serif`, background:"#060a14", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 24px", textAlign:"center" }}>
-        <div style={{ fontSize:28, marginBottom:16 }}>⚠️</div>
-        <h2 style={{ fontSize:18, fontWeight:700, color:"#e8ecf4", marginBottom:8 }}>시스템 오류가 발생했습니다</h2>
-        <p style={{ fontSize:13, color:"#8b95a8", lineHeight:1.6, marginBottom:24, maxWidth:280 }}>저장 데이터에 문제가 있을 수 있습니다.<br/>초기화하면 정상 작동합니다.</p>
-        <button onClick={() => { try { ["emotion-os-v4","emotion-os-v3","emotion-os-v2","emotion-os-v1","emotion-os-v4-actionlog","emotion-os-v3-actionlog","emotion-os-actionlog"].forEach(k => localStorage.removeItem(k)); } catch(e) {} window.location.reload(); }} style={{ padding:"12px 28px", borderRadius:12, border:"none", background:"linear-gradient(135deg,#e8654a,#d4523a)", color:"#fff", fontSize:14, fontWeight:700, cursor:"pointer" }}>
+        <div style={{ fontSize:fs(28), marginBottom:16 }}>⚠️</div>
+        <h2 style={{ fontSize:fs(18), fontWeight:700, color:"#e8ecf4", marginBottom:8 }}>시스템 오류가 발생했습니다</h2>
+        <p style={{ fontSize:fs(13), color:"#8b95a8", lineHeight:1.6, marginBottom:24, maxWidth:280 }}>저장 데이터에 문제가 있을 수 있습니다.<br/>초기화하면 정상 작동합니다.</p>
+        <button onClick={() => { try { ["emotion-os-v4","emotion-os-v3","emotion-os-v2","emotion-os-v1","emotion-os-v4-actionlog","emotion-os-v3-actionlog","emotion-os-actionlog"].forEach(k => localStorage.removeItem(k)); } catch(e) {} window.location.reload(); }} style={{ padding:"12px 28px", borderRadius:12, border:"none", background:"linear-gradient(135deg,#e8654a,#d4523a)", color:"#fff", fontSize:fs(14), fontWeight:700, cursor:"pointer" }}>
           데이터 초기화 후 재시작
         </button>
       </div>
