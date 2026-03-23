@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   EMOTION OS v4.3.0 — Standalone (Auto-generated)
+   EMOTION OS v4.6.0 — Standalone (Auto-generated)
    Haru-Tech Lab
 
    ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
    수정은 src/ 모듈에서 먼저 하고, 이 스크립트로 재생성하세요.
-   생성 시각: 2026-03-23T07:18:42.961Z
+   생성 시각: 2026-03-23T11:49:37.997Z
    ═══════════════════════════════════════════════════════════════════ */
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -171,9 +171,9 @@ const C = {
 
 const BAND = {
   stable:   { l:"안정",   c:C.green, bg:`${C.green}06`, d:"현재 시스템은 비교적 안정적으로 작동하고 있습니다.", sub:"특정 상황에서 누수 패턴이 다시 활성화될 수 있으므로 현재 리듬을 유지하는 것이 좋습니다.", act:"패턴을 미리 이해해두면 다음 과열을 더 빨리 막을 수 있습니다." },
-  caution:  { l:"주의",   c:C.amber, bg:`${C.amber}06`, d:"피로 신호가 감지되기 시작했습니다.", sub:"아직 전면 과부하는 아니지만, 같은 패턴이 반복되면 가동성이 빠르게 떨어질 수 있습니다.", act:"지금 결과를 조기 경고 신호로 활용하는 것이 좋습니다." },
-  low:      { l:"저하",   c:C.accent, bg:`${C.accent}05`, d:"시스템 가동성이 눈에 띄게 떨어진 상태입니다.", sub:"회복보다 버티기가 앞서고 있을 가능성이 높습니다.", act:"지금은 해석보다 부하 완화와 회복 확보가 우선입니다." },
-  overload: { l:"과부하", c:C.red, bg:`${C.red}05`, d:"시스템이 과열 또는 저전력 상태에 가깝습니다.", sub:"좋은 조언도 잘 들어오지 않을 수 있습니다.", act:"문제 해결보다 먼저 가동성 회복이 필요합니다." },
+  caution:  { l:"주의",   c:C.amber, bg:`${C.amber}06`, d:"피로 신호가 감지되기 시작했습니다.", sub:"아직 전면 과부하는 아니지만, 같은 패턴이 반복되면 가동률이 빠르게 떨어질 수 있습니다.", act:"지금 결과를 조기 경고 신호로 활용하는 것이 좋습니다." },
+  low:      { l:"저하",   c:C.accent, bg:`${C.accent}05`, d:"시스템 가동률이 눈에 띄게 떨어진 상태입니다.", sub:"회복보다 버티기가 앞서고 있을 가능성이 높습니다.", act:"지금은 해석보다 부하 완화와 회복 확보가 우선입니다." },
+  overload: { l:"과부하", c:C.red, bg:`${C.red}05`, d:"시스템이 과열 또는 저전력 상태에 가깝습니다.", sub:"좋은 조언도 잘 들어오지 않을 수 있습니다.", act:"문제 해결보다 먼저 가동률 회복이 필요합니다." },
 };
 
 // ═══ M3: ENGINE ══════════════════════════════════════════════════
@@ -298,6 +298,92 @@ function deriveHS(fs, lr) {
   };
 }
 
+// ═══ M3-b: LIVE METRICS ══════════════════════════════════════════
+// 체감 척도 엔진 — 가동률을 사용자 피부 언어로 번역
+
+const LIVE_LABELS = {
+  fatigue:      ["매우 낮음", "낮음", "보통", "높음", "매우 높음"],
+  productivity: ["몰입 가능", "무난", "흔들림", "저하", "회복 우선"],
+  friction:     ["안정", "약간 민감", "주의", "높음", "매우 높음"],
+};
+
+const LIVE_TONES = {
+  green:  { bg:"#0d2818", fg:"#34D399", border:"#166534" },
+  yellow: { bg:"#1a1a06", fg:"#F5A623", border:"#6b5c10" },
+  orange: { bg:"#1a0f06", fg:"#E8654A", border:"#7c3318" },
+  red:    { bg:"#1a0808", fg:"#EF4444", border:"#7f1d1d" },
+};
+
+function clamp(n, min = 0, max = 4) { return Math.max(min, Math.min(max, n)); }
+function safePQ(result) { return result?.pq || "Q1"; }
+
+function deriveLiveMetrics(result) {
+  const avail = result?.avail ?? 0;
+  const pq = safePQ(result);
+  let fatigue = 0, productivity = 0, friction = 0;
+  if (avail >= 85)      { fatigue = 1; productivity = 0; friction = 0; }
+  else if (avail >= 70) { fatigue = 2; productivity = 1; friction = 1; }
+  else if (avail >= 55) { fatigue = 3; productivity = 2; friction = 2; }
+  else if (avail >= 40) { fatigue = 4; productivity = 3; friction = 3; }
+  else                  { fatigue = 4; productivity = 4; friction = 4; }
+  if (pq === "Q1") productivity = clamp(productivity + 1);
+  if (pq === "Q2") friction = clamp(friction + 1);
+  if (pq === "Q3") productivity = clamp(productivity + 1);
+  if (pq === "Q4") friction = clamp(friction + 1);
+  if (pq === "Q5") { fatigue = clamp(fatigue + 1); productivity = clamp(productivity + 1); }
+  // Q5 중간가동률 역설: 60~70%라도 체감 피로는 '매우 높음'
+  if (pq === "Q5" && avail >= 55 && avail < 75) fatigue = 4;
+  if (pq === "Q6") productivity = clamp(productivity + 1);
+  if (pq === "Q7") { fatigue = clamp(fatigue + 1); friction = clamp(friction + 1); }
+  return { fatigueIdx:fatigue, productivityIdx:productivity, frictionIdx:friction, fatigueLabel:LIVE_LABELS.fatigue[fatigue], productivityLabel:LIVE_LABELS.productivity[productivity], frictionLabel:LIVE_LABELS.friction[friction] };
+}
+
+function deriveSummaryHeadline(result, metrics) {
+  const avail = result?.avail ?? 0;
+  const pq = safePQ(result);
+
+  // 고가동 + 특정 취약성
+  if (avail >= 85 && pq === "Q2") return "에너지는 충분하지만 외부 자극에는 예민한 날입니다.";
+  if (avail >= 85 && pq === "Q4") return "움직일 힘은 충분하지만 감정 반응은 다소 거칠어질 수 있습니다.";
+  if (avail >= 85 && pq === "Q7") return "전반적 가동률은 높지만 긴장과 통제 피로는 남아 있습니다.";
+
+  // Q5 중간가동률 역설: 수치에 속지 않기
+  if (pq === "Q5" && avail >= 55 && avail < 75) return "가동률 수치와 달리, 시스템은 깊은 침체 구간에 들어서고 있습니다. 수치에 속지 마세요.";
+
+  // 저가동: 안도감 + 전략적 후퇴 (공포가 아닌 쉼의 프레임)
+  if (avail < 40) return "오늘은 당신이 부족한 게 아니라, 시스템이 잠시 멈춰야 할 타이밍입니다. 내일을 위해 오늘을 양보하세요.";
+  if (avail < 55) return "오늘의 후퇴는 실패가 아니라 시스템 보호입니다. 무리하지 않는 운영이 더 현명합니다.";
+
+  // 일반 요약
+  if (metrics.fatigueIdx >= 4 && metrics.productivityIdx >= 3) return "오늘은 성과보다 회복을 먼저 챙겨야 하는 날입니다.";
+  if (metrics.frictionIdx >= 3 && metrics.productivityIdx <= 2) return "몰입은 가능하지만 사람과 자극에는 주의가 필요한 날입니다.";
+  if (metrics.productivityIdx >= 4) return "지금은 밀어붙이기보다 리듬을 되찾는 것이 우선입니다.";
+  if (metrics.fatigueIdx <= 1 && metrics.productivityIdx <= 1 && metrics.frictionIdx <= 1) return "비교적 안정적이며 중요한 일을 처리하기 좋은 날입니다.";
+
+  return "버티고는 있지만 소모가 빨라 조절이 필요한 날입니다.";
+}
+
+function deriveActionMicrocopy(result) {
+  const pq = safePQ(result);
+  const map = {
+    Q1:"속도가 붙을수록 에너지가 더 샐 수 있습니다. 오늘은 한 템포 늦추고 중요한 일 하나만 선명하게 끝내세요.",
+    Q2:"자극을 많이 받을수록 감정 마찰이 커질 수 있습니다. 오늘은 사람보다 환경을 먼저 정리해 주세요.",
+    Q3:"겉으론 괜찮아 보여도 내부 피로가 쌓이고 있습니다. 작은 일 하나만 끝내고 바로 쉬어주세요.",
+    Q4:"반응이 커질수록 하루 전체가 흔들릴 수 있습니다. 감정이 올라오면 자리를 잠깐 벗어나 주세요.",
+    Q5:"삶의 피로도가 임계점에 가깝습니다. 오늘은 중요한 결정을 미루고 몸을 먼저 움직여 주세요.",
+    Q6:"비교가 시작되면 집중력이 빠르게 떨어질 수 있습니다. 오늘은 타인 말고 어제의 나와만 비교해 주세요.",
+    Q7:"긴장이 높아 에너지가 새고 있습니다. 오늘은 한 가지쯤 일부러 느슨하게 넘겨주세요.",
+  };
+  return map[pq] || "오늘은 무리해서 당기기보다, 마찰을 줄이며 리듬을 회복하는 쪽이 더 유리합니다.";
+}
+
+function toneByIndex(idx) {
+  if (idx <= 1) return LIVE_TONES.green;
+  if (idx === 2) return LIVE_TONES.yellow;
+  if (idx === 3) return LIVE_TONES.orange;
+  return LIVE_TONES.red;
+}
+
 // ═══ M4: STATE ═══════════════════════════════════════════════════
 // M4: STATE — localStorage 읽기/쓰기/삭제
 
@@ -385,12 +471,19 @@ function getShareUrl() {
 
 function buildShareText(r) {
   const shareUrl = getShareUrl();
+  const m = deriveLiveMetrics(r);
+  const headline = deriveSummaryHeadline(r, m);
+  const action = deriveActionMicrocopy(r);
+  // 행동 권고 1문장 축약 (첫 문장만)
+  const actionShort = action.split(".")[0] + ".";
   return [
     `📊 Emotion OS 진단 결과`, ``,
-    `가동성: ${r.avail}% (${BAND[r.band].l})`,
-    `핵심 패턴: ${QL[r.pq]}`,
-    `누수 지점: ${r.leak}`,
-    `추천 자세: ${r.mode}`,
+    headline, ``,
+    `삶의 피로도: ${m.fatigueLabel}`,
+    `몰입 생산성: ${m.productivityLabel}`,
+    `감정 마찰도: ${m.frictionLabel}`, ``,
+    `💡 오늘의 한 마디: ${actionShort}`, ``,
+    `가동률: ${r.avail}% · ${QL[r.pq]} · ${r.leak}`,
     ``, `— Emotion OS by Haru-Tech Lab`, shareUrl,
   ].join("\n");
 }
@@ -651,7 +744,7 @@ function HistoryGraphInner({ history, actionLog }) {
   return (
     <Card>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-        <span style={{ fontSize:fs(12), color:C.muted }}>가동성 변화 추이</span>
+        <span style={{ fontSize:fs(12), color:C.muted }}>가동률 변화 추이</span>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {actionPts.length > 0 && <span style={{ display:"flex", alignItems:"center", gap:3, fontSize:fs(9), color:C.green }}><svg width="6" height="6"><polygon points="3,0 6,6 0,6" fill={C.green}/></svg>실행</span>}
           <span style={{ fontSize:fs(10), color:C.muted }}>최근 {recent.length}회</span>
@@ -660,6 +753,8 @@ function HistoryGraphInner({ history, actionLog }) {
       <div style={{ display:"flex", justifyContent:"center" }}>
         <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
           {[0,.5,1].map(r => (<line key={r} x1={px} y1={py+gh*(1-r)} x2={w-px} y2={py+gh*(1-r)} stroke={C.border} strokeWidth=".5" strokeDasharray="3,3" />))}
+          {/* 50% 기준선 (Critical Line) */}
+          {mn < 50 && mx > 50 && (() => { const y50 = py + gh - (((50-mn)/range) * gh); return (<><line x1={px} y1={y50} x2={w-px} y2={y50} stroke={C.amber} strokeWidth="1" strokeDasharray="4,3" opacity="0.5" /><text x={w-px-1} y={y50-3} style={{ fontSize:7, fill:C.amber, textAnchor:"end", opacity:0.6 }}>50%</text></>); })()}
           <path d={areaD} fill={`${C.accent}08`} />
           <path d={pathD} fill="none" stroke={C.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           {pts.map((p,i) => (<circle key={i} cx={p.x} cy={p.y} r={i===pts.length-1?4:2.5} fill={i===pts.length-1?C.accent:C.dim} stroke={i===pts.length-1?C.bg:"none"} strokeWidth={i===pts.length-1?2:0} />))}
@@ -716,17 +811,40 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
         {hs.isRc && hs.delta != null && <DBadge delta={hs.delta} />}
       </div>
 
-      {/* 가동성 카드 */}
+      {/* 체감 요약 미니 */}
+      {(() => {
+        const m = deriveLiveMetrics(hs);
+        const headline = deriveSummaryHeadline(hs, m);
+        const badges = [
+          { l:m.fatigueLabel, t:toneByIndex(m.fatigueIdx), k:"피로" },
+          { l:m.productivityLabel, t:toneByIndex(m.productivityIdx), k:"몰입" },
+          { l:m.frictionLabel, t:toneByIndex(m.frictionIdx), k:"마찰" },
+        ];
+        return (
+          <Card style={{ padding:"14px 16px" }}>
+            <p style={{ fontSize:fs(13), fontWeight:700, color:C.text, lineHeight:1.5, marginBottom:10 }}>{headline}</p>
+            <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+              {badges.map((b,i) => (
+                <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"4px 8px", borderRadius:999, fontSize:fs(10), fontWeight:600, color:b.t.fg, background:b.t.bg, border:`1px solid ${b.t.border}` }}>
+                  <span style={{ width:5, height:5, borderRadius:"50%", background:b.t.fg }} />{b.k} {b.l}
+                </span>
+              ))}
+            </div>
+          </Card>
+        );
+      })()}
+
+      {/* 가동률 카드 */}
       <Card accent={`${b.c}30`} style={{ background:b.bg }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-          <span style={{ fontSize:fs(12), color:C.dim }}>시스템 가동성</span>
+          <span style={{ fontSize:fs(12), color:C.dim }}>현재 가동률</span>
           <Badge text={b.l} color={b.c} />
         </div>
         <ANum value={hs.avail} color={b.c} size={28} suffix="%" />
         <MiniBar pct={hs.avail} color={b.c} h={6} />
         <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
         {hs.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
-        {hs.source === "recheck_overlay" && <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>가동성은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
+        {hs.source === "recheck_overlay" && <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>가동률은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
       </Card>
 
       <HistoryGraph history={hist} actionLog={actionLog} />
@@ -796,7 +914,7 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
 
       {/* 하단 버튼 */}
       <div style={{ display:"flex", gap:8, marginTop:4 }}>
-        <Btn small onClick={onRc} style={{ flex:1 }}>가동성 재점검</Btn>
+        <Btn small onClick={onRc} style={{ flex:1 }}>가동률 재점검</Btn>
         <Btn small onClick={onCp} style={{ flex:1 }}>Couple Sync (Beta)</Btn>
       </div>
       <div style={{ marginTop:12, textAlign:"center" }}>
@@ -833,7 +951,7 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 20px 100px" }}>
       <div style={{ maxWidth:460, width:"100%" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-          <Badge text={isRc ? "가동성 재점검" : "Full Scan"} color={C.accent} />
+          <Badge text={isRc ? "가동률 재점검" : "Full Scan"} color={C.accent} />
           <span style={{ fontSize:fs(12), color:C.muted }}>{idx+1} / {qs.length}</span>
         </div>
         <div style={{ width:"100%", height:3, background:C.border, borderRadius:2, overflow:"hidden", marginBottom:26 }}>
@@ -878,7 +996,7 @@ function ScanTab({ result, onScan, onRc, onCp }) {
       <Card onClick={result?onRc:null} style={{ cursor:result?"pointer":"default", opacity:result?1:0.4 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.tealD, display:"flex", alignItems:"center", justifyContent:"center" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.teal} strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>
-          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>가동성 재점검</div><div style={{ fontSize:fs(12), color:C.dim }}>{result ? "3~5문항 · 현재 가동성 오버레이" : "Full Scan을 먼저 진행하세요"}</div></div>
+          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>가동률 재점검</div><div style={{ fontSize:fs(12), color:C.dim }}>{result ? "3~5문항 · 현재 가동률 오버레이" : "Full Scan을 먼저 진행하세요"}</div></div>
         </div>
       </Card>
       <Card onClick={onCp} style={{ cursor:"pointer" }}>
@@ -1051,35 +1169,155 @@ function LibTab() {
 }
 
 // ═══ M7-f: RESULT ════════════════════════════════════════════════
-// Result Screen
+// Result Screen — 체감 요약 중심 배치 (v4.3)
 
+// ─── 체감 배지 (다크 테마) ───
+function MetricBadge({ label, tone }) {
+  return (
+    <span style={{ display:"inline-flex", alignItems:"center", gap:5, padding:"5px 10px", borderRadius:999, fontSize:fs(11), fontWeight:700, color:tone.fg, background:tone.bg, border:`1px solid ${tone.border}`, whiteSpace:"nowrap" }}>
+      <span style={{ width:7, height:7, borderRadius:"50%", background:tone.fg, display:"inline-block" }} />
+      {label}
+    </span>
+  );
+}
+
+// ─── 체감 요약 카드 ───
+function LiveSummaryCard({ result }) {
+  const metrics = deriveLiveMetrics(result);
+  const headline = deriveSummaryHeadline(result, metrics);
+  const actionCopy = deriveActionMicrocopy(result);
+  const recoveryPrefix = (result.delta != null && result.delta > 0) ? "회복이 시작되었습니다. " : "";
+  return (
+    <Card>
+      <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:8 }}>오늘의 체감 요약</div>
+      <div style={{ fontSize:fs(16), fontWeight:800, lineHeight:1.5, color:C.text, marginBottom:10 }}>{recoveryPrefix && <span style={{ color:C.green }}>{recoveryPrefix}</span>}{headline}</div>
+      <div style={{ fontSize:fs(12), lineHeight:1.7, color:C.dim }}>{actionCopy}</div>
+    </Card>
+  );
+}
+
+// ─── 체감 척도 3종 카드 ───
+function LiveMetricsCard({ result }) {
+  const m = deriveLiveMetrics(result);
+  const rows = [
+    { title:"삶의 피로도", desc:"오늘 하루가 얼마나 버겁게 느껴지는가", label:m.fatigueLabel, tone:toneByIndex(m.fatigueIdx) },
+    { title:"몰입 생산성", desc:"해야 할 일을 붙잡고 밀고 갈 수 있는가", label:m.productivityLabel, tone:toneByIndex(m.productivityIdx) },
+    { title:"감정 마찰도", desc:"예민함과 충돌 가능성이 얼마나 올라와 있는가", label:m.frictionLabel, tone:toneByIndex(m.frictionIdx) },
+  ];
+  return (
+    <Card>
+      <div style={{ fontSize:fs(13), fontWeight:800, color:C.text, marginBottom:14 }}>오늘의 체감 상태</div>
+      <div style={{ display:"grid", gap:14 }}>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12, flexWrap:"wrap" }}>
+            <div style={{ minWidth:160, flex:"1 1 180px" }}>
+              <div style={{ fontSize:fs(12), fontWeight:700, color:C.text }}>{r.title}</div>
+              <div style={{ fontSize:fs(10), color:C.muted, marginTop:3 }}>{r.desc}</div>
+            </div>
+            <div style={{ marginLeft:"auto", marginTop:2, flexShrink:0 }}>
+              <MetricBadge label={r.label} tone={r.tone} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// ─── 메인 Result ───
 function Result({ result, onDone, isRc }) {
   const b = BAND[result.band];
   const hi = result.band === "low" || result.band === "overload";
   return (
     <div style={{ padding:"28px 16px 100px", maxWidth:500, margin:"0 auto" }}>
+      {/* Header */}
       <div style={{ textAlign:"center", marginBottom:22 }}>
         <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
-        <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동성 재점검 결과" : "진단 결과"}</h1>
+        <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 결과" : "진단 결과"}</h1>
         <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 기준 시스템 운영 상태</p>
         {isRc && result.delta != null && <div style={{ marginTop:10 }}><DBadge delta={result.delta} big /><p style={{ fontSize:fs(10), color:C.muted, marginTop:4 }}>{result.baselineType === "recheck" ? "직전 재점검 대비" : "풀 스캔 대비"}</p></div>}
       </div>
+
+      {/* 1. 체감 요약 (사용자 언어 먼저) */}
+      <LiveSummaryCard result={result} />
+
+      {/* 2. 체감 척도 3종 */}
+      <LiveMetricsCard result={result} />
+
+      {/* 3. 기술 지표: 가동률 */}
       <Card accent={`${b.c}30`} style={{ background:b.bg }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}><span style={{ fontSize:fs(12), color:C.dim }}>시스템 가동성</span><Badge text={b.l} color={b.c} /></div>
+        <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:8 }}>기술 지표</div>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+          <span style={{ fontSize:fs(12), color:C.dim }}>현재 가동률</span>
+          <Badge text={b.l} color={b.c} />
+        </div>
         <ANum value={result.avail} color={b.c} size={26} suffix="%" />
         <MiniBar pct={result.avail} color={b.c} h={6} />
         <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
         <p style={{ fontSize:fs(11), color:C.muted, marginTop:4, lineHeight:1.5 }}>{b.sub}</p>
         {result.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
       </Card>
-      <Card><div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>핵심 패턴</div><p style={{ fontSize:fs(14), color:C.text, lineHeight:1.6 }}>현재 시스템에는 <strong style={{ color:C.accent }}>{QL[result.pq]} 누수 패턴</strong>이 가장 강하게 활성화되어 있습니다.</p><p style={{ fontSize:fs(13), color:C.dim, marginTop:4 }}>보조: {QL[result.sq]}</p><p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>성격 판정이 아니라, 현재 에너지가 어떤 방식으로 새고 있는지 보여 주는 운영 상태입니다.</p></Card>
-      <Accordion title="Q유형 점수 분포" defaultOpen={!hi}>{Object.entries(result.nm).sort((a,b) => b[1]-a[1]).map(([k,v]) => (<div key={k} style={{ marginBottom:6 }}><div style={{ display:"flex", justifyContent:"space-between", fontSize:fs(11), color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div><MiniBar pct={v} color={k===result.pq?C.accent:k===result.sq?C.blue:C.borderL} h={4} /></div>))}</Accordion>
-      <Card><div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>병목 진단</div><div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div><R5Radar pr={result.r1} result={result} /><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p></Card>
-      <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}><div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 자세</div><div style={{ fontSize:fs(16), fontWeight:700, color:C.teal, marginBottom:4 }}>{result.mode}</div><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{result.modeD}</p><p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>성격을 바꾸라는 뜻이 아니라, 지금 시스템을 덜 망가지게 운영하기 위한 임시 자세입니다.</p></Card>
-      <Card><div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>연결 Bug / Patch</div><a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:6, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span><span style={{ color:C.accent, fontWeight:600, marginRight:6, fontSize:fs(11) }}>{result.bug}</span>{result.bugL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a><a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>→ {result.patchL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a><p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p></Card>
-      <Card><p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.7 }}>{hi ? b.act : "반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p><p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p><div style={{ display:"flex", gap:6, marginTop:12, flexWrap:"wrap" }}><a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a><a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>{hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}</div></Card>
+
+      {/* 4. 핵심 패턴 */}
+      <Card>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>핵심 패턴</div>
+        <p style={{ fontSize:fs(14), color:C.text, lineHeight:1.6 }}>현재 시스템에는 <strong style={{ color:C.accent }}>{QL[result.pq]} 누수 패턴</strong>이 가장 강하게 활성화되어 있습니다.</p>
+        <p style={{ fontSize:fs(13), color:C.dim, marginTop:4 }}>보조: {QL[result.sq]}</p>
+        <p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>성격 판정이 아니라, 현재 에너지가 어떤 방식으로 새고 있는지 보여 주는 운영 상태입니다.</p>
+      </Card>
+
+      {/* 5. Q점수 분포 */}
+      <Accordion title="Q유형 점수 분포" defaultOpen={!hi}>
+        {Object.entries(result.nm).sort((a,b) => b[1]-a[1]).map(([k,v]) => (
+          <div key={k} style={{ marginBottom:6 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:fs(11), color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div>
+            <MiniBar pct={v} color={k===result.pq?C.accent:k===result.sq?C.blue:C.borderL} h={4} />
+          </div>
+        ))}
+      </Accordion>
+
+      {/* 6. 병목 진단 */}
+      <Card>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>병목 진단</div>
+        <div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div>
+        <R5Radar pr={result.r1} result={result} />
+        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p>
+        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p>
+      </Card>
+
+      {/* 7. 추천 운영 자세 */}
+      <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 자세</div>
+        <div style={{ fontSize:fs(16), fontWeight:700, color:C.teal, marginBottom:4 }}>{result.mode}</div>
+        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{result.modeD}</p>
+        <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>성격을 바꾸라는 뜻이 아니라, 지금 시스템을 덜 망가지게 운영하기 위한 임시 자세입니다.</p>
+      </Card>
+
+      {/* 8. Bug / Patch */}
+      <Card>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>연결 Bug / Patch</div>
+        <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:6, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span><span style={{ color:C.accent, fontWeight:600, marginRight:6, fontSize:fs(11) }}>{result.bug}</span>{result.bugL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
+        <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>→ {result.patchL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
+        <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p>
+      </Card>
+
+      {/* 9. 안내 + 참고 링크 */}
+      <Card>
+        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.7 }}>{hi ? b.act : "반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p>
+        <p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p>
+        <div style={{ display:"flex", gap:6, marginTop:12, flexWrap:"wrap" }}>
+          <a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a>
+          <a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>
+          {hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}
+        </div>
+      </Card>
+
+      {/* 10. 공유 */}
       <ShareBtn result={result} />
-      {isRc && <Card style={{ background:`${C.teal}05`, border:`1px solid ${C.teal}15` }}><p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.7, margin:0 }}>재점검은 핵심 패턴을 다시 분류하지 않습니다. 최근 Full Scan을 기준축으로 유지한 채, 현재 가동성 변화만 다시 확인합니다.</p></Card>}
+
+      {/* 11. 재점검 안내 */}
+      {isRc && <Card style={{ background:`${C.teal}05`, border:`1px solid ${C.teal}15` }}><p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.7, margin:0 }}>재점검은 핵심 패턴을 다시 분류하지 않습니다. 최근 Full Scan을 기준축으로 유지한 채, 현재 가동률 변화만 다시 확인합니다.</p></Card>}
+
       <Btn primary onClick={onDone}>Dashboard로 돌아가기</Btn>
     </div>
   );
@@ -1192,7 +1430,7 @@ function TimerScreen({ timer, onComplete, onCancel }) {
 
 // ═══ M8: APP ═════════════════════════════════════════════════════
 // M8: APP — 메인 앱 (상태 관리 + 라우팅)
-// EMOTION OS v4.3
+// EMOTION OS v4.4
 
 function EmotionOSApp() {
   const [tab, setTab] = useState("home");
