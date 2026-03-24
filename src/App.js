@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   EMOTION OS v4.6.0 — Standalone (Auto-generated)
+   EMOTION OS v4.7.0 — Standalone (Auto-generated)
    Haru-Tech Lab
 
    ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
    수정은 src/ 모듈에서 먼저 하고, 이 스크립트로 재생성하세요.
-   생성 시각: 2026-03-24T04:34:16.991Z
+   생성 시각: 2026-03-24T08:30:40.723Z
    ═══════════════════════════════════════════════════════════════════ */
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -79,12 +79,13 @@ const SCALE = [
 // ─── Hot Fix DB (exec: 실행형 여부) ───
 const HOTFIX_DB = [
   { ref:"universal-reset", label:"3분 리셋", desc:"모든 것을 멈추고 3분간 아무것도 하지 않습니다. 눈을 감고 호흡만 느끼세요.", cta:"지금 리셋하기", priority:0, bandMatch:["overload","low"], qMatch:null, exec:true, durationSec:180 },
-  { ref:"slow-down", label:"속도 낮추기", desc:"지금 하고 있는 모든 일의 속도를 의식적으로 절반으로 줄입니다.", cta:"속도 낮추기", priority:1, bandMatch:null, qMatch:["Q1","Q7"], exec:false, durationSec:300 },
-  { ref:"sensory-reset", label:"자극 차단", desc:"소리, 빛, 알림 등 외부 입력을 5분간 최소화합니다.", cta:"자극 차단하기", priority:1, bandMatch:null, qMatch:["Q2"], exec:false, durationSec:300 },
-  { ref:"stop-signal", label:"출력 멈춤", desc:"말하거나 반응하려는 충동을 10초간 멈추고 내부를 먼저 점검합니다.", cta:"일단 멈추기", priority:1, bandMatch:null, qMatch:["Q4"], exec:false, durationSec:10 },
-  { ref:"baseline-reset", label:"기준선 복구", desc:"가장 작은 움직임 하나(물 한 잔, 창문 열기)로 시스템 재가동을 시도합니다.", cta:"회복 시작하기", priority:1, bandMatch:null, qMatch:["Q5"], exec:false, durationSec:60 },
-  { ref:"voice-activate", label:"감정 이름 붙이기", desc:"지금 느끼는 것에 한 단어로 이름을 붙여봅니다. 정확하지 않아도 됩니다.", cta:"감정 읽기", priority:2, bandMatch:null, qMatch:["Q3"], exec:false, durationSec:60 },
-  { ref:"permission-reset", label:"허용 기준 복구", desc:"'지금까지 한 것'을 하나 떠올리고 그것으로 충분하다고 허락합니다.", cta:"기준 복구하기", priority:2, bandMatch:null, qMatch:["Q6"], exec:false, durationSec:60 },
+  { ref:"slow-down", label:"속도 낮추기", desc:"지금 하고 있는 모든 일의 속도를 의식적으로 절반으로 줄입니다.", cta:"5분 감속 시작", priority:1, bandMatch:null, qMatch:["Q1"], exec:true, durationSec:300 },
+  { ref:"root-reset", label:"통제 내려놓기", desc:"지금 통제하려는 것 하나를 골라 1분간 일부러 놓아봅니다. 완벽하지 않아도 세상은 안 무너집니다.", cta:"1분 내려놓기", priority:1, bandMatch:null, qMatch:["Q7"], exec:true, durationSec:60 },
+  { ref:"sensory-reset", label:"자극 차단", desc:"소리, 빛, 알림 등 외부 입력을 5분간 최소화합니다.", cta:"5분 차단 시작", priority:1, bandMatch:null, qMatch:["Q2"], exec:true, durationSec:300 },
+  { ref:"stop-signal", label:"출력 멈춤", desc:"말하거나 반응하려는 충동을 10초간 멈추고 내부를 먼저 점검합니다.", cta:"10초 멈춤 시작", priority:1, bandMatch:null, qMatch:["Q4"], exec:true, durationSec:10 },
+  { ref:"baseline-reset", label:"기준선 복구", desc:"가장 작은 움직임 하나(물 한 잔, 창문 열기)로 시스템 재가동을 시도합니다.", cta:"1분 회복 시작", priority:1, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
+  { ref:"voice-activate", label:"감정 이름 붙이기", desc:"지금 느끼는 것에 한 단어로 이름을 붙여봅니다. 정확하지 않아도 됩니다.", cta:"1분 감정 읽기", priority:2, bandMatch:null, qMatch:["Q3"], exec:true, durationSec:60 },
+  { ref:"permission-reset", label:"허용 기준 복구", desc:"'지금까지 한 것'을 하나 떠올리고 그것으로 충분하다고 허락합니다.", cta:"1분 기준 복구", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:60 },
 ];
 
 // ─── Protocol DB (7, Q별 1개) ───
@@ -113,22 +114,22 @@ const PRAC_DB = [
 
 // ─── Library (16 items) ───
 const LIB = [
-  { cat:"핵심 프레임", title:"Emotion OS",          desc:"감정을 운영체제로 읽는 상위 프레임",       url:"https://www.notion.so/Emotion-OS-324604b060a4805abeb8cd69aca313c9" },
-  { cat:"핵심 프레임", title:"5R 기본 구조",         desc:"인지 → 조절 → 공명 → 회복 → 갱신",       url:"https://www.notion.so/5R-v1-3-320604b060a480f9bbbcd74d09be6ec8" },
-  { cat:"핵심 프레임", title:"감정공학이란 무엇인가", desc:"감정공학의 정의와 목적",                   url:"https://www.notion.so/v1-3-31f604b060a480a88245fb446ea1bb1a" },
-  { cat:"핵심 프레임", title:"호모 레귤란스",         desc:"Emotion OS를 일상적으로 가동하는 인간형",  url:"https://www.notion.so/Homo-Regulans-v2-5-321604b060a4809ab446f745c72b7e68" },
-  { cat:"운영 구조",   title:"감정누수 유형 총론",   desc:"7가지 감정 누수 패턴 분류",               url:"https://www.notion.so/Q1-Q7-v1-3-325604b060a480b18e42f438fa5b7e43" },
-  { cat:"운영 구조",   title:"Bug란 무엇인가",       desc:"반복되는 운영 오류의 표준 단위",          url:"https://www.notion.so/Bug-329604b060a4806e9af4e2720535a00e" },
-  { cat:"운영 구조",   title:"Patch란 무엇인가",     desc:"Bug에 개입하는 수정 조치",               url:"https://www.notion.so/Patch-329604b060a480d099a5c020cbe22409" },
-  { cat:"OS 영역",     title:"Body OS",              desc:"몸의 가동성과 회복을 읽는 프레임",        url:"https://www.notion.so/Body-OS-329604b060a48005be9cc00ad34b32f7" },
-  { cat:"OS 영역",     title:"Relation OS",          desc:"관계 안의 경계와 공명을 읽는 프레임",     url:"https://www.notion.so/Relation-OS-329604b060a480dabedce49cd532b625" },
-  { cat:"심화 주제",   title:"회복과 감각 리셋의 원리", desc:"R4 회복의 구조와 실전 적용",           url:"https://www.notion.so/R4-v1-3-326604b060a480829a7eef09c9f885df" },
-  { cat:"심화 주제",   title:"감정 경계의 필요성",   desc:"R2 조절과 경계 설정의 원리",             url:"https://www.notion.so/R2-v1-3-326604b060a4801bb755fa9585666a26" },
-  { cat:"심화 주제",   title:"감정억제와 왜곡분출",   desc:"억압과 폭발의 구조적 분석",              url:"https://www.notion.so/v1-3-320604b060a48025a30cf1ff68024a6d" },
-  { cat:"심화 주제",   title:"비교 중독과 자기비하",   desc:"Q6 비교형의 심층 메커니즘",             url:"https://www.notion.so/v1-3-320604b060a48090a854cb5d62a7daf1" },
-  { cat:"심화 주제",   title:"관계피로와 경계 설정",   desc:"관계 안에서 경계가 무너지는 구조",      url:"https://www.notion.so/v1-3-320604b060a480d99d1ed16bcf05b560" },
-  { cat:"심화 주제",   title:"한국형 번아웃의 구조",   desc:"한국 사회 특유의 소진 메커니즘",        url:"https://www.notion.so/v1-3-320604b060a48047a6fbd5ed8452de6a" },
-  { cat:"실전 도구",   title:"리커버리 프로토콜",     desc:"회복을 위한 구조화된 운영 절차",         url:"https://www.notion.so/Recovery-Protocol-v1-4-327604b060a4808f9201d83d9a9c13bb" },
+  { cat:"핵심 프레임", title:"Emotion OS",          desc:"감정을 운영체제로 읽는 상위 프레임",       tip:"핵심 원칙: 성격이 아니라 현재 시스템 상태다", url:"https://www.notion.so/Emotion-OS-324604b060a4805abeb8cd69aca313c9" },
+  { cat:"핵심 프레임", title:"5R 기본 구조",         desc:"인지 → 조절 → 공명 → 회복 → 갱신",       tip:"감정은 5단계 순환으로 흐른다. 어디서 막혔는지가 핵심", url:"https://www.notion.so/5R-v1-3-320604b060a480f9bbbcd74d09be6ec8" },
+  { cat:"핵심 프레임", title:"감정공학이란 무엇인가", desc:"감정공학의 정의와 목적",                   tip:"감정을 고치는 게 아니라, 운영 가능한 언어로 바꾸는 것", url:"https://www.notion.so/v1-3-31f604b060a480a88245fb446ea1bb1a" },
+  { cat:"핵심 프레임", title:"호모 레귤란스",         desc:"Emotion OS를 일상적으로 가동하는 인간형",  tip:"회복은 사치가 아니라 전략. 조절하는 인간이 지속한다", url:"https://www.notion.so/Homo-Regulans-v2-5-321604b060a4809ab446f745c72b7e68" },
+  { cat:"운영 구조",   title:"감정누수 유형 총론",   desc:"7가지 감정 누수 패턴 분류",               tip:"Q1 조급~Q7 통제, 에너지가 새는 7가지 방식", url:"https://www.notion.so/Q1-Q7-v1-3-325604b060a480b18e42f438fa5b7e43" },
+  { cat:"운영 구조",   title:"Bug란 무엇인가",       desc:"반복되는 운영 오류의 표준 단위",          tip:"Bug는 성격 결함이 아니라 반복 패턴의 이름표", url:"https://www.notion.so/Bug-329604b060a4806e9af4e2720535a00e" },
+  { cat:"운영 구조",   title:"Patch란 무엇인가",     desc:"Bug에 개입하는 수정 조치",               tip:"추천 패치: Root Reset, Sensory Reset, Cooldown", url:"https://www.notion.so/Patch-329604b060a480d099a5c020cbe22409" },
+  { cat:"OS 영역",     title:"Body OS",              desc:"몸의 가동성과 회복을 읽는 프레임",        tip:"수면·식사·운동이 아니라, 몸이 보내는 신호를 읽는 것", url:"https://www.notion.so/Body-OS-329604b060a48005be9cc00ad34b32f7" },
+  { cat:"OS 영역",     title:"Relation OS",          desc:"관계 안의 경계와 공명을 읽는 프레임",     tip:"관계 마찰은 성격 문제가 아니라 필터 용량 문제", url:"https://www.notion.so/Relation-OS-329604b060a480dabedce49cd532b625" },
+  { cat:"심화 주제",   title:"회복과 감각 리셋의 원리", desc:"R4 회복의 구조와 실전 적용",           tip:"회복은 쉬는 게 아니라 감각을 리셋하는 것", url:"https://www.notion.so/R4-v1-3-326604b060a480829a7eef09c9f885df" },
+  { cat:"심화 주제",   title:"감정 경계의 필요성",   desc:"R2 조절과 경계 설정의 원리",             tip:"추천 패치: Boundary Filter Patch", url:"https://www.notion.so/R2-v1-3-326604b060a4801bb755fa9585666a26" },
+  { cat:"심화 주제",   title:"감정억제와 왜곡분출",   desc:"억압과 폭발의 구조적 분석",              tip:"Q3 회피와 Q4 분출은 같은 뿌리의 다른 출구", url:"https://www.notion.so/v1-3-320604b060a48025a30cf1ff68024a6d" },
+  { cat:"심화 주제",   title:"비교 중독과 자기비하",   desc:"Q6 비교형의 심층 메커니즘",             tip:"추천 패치: Permission Reset Patch", url:"https://www.notion.so/v1-3-320604b060a48090a854cb5d62a7daf1" },
+  { cat:"심화 주제",   title:"관계피로와 경계 설정",   desc:"관계 안에서 경계가 무너지는 구조",      tip:"관계 피로의 80%는 경계 부재에서 온다", url:"https://www.notion.so/v1-3-320604b060a480d99d1ed16bcf05b560" },
+  { cat:"심화 주제",   title:"한국형 번아웃의 구조",   desc:"한국 사회 특유의 소진 메커니즘",        tip:"성실+원만+충성의 3중 과부하 구조", url:"https://www.notion.so/v1-3-320604b060a48047a6fbd5ed8452de6a" },
+  { cat:"실전 도구",   title:"리커버리 프로토콜",     desc:"회복을 위한 구조화된 운영 절차",         tip:"low/overload 구간에서 가장 먼저 실행할 절차", url:"https://www.notion.so/Recovery-Protocol-v1-4-327604b060a4808f9201d83d9a9c13bb" },
 ];
 const LCATS = ["핵심 프레임","운영 구조","OS 영역","심화 주제","실전 도구"];
 
@@ -486,7 +487,8 @@ function buildShareText(r) {
     `💡 오늘의 한 마디: ${actionShort}`, ``,
     `가동률: ${r.avail}% · ${QL[r.pq]} · ${r.leak}`,
     ``, `감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.`,
-    `— Emotion OS by HaruTech Lab`, shareUrl,
+    `— Emotion OS by HaruTech Lab`,
+    `Emotional Engineering Institute`, shareUrl,
   ].join("\n");
 }
 
@@ -656,6 +658,28 @@ function ConfirmModal({ open, message, onConfirm, onCancel }) {
   );
 }
 
+// ─── PrincipleBanner (핵심 운영 문장 배너) ───
+const PRINCIPLE_BY_BAND = {
+  stable:  "작은 누수를 미리 줄이면, 좋은 흐름은 더 오래 유지됩니다.",
+  caution: "지금은 무너지기 전에 작은 누수를 막을 타이밍입니다.",
+  low:     "오늘은 크게 바꾸려 하지 말고, 누수 하나만 줄여도 충분합니다.",
+  overload:"지금은 회복을 완성하는 단계가 아니라, 더 새지 않게 막는 단계입니다.",
+};
+const PRINCIPLE_DEFAULT = "감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.";
+
+function getPrincipleText(band) {
+  return PRINCIPLE_BY_BAND[band] || PRINCIPLE_DEFAULT;
+}
+
+function PrincipleBanner({ text, tone }) {
+  const color = tone === "accent" ? C.accent : tone === "teal" ? C.teal : tone === "blue" ? C.blue : C.muted;
+  return (
+    <div style={{ padding:"12px 16px", borderRadius:10, border:`1px solid ${color}18`, background:`${color}06`, marginBottom:12 }}>
+      <p style={{ fontSize:fs(12), fontWeight:600, color, lineHeight:1.6, margin:0 }}>{text}</p>
+    </div>
+  );
+}
+
 // ═══ M6-c: NAVIGATION ════════════════════════════════════════════
 // Bottom Navigation
 
@@ -665,7 +689,7 @@ const IA = ({a}) => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
 const IL = ({a}) => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={a?C.accent:C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>);
 
 function BNav({ tab, setTab }) {
-  const ts = [{ id:"home", I:IH, l:"Home" }, { id:"scan", I:IS, l:"Scan" }, { id:"action", I:IA, l:"Action" }, { id:"library", I:IL, l:"Library" }];
+  const ts = [{ id:"home", I:IH, l:"Today" }, { id:"scan", I:IS, l:"Scan" }, { id:"action", I:IA, l:"Reset" }, { id:"library", I:IL, l:"Library" }];
   return (
     <div style={{ position:"fixed", bottom:0, left:0, right:0, background:C.bg, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-around", padding:"8px 0 env(safe-area-inset-bottom,8px)", zIndex:200 }}>
       {ts.map(t => {
@@ -778,9 +802,9 @@ function HistoryGraphInner({ history, actionLog }) {
 const HistoryGraph = memo(HistoryGraphInner);
 
 // ═══ M7-a: HOME ══════════════════════════════════════════════════
-// Home Screen
+// Today Screen (formerly Home)
 
-function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
+function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog }) {
   if (hs.source === "empty") return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"80vh", padding:"40px 20px", textAlign:"center" }}>
       <div style={{ width:64, height:64, borderRadius:16, background:C.cardH, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:20 }}>
@@ -805,15 +829,19 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
   return (
     <div style={{ padding:"20px 16px 100px" }}>
       {/* 헤더 */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
         <div>
           <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
-          <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:2 }}>Kernel Dashboard</div>
+          <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:2 }}>Today</div>
+          <div style={{ fontSize:fs(8), color:C.muted, marginTop:2 }}>by HaruTech Lab · Emotional Engineering Institute</div>
         </div>
         {hs.isRc && hs.delta != null && <DBadge delta={hs.delta} />}
       </div>
 
-      {/* 체감 요약 미니 */}
+      {/* 1. 상단 Full Scan CTA */}
+      <Btn primary onClick={onScan} style={{ width:"100%", marginBottom:14 }}>새 Full Scan</Btn>
+
+      {/* 2. TodayHeroCard: 체감 요약 + 에너지 잔량 */}
       {(() => {
         const m = deriveLiveMetrics(hs);
         const headline = deriveSummaryHeadline(hs, m);
@@ -823,12 +851,19 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
           { l:m.frictionLabel, t:toneByIndex(m.frictionIdx), k:"마찰" },
         ];
         return (
-          <Card style={{ padding:"14px 16px" }}>
-            <p style={{ fontSize:fs(13), fontWeight:700, color:C.text, lineHeight:1.5, marginBottom:10 }}>{headline}</p>
+          <Card style={{ padding:"16px" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+              <span style={{ fontSize:fs(11), color:C.muted }}>오늘의 상태</span>
+              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <span style={{ fontSize:fs(10), color:C.dim }}>에너지 잔량</span>
+                <ANum value={hs.avail} color={b.c} size={18} suffix="%" />
+              </div>
+            </div>
+            <p style={{ fontSize:fs(14), fontWeight:700, color:C.text, lineHeight:1.5, marginBottom:10 }}>{headline}</p>
             <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-              {badges.map((b,i) => (
-                <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"4px 8px", borderRadius:999, fontSize:fs(10), fontWeight:600, color:b.t.fg, background:b.t.bg, border:`1px solid ${b.t.border}` }}>
-                  <span style={{ width:5, height:5, borderRadius:"50%", background:b.t.fg }} />{b.k} {b.l}
+              {badges.map((bg,i) => (
+                <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"4px 8px", borderRadius:999, fontSize:fs(10), fontWeight:600, color:bg.t.fg, background:bg.t.bg, border:`1px solid ${bg.t.border}` }}>
+                  <span style={{ width:5, height:5, borderRadius:"50%", background:bg.t.fg }} />{bg.k} {bg.l}
                 </span>
               ))}
             </div>
@@ -836,41 +871,15 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
         );
       })()}
 
-      {/* 가동률 카드 */}
-      <Card accent={`${b.c}30`} style={{ background:b.bg }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-          <span style={{ fontSize:fs(12), color:C.dim }}>현재 가동률</span>
-          <Badge text={b.l} color={b.c} />
-        </div>
-        <ANum value={hs.avail} color={b.c} size={28} suffix="%" />
-        <MiniBar pct={hs.avail} color={b.c} h={6} />
-        <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
-        {hs.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
-        {hs.source === "recheck_overlay" && <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>가동률은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
-      </Card>
+      {/* 3. PrincipleBanner */}
+      <PrincipleBanner text={getPrincipleText(hs.band)} tone={hs.band === "stable" ? "teal" : "accent"} />
 
-      <HistoryGraph history={hist} actionLog={actionLog} />
-
-      {/* 활성 패턴 */}
-      <Card>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-          <span style={{ fontSize:fs(12), color:C.muted }}>현재 활성 패턴</span>
-          {hs.source === "recheck_overlay" && <span style={{ fontSize:fs(9), color:C.muted }}>Full Scan 기준</span>}
-        </div>
-        <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
-          <span style={{ fontSize:fs(15), fontWeight:700, color:C.accent }}>{QL[hs.pq]}</span>
-          <Badge text={hs.leak} color={C.blue} />
-          <Badge text={RL[hs.r1]} color={C.purple} />
-        </div>
-        {hs.mode && <p style={{ fontSize:fs(12), color:C.dim, marginTop:8 }}><strong style={{ color:C.teal }}>{hs.mode}</strong> — {hs.modeD}</p>}
-      </Card>
-
-      {/* 스마트 폴백: 실행 직후 완충 → Hot Fix → Protocol → Practice */}
+      {/* 4. Quick Patch 1순위 (열자마자 지금 할 일 1개) */}
       {justCompleted ? (
         <Card accent={`${C.green}30`} style={{ background:`${C.green}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>실행 완료</div>
           <div style={{ fontSize:fs(15), fontWeight:700, color:C.green, marginBottom:4 }}>잘했습니다</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>방금 실행한 패치의 효과가 안착하려면 잠시 시간이 필요합니다. 지금은 아무것도 하지 않고 현재 리듬을 유지하세요.</p>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>방금 실행한 패치의 효과가 안착하려면 잠시 시간이 필요합니다. 지금은 현재 리듬을 유지하세요.</p>
         </Card>
       ) : showExecTop ? (
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
@@ -884,16 +893,25 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>추천 Protocol</div>
           <div style={{ fontSize:fs(15), fontWeight:700, color:C.blue, marginBottom:4 }}>{homeProto.label}</div>
           <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{homeProto.desc}</p>
+          <div style={{ marginTop:10 }}><Btn small onClick={onGoReset} style={{ maxWidth:200 }}>Reset 탭에서 보기</Btn></div>
         </Card>
       ) : homePrac ? (
         <Card accent={`${C.teal}20`} style={{ background:`${C.teal}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>추천 Practice</div>
           <div style={{ fontSize:fs(13), fontWeight:600, color:C.teal, marginBottom:4 }}>{homePrac.label}</div>
           <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{homePrac.desc}</p>
+          <div style={{ marginTop:10 }}><Btn small onClick={onGoReset} style={{ maxWidth:200 }}>Reset 탭에서 적용</Btn></div>
         </Card>
-      ) : null}
+      ) : (
+        <Card accent={`${C.accent}20`} style={{ background:`${C.accent}05` }}>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>Quick Reset</div>
+          <div style={{ fontSize:fs(15), fontWeight:700, color:C.accent, marginBottom:4 }}>3분 리셋</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>모든 것을 멈추고 3분간 아무것도 하지 않습니다. 눈을 감고 호흡만 느끼세요.</p>
+          <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:200 }} onClick={() => onTimer && onTimer("universal-reset")}>지금 리셋하기</Btn></div>
+        </Card>
+      )}
 
-      {/* 실행 이력 */}
+      {/* 5. 실행 이력 */}
       {recentActions.length > 0 && (
         <Card>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
@@ -914,10 +932,39 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, actionLog }) {
         </Card>
       )}
 
+      {/* 6. 가동률 상세 (아래로 이동) */}
+      <Accordion title="가동률 상세" defaultOpen={false}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+          <span style={{ fontSize:fs(12), color:C.dim }}>현재 가동률</span>
+          <Badge text={b.l} color={b.c} />
+        </div>
+        <MiniBar pct={hs.avail} color={b.c} h={6} />
+        <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
+        {hs.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
+        {hs.source === "recheck_overlay" && <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>가동률은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
+      </Accordion>
+
+      {/* 7. HistoryGraph (아래로 이동) */}
+      <HistoryGraph history={hist} actionLog={actionLog} />
+
+      {/* 8. 활성 패턴 (아래로 이동) */}
+      <Card>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+          <span style={{ fontSize:fs(12), color:C.muted }}>현재 활성 패턴</span>
+          {hs.source === "recheck_overlay" && <span style={{ fontSize:fs(9), color:C.muted }}>Full Scan 기준</span>}
+        </div>
+        <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+          <span style={{ fontSize:fs(15), fontWeight:700, color:C.accent }}>{QL[hs.pq]}</span>
+          <Badge text={hs.leak} color={C.blue} />
+          <Badge text={RL[hs.r1]} color={C.purple} />
+        </div>
+        {hs.mode && <p style={{ fontSize:fs(12), color:C.dim, marginTop:8 }}><strong style={{ color:C.teal }}>{hs.mode}</strong> — {hs.modeD}</p>}
+      </Card>
+
       {/* 하단 버튼 */}
       <div style={{ display:"flex", gap:8, marginTop:4 }}>
         <Btn small onClick={onRc} style={{ flex:1 }}>가동률 재점검</Btn>
-        <Btn small onClick={onCp} style={{ flex:1 }}>Couple Sync (Beta)</Btn>
+        <Btn small onClick={onGoReset} style={{ flex:1 }}>Reset 탭 열기</Btn>
       </div>
       <div style={{ marginTop:12, textAlign:"center" }}>
         <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
@@ -988,11 +1035,12 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
 function ScanTab({ result, onScan, onRc, onCp }) {
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:16 }}>Scan</h2>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Scan</h2>
+      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:16 }}>새 스캔, 재점검, Couple 연결을 관리하는 도구 탭</p>
       <Card onClick={onScan} style={{ cursor:"pointer" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.accentD, display:"flex", alignItems:"center", justifyContent:"center" }}><IS a /></div>
-          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>New Full Scan</div><div style={{ fontSize:fs(12), color:C.dim }}>21문항 · 약 2분</div></div>
+          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>새 Full Scan</div><div style={{ fontSize:fs(12), color:C.dim }}>21문항 · 약 2분</div></div>
         </div>
       </Card>
       <Card onClick={result?onRc:null} style={{ cursor:result?"pointer":"default", opacity:result?1:0.4 }}>
@@ -1007,6 +1055,7 @@ function ScanTab({ result, onScan, onRc, onCp }) {
           <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>Couple Sync <span style={{ fontSize:fs(11), color:C.amber, fontWeight:600 }}>(Beta)</span></div><div style={{ fontSize:fs(12), color:C.dim }}>미리보기 모드 · 연결 엔진 준비 중</div></div>
         </div>
       </Card>
+      <div style={{ textAlign:"center", padding:"16px 0 0", fontSize:fs(9), color:C.muted }}>by HaruTech Lab · Emotional Engineering Institute</div>
     </div>
   );
 }
@@ -1020,7 +1069,7 @@ function ActionTab({ result, onTimer, actionLog }) {
 
   if (!result) return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:8 }}>Action</h2>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:8 }}>Reset</h2>
       <p style={{ fontSize:fs(13), color:C.dim, lineHeight:1.6 }}>스캔 결과가 있어야 맞춤형 패치를 추천할 수 있습니다.</p>
     </div>
   );
@@ -1038,8 +1087,11 @@ function ActionTab({ result, onTimer, actionLog }) {
 
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Action</h2>
-      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:18 }}>현재 상태에 맞는 개입을 실행하세요</p>
+      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Reset</h2>
+      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:18 }}>설명보다 버튼. 지금 바로 실행할 수 있는 개입입니다.</p>
+
+      {/* 운영 기준 문장 */}
+      <PrincipleBanner text="지금은 문제를 다 해결하는 것보다, 감정 누수를 먼저 줄이는 편이 더 효과적입니다." tone="teal" />
 
       {/* 실행 가능 Hot Fix */}
       {execFx.length > 0 && <>
@@ -1058,39 +1110,32 @@ function ActionTab({ result, onTimer, actionLog }) {
             </div>
             <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:10 }}>{f.desc}</p>
             <Btn primary small onClick={() => onTimer && onTimer(f.ref)}>{f.cta}</Btn>
+            <p style={{ fontSize:fs(10), color:C.muted, marginTop:8, margin:0, marginTop:8 }}>이 패치는 감정 누수를 줄이기 위한 최소 개입입니다.</p>
           </Card>
         ))}
       </>}
 
-      {/* Protocol */}
-      {!hi && proto && <>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:execFx.length>0?18:0, marginBottom:8 }}>
-          <span style={{ fontSize:fs(11), fontWeight:700, color:C.blue, letterSpacing:2, textTransform:"uppercase" }}>Protocol</span>
-          <span style={{ fontSize:fs(10), color:C.muted }}>자동 1개</span>
-        </div>
-        <Card accent={`${C.blue}20`}>
-          <div style={{ fontSize:fs(14), fontWeight:700, color:C.text, marginBottom:4 }}>{proto.label}</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>{proto.desc}</p>
-        </Card>
-      </>}
-
-      {/* Practice */}
-      {!hi && prac && <>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:18, marginBottom:8 }}>
-          <span style={{ fontSize:fs(11), fontWeight:700, color:C.teal, letterSpacing:2, textTransform:"uppercase" }}>Practice</span>
-          <span style={{ fontSize:fs(10), color:C.muted }}>추천 {1+extra.length}개</span>
-        </div>
-        <Card accent={`${C.teal}20`}>
-          <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{prac.label}</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{prac.desc}</p>
-        </Card>
-        {extra.map(e => (
-          <Card key={e.ref}>
-            <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{e.label}</div>
-            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{e.desc}</p>
-          </Card>
-        ))}
-      </>}
+      {/* Protocol / Practice (접이식) */}
+      {!hi && (proto || prac) && (
+        <Accordion title="추천 Protocol · Practice" defaultOpen={false}>
+          {proto && <Card accent={`${C.blue}20`} style={{ marginBottom:8 }}>
+            <div style={{ fontSize:fs(11), color:C.blue, fontWeight:700, marginBottom:4 }}>Protocol</div>
+            <div style={{ fontSize:fs(14), fontWeight:700, color:C.text, marginBottom:4 }}>{proto.label}</div>
+            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>{proto.desc}</p>
+          </Card>}
+          {prac && <Card accent={`${C.teal}20`} style={{ marginBottom:8 }}>
+            <div style={{ fontSize:fs(11), color:C.teal, fontWeight:700, marginBottom:4 }}>Practice</div>
+            <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{prac.label}</div>
+            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{prac.desc}</p>
+          </Card>}
+          {extra.map(e => (
+            <Card key={e.ref} style={{ marginBottom:8 }}>
+              <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{e.label}</div>
+              <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{e.desc}</p>
+            </Card>
+          ))}
+        </Accordion>
+      )}
 
       {/* 준비 중 패치 (접이식) */}
       {pendFx.length > 0 && (
@@ -1128,9 +1173,10 @@ function ActionTab({ result, onTimer, actionLog }) {
 
       <div style={{ marginTop:18 }}>
         <a href={NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-          <Card style={{ textAlign:"center", cursor:"pointer" }}><span style={{ fontSize:fs(13), color:C.dim }}>전체 Patch 라이브러리 →</span></Card>
+          <Card style={{ textAlign:"center", cursor:"pointer" }}><span style={{ fontSize:fs(13), color:C.dim }}>다른 패치도 보기 →</span></Card>
         </a>
       </div>
+      <div style={{ textAlign:"center", padding:"16px 0 0", fontSize:fs(9), color:C.muted }}>by HaruTech Lab · Emotional Engineering Institute</div>
     </div>
   );
 }
@@ -1143,7 +1189,7 @@ function LibTab() {
   return (
     <div style={{ padding:"20px 16px 100px" }}>
       <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Library</h2>
-      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:20 }}>감정공학 백과사전 · 탭하면 노션 문서로 이동합니다</p>
+      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:20 }}>감정공학 백과사전 요약 · 상세는 노션 참고 자료에서</p>
       {LCATS.map(cat => {
         const items = LIB.filter(i => i.cat === cat);
         if (!items.length) return null;
@@ -1153,12 +1199,19 @@ function LibTab() {
             {items.map(item => (
               <a key={item.title} href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}>
                 <Card style={{ cursor:"pointer" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:fs(14), fontWeight:700, color:C.text, marginBottom:3 }}>{item.title}</div>
                       <p style={{ fontSize:fs(12), color:C.dim, margin:0 }}>{item.desc}</p>
+                      {item.tip && (() => {
+                        const parts = item.tip.split("추천 패치:");
+                        return (<>
+                          <p style={{ fontSize:fs(10), color:C.muted, margin:0, marginTop:6, padding:"4px 8px", background:C.cardH, borderRadius:6, lineHeight:1.5 }}>{parts[0].trim()}</p>
+                          {parts[1] && <p style={{ fontSize:fs(10), color:C.teal, margin:0, marginTop:4, padding:"3px 8px", fontWeight:600 }}>추천 패치: {parts[1].trim()}</p>}
+                        </>);
+                      })()}
                     </div>
-                    <span style={{ fontSize:fs(14), color:C.muted, marginLeft:8 }}>→</span>
+                    <span style={{ fontSize:fs(10), color:C.muted, marginLeft:8, whiteSpace:"nowrap", marginTop:4 }}>자세히 보기 →</span>
                   </div>
                 </Card>
               </a>
@@ -1166,6 +1219,7 @@ function LibTab() {
           </div>
         );
       })}
+      <div style={{ textAlign:"center", padding:"16px 0 0", fontSize:fs(9), color:C.muted }}>by HaruTech Lab · Emotional Engineering Institute</div>
     </div>
   );
 }
@@ -1227,7 +1281,7 @@ function LiveMetricsCard({ result }) {
 }
 
 // ─── 메인 Result ───
-function Result({ result, onDone, isRc }) {
+function Result({ result, onDone, isRc, onCp }) {
   const b = BAND[result.band];
   const hi = result.band === "low" || result.band === "overload";
   return (
@@ -1245,6 +1299,9 @@ function Result({ result, onDone, isRc }) {
 
       {/* 2. 체감 척도 3종 */}
       <LiveMetricsCard result={result} />
+
+      {/* 운영 기준 전환 카드 */}
+      <PrincipleBanner text={getPrincipleText(result.band)} tone={result.band === "stable" ? "teal" : "accent"} />
 
       {/* 3. 기술 지표: 가동률 */}
       <Card accent={`${b.c}30`} style={{ background:b.bg }}>
@@ -1269,7 +1326,7 @@ function Result({ result, onDone, isRc }) {
       </Card>
 
       {/* 5. Q점수 분포 */}
-      <Accordion title="Q유형 점수 분포" defaultOpen={!hi}>
+      <Accordion title="Q유형 점수 분포" defaultOpen={false}>
         {Object.entries(result.nm).sort((a,b) => b[1]-a[1]).map(([k,v]) => (
           <div key={k} style={{ marginBottom:6 }}>
             <div style={{ display:"flex", justifyContent:"space-between", fontSize:fs(11), color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div>
@@ -1278,14 +1335,13 @@ function Result({ result, onDone, isRc }) {
         ))}
       </Accordion>
 
-      {/* 6. 병목 분석 */}
-      <Card>
-        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>병목 분석</div>
+      {/* 6. 병목 분석 (접이식) */}
+      <Accordion title="병목 분석" defaultOpen={false}>
         <div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div>
         <R5Radar pr={result.r1} result={result} />
         <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p>
         <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p>
-      </Card>
+      </Accordion>
 
       {/* 7. 추천 운영 자세 */}
       <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
@@ -1317,10 +1373,21 @@ function Result({ result, onDone, isRc }) {
       {/* 10. 공유 */}
       <ShareBtn result={result} />
 
-      {/* 11. 재점검 안내 */}
+      {/* 10b. Couple 예고 CTA */}
+      <div style={{ textAlign:"center", padding:"10px 0" }}>
+        <button onClick={onCp} style={{ fontSize:fs(10), color:C.muted, border:`1px solid ${C.border}`, borderRadius:999, padding:"6px 16px", background:"none", cursor:"pointer", fontFamily:FF }}>파트너와 공유하기 (준비 중) →</button>
+      </div>
+
+      {/* 11. 브랜드 */}
+      <Card style={{ textAlign:"center", background:C.cardH, border:`1px solid ${C.border}` }}>
+        <div style={{ fontSize:fs(11), fontWeight:700, color:C.text, marginBottom:4 }}>Emotion OS</div>
+        <div style={{ fontSize:fs(10), color:C.dim, lineHeight:1.6 }}>HaruTech Lab<br />Emotional Engineering Institute</div>
+      </Card>
+
+      {/* 12. 재점검 안내 */}
       {isRc && <Card style={{ background:`${C.teal}05`, border:`1px solid ${C.teal}15` }}><p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.7, margin:0 }}>재점검은 핵심 패턴을 다시 분류하지 않습니다. 최근 Full Scan을 기준축으로 유지한 채, 현재 가동률 변화만 다시 확인합니다.</p></Card>}
 
-      <Btn primary onClick={onDone}>Dashboard로 돌아가기</Btn>
+      <Btn primary onClick={onDone}>Today로 돌아가기</Btn>
     </div>
   );
 }
@@ -1538,7 +1605,7 @@ function EmotionOSApp() {
     <div style={{ fontFamily:FF, background:C.bg, color:C.text, minHeight:"100vh", WebkitFontSmoothing:"antialiased" }}>
 
       {scr === "tabs" && <>
-        {tab === "home" && <Home hs={hs} hist={hist} onScan={() => setScr("scan")} onRc={() => { const b = lr || fs; if (!b) return; setRcQs(getRecheckQs(b)); setScr("rc"); }} onCp={() => setScr("cp")} onClear={handleClear} onTimer={(ref) => openHotFixTimer(ref, cr)} actionLog={actionLog} />}
+        {tab === "home" && <Home hs={hs} hist={hist} onScan={() => setScr("scan")} onRc={() => { const b = lr || fs; if (!b) return; setRcQs(getRecheckQs(b)); setScr("rc"); }} onCp={() => setScr("cp")} onClear={handleClear} onTimer={(ref) => openHotFixTimer(ref, cr)} onGoReset={() => setTab("action")} actionLog={actionLog} />}
         {tab === "scan" && <ScanTab result={cr} onScan={() => setScr("scan")} onRc={() => { const b = lr || fs; if (!b) return; setRcQs(getRecheckQs(b)); setScr("rc"); }} onCp={() => setScr("cp")} />}
         {tab === "action" && <ActionTab result={cr} onTimer={(ref) => openHotFixTimer(ref, cr)} actionLog={actionLog} />}
         {tab === "library" && <LibTab />}
@@ -1548,8 +1615,8 @@ function EmotionOSApp() {
       {scr === "scan" && <ScanFlow onComplete={a => { setScr("ld"); setTimeout(() => { const r = calcFull(a); setFs(r); setLr(r); addToHist(r); setScr("res"); }, 1800); }} />}
       {scr === "rc" && <ScanFlow onComplete={(a,q) => { setScr("ld"); const b = lr || fs; setTimeout(() => { const r = calcRecheck(a, q, b); setLr(r); addToHist(r); setScr("rcRes"); }, 1500); }} isRc rcQs={rcQs} />}
       {scr === "ld" && <Loading msg="시스템 패턴 분석 중" />}
-      {scr === "res" && cr && <Result result={cr} onDone={() => { setScr("tabs"); setTab("home"); }} />}
-      {scr === "rcRes" && cr && <Result result={cr} onDone={() => { setScr("tabs"); setTab("home"); }} isRc />}
+      {scr === "res" && cr && <Result result={cr} onDone={() => { setScr("tabs"); setTab("home"); }} onCp={() => setScr("cp")} />}
+      {scr === "rcRes" && cr && <Result result={cr} onDone={() => { setScr("tabs"); setTab("home"); }} isRc onCp={() => setScr("cp")} />}
       {scr === "cp" && <Couple onBack={() => { setScr("tabs"); setTab("home"); }} />}
       {scr === "timer" && activeTimer && <TimerScreen timer={activeTimer} onComplete={completeTimer} onCancel={cancelTimer} />}
 
