@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef, memo } from "react";
 
    ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
    수정은 src/ 모듈에서 먼저 하고, 이 스크립트로 재생성하세요.
-   생성 시각: 2026-03-24T01:47:35.383Z
+   생성 시각: 2026-03-24T04:21:21.817Z
    ═══════════════════════════════════════════════════════════════════ */
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -485,7 +485,8 @@ function buildShareText(r) {
     `감정 마찰도: ${m.frictionLabel}`, ``,
     `💡 오늘의 한 마디: ${actionShort}`, ``,
     `가동률: ${r.avail}% · ${QL[r.pq]} · ${r.leak}`,
-    ``, `— Emotion OS by Haru-Tech Lab`, shareUrl,
+    ``, `감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.`,
+    `— Emotion OS by HaruTech Lab`, shareUrl,
   ].join("\n");
 }
 
@@ -1234,7 +1235,7 @@ function Result({ result, onDone, isRc }) {
       {/* Header */}
       <div style={{ textAlign:"center", marginBottom:22 }}>
         <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
-        <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 결과" : "운영 상태 리포트"}</h1>
+        <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
         <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 기준 시스템 운영 상태</p>
         {isRc && result.delta != null && <div style={{ marginTop:10 }}><DBadge delta={result.delta} big /><p style={{ fontSize:fs(10), color:C.muted, marginTop:4 }}>{result.baselineType === "recheck" ? "직전 재점검 대비" : "풀 스캔 대비"}</p></div>}
       </div>
