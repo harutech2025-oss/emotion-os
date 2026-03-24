@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef, memo } from "react";
 
    ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
    수정은 src/ 모듈에서 먼저 하고, 이 스크립트로 재생성하세요.
-   생성 시각: 2026-03-24T04:21:21.817Z
+   생성 시각: 2026-03-24T04:34:16.991Z
    ═══════════════════════════════════════════════════════════════════ */
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -117,9 +117,9 @@ const LIB = [
   { cat:"핵심 프레임", title:"5R 기본 구조",         desc:"인지 → 조절 → 공명 → 회복 → 갱신",       url:"https://www.notion.so/5R-v1-3-320604b060a480f9bbbcd74d09be6ec8" },
   { cat:"핵심 프레임", title:"감정공학이란 무엇인가", desc:"감정공학의 정의와 목적",                   url:"https://www.notion.so/v1-3-31f604b060a480a88245fb446ea1bb1a" },
   { cat:"핵심 프레임", title:"호모 레귤란스",         desc:"Emotion OS를 일상적으로 가동하는 인간형",  url:"https://www.notion.so/Homo-Regulans-v2-5-321604b060a4809ab446f745c72b7e68" },
-  { cat:"진단 체계",   title:"감정누수 유형 총론",   desc:"7가지 감정 누수 패턴 분류",               url:"https://www.notion.so/Q1-Q7-v1-3-325604b060a480b18e42f438fa5b7e43" },
-  { cat:"진단 체계",   title:"Bug란 무엇인가",       desc:"반복되는 운영 오류의 표준 단위",          url:"https://www.notion.so/Bug-329604b060a4806e9af4e2720535a00e" },
-  { cat:"진단 체계",   title:"Patch란 무엇인가",     desc:"Bug에 개입하는 수정 조치",               url:"https://www.notion.so/Patch-329604b060a480d099a5c020cbe22409" },
+  { cat:"운영 구조",   title:"감정누수 유형 총론",   desc:"7가지 감정 누수 패턴 분류",               url:"https://www.notion.so/Q1-Q7-v1-3-325604b060a480b18e42f438fa5b7e43" },
+  { cat:"운영 구조",   title:"Bug란 무엇인가",       desc:"반복되는 운영 오류의 표준 단위",          url:"https://www.notion.so/Bug-329604b060a4806e9af4e2720535a00e" },
+  { cat:"운영 구조",   title:"Patch란 무엇인가",     desc:"Bug에 개입하는 수정 조치",               url:"https://www.notion.so/Patch-329604b060a480d099a5c020cbe22409" },
   { cat:"OS 영역",     title:"Body OS",              desc:"몸의 가동성과 회복을 읽는 프레임",        url:"https://www.notion.so/Body-OS-329604b060a48005be9cc00ad34b32f7" },
   { cat:"OS 영역",     title:"Relation OS",          desc:"관계 안의 경계와 공명을 읽는 프레임",     url:"https://www.notion.so/Relation-OS-329604b060a480dabedce49cd532b625" },
   { cat:"심화 주제",   title:"회복과 감각 리셋의 원리", desc:"R4 회복의 구조와 실전 적용",           url:"https://www.notion.so/R4-v1-3-326604b060a480829a7eef09c9f885df" },
@@ -130,7 +130,7 @@ const LIB = [
   { cat:"심화 주제",   title:"한국형 번아웃의 구조",   desc:"한국 사회 특유의 소진 메커니즘",        url:"https://www.notion.so/v1-3-320604b060a48047a6fbd5ed8452de6a" },
   { cat:"실전 도구",   title:"리커버리 프로토콜",     desc:"회복을 위한 구조화된 운영 절차",         url:"https://www.notion.so/Recovery-Protocol-v1-4-327604b060a4808f9201d83d9a9c13bb" },
 ];
-const LCATS = ["핵심 프레임","진단 체계","OS 영역","심화 주제","실전 도구"];
+const LCATS = ["핵심 프레임","운영 구조","OS 영역","심화 주제","실전 도구"];
 
 // ─── 노션 링크 ───
 const NL = { bug:"https://www.notion.so/Bug-329604b060a4806e9af4e2720535a00e", patch:"https://www.notion.so/Patch-329604b060a480d099a5c020cbe22409", q:"https://www.notion.so/Q1-Q7-v1-3-325604b060a480b18e42f438fa5b7e43", r5:"https://www.notion.so/5R-v1-3-320604b060a480f9bbbcd74d09be6ec8", rec:"https://www.notion.so/Recovery-Protocol-v1-4-327604b060a4808f9201d83d9a9c13bb" };
@@ -1139,7 +1139,7 @@ function ActionTab({ result, onTimer, actionLog }) {
 // Library Tab
 
 function LibTab() {
-  const cc = { "핵심 프레임":C.accent, "진단 체계":C.blue, "OS 영역":C.teal, "심화 주제":C.purple, "실전 도구":C.amber };
+  const cc = { "핵심 프레임":C.accent, "운영 구조":C.blue, "OS 영역":C.teal, "심화 주제":C.purple, "실전 도구":C.amber };
   return (
     <div style={{ padding:"20px 16px 100px" }}>
       <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Library</h2>
