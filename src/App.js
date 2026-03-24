@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   EMOTION OS v4.9.1 — Standalone (Auto-generated)
+   EMOTION OS v4.9.2 — Standalone (Auto-generated)
    Haru-Tech Lab
 
    ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
@@ -725,7 +725,7 @@ function PrincipleBanner({ text, tone }) {
 // ─── Next Check-in 카드 ───
 // 아침(5~11) / 점심(11~14) / 저녁(14~20) / 밤(20~5) 4 타임포인트
 const CHECKIN_SLOTS = [
-  { id:"morning",  range:[5,11],  icon:"🌅", label:"오늘의 운영 자세 정하기",       hint:"하루가 시작됩니다. 오늘 핵심 패턴 1개를 먼저 읽어두세요.",    cta:"Full Scan 새로 하기" },
+  { id:"morning",  range:[5,11],  icon:"🌅", label:"오늘 첫 운영 점검",             hint:"하루가 시작됩니다. 오늘 상태를 먼저 읽고 운영 기준을 다시 잡습니다.", cta:"Full Scan 새로 하기" },
   { id:"noon",     range:[11,14], icon:"☀️", label:"가동률 다시 보기",             hint:"오전의 피로 누적을 확인하고 지금 상태를 재점검합니다.",          cta:"가동률 재점검" },
   { id:"evening",  range:[14,20], icon:"🌆", label:"오늘 가장 많이 샌 감정 1개 기록", hint:"지금 이 순간까지 가장 에너지가 샌 패턴을 한 줄로 적습니다.",   cta:"누수 순간 기록" },
   { id:"night",    range:[20,29], icon:"🌙", label:"잠들기 전 3분 회복",            hint:"자기 전 3분. 오늘의 누수를 인정하고 내려놓는 시간입니다.",       cta:"3분 리셋" },
@@ -802,8 +802,8 @@ function NextCheckinCard({ band, onScan, onRc, onTimer, actionLog }) {
         );
         if (recentExecToday) {
           return {
-            label: "오늘의 운영 자세 확인",
-            hint: "어제의 리셋 이력이 있습니다. 새 스캔보다 현재 가동률을 먼저 확인해보세요.",
+            label: "오늘 상태 먼저 확인",
+            hint: "최근 실행 이력이 있습니다. 새 스캔보다 현재 가동률을 먼저 점검해보세요.",
             cta: "가동률 재점검",
             ctaAction: onRc,
             isMorningSoft: true,
