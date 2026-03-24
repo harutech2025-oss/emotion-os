@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   EMOTION OS v4.7.0 — Standalone (Auto-generated)
+   EMOTION OS v4.9.1 — Standalone (Auto-generated)
    Haru-Tech Lab
 
    ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
@@ -42,9 +42,9 @@ const QS = [
   { id:"I13", p:"최근 2주간, 해야 할 일이 눈앞에 있는데도 몸에 시동이 걸리지 않는 느낌이 반복됐다.", pq:"Q5", sq:"Q3", r1:"R4", leak:"회복단", bug:"BDY-BOOTFAIL-01", bugL:"시동 실패 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
   { id:"I14", p:"최근 2주간, 많이 하지 않았는데도 하루 끝에 바닥까지 방전된 것 같은 피로가 있었다.", pq:"Q5", sq:"Q2", r1:"R4", leak:"회복단", bug:"BDY-LOWPOWERLOCK-01", bugL:"저출력 고착 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
   { id:"I15", p:"최근 2주간, 누워 있는 시간이 길어질수록 오히려 더 움직이기 힘들어지는 악순환이 있었다.", pq:"Q5", sq:"Q6", r1:"R4", leak:"회복단", bug:"BDY-BEDLOCK-01", bugL:"침대 고착 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
-  { id:"I16", p:"최근 2주간, 다른 사람과 비교한 뒤 자신이 초라하고 뒤처졌다는 느낌이 오래 지속됐다.", pq:"Q6", sq:"Q5", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
-  { id:"I17", p:"최근 2주간, 누군가의 성취를 접한 직후 내가 세워둔 기준이 갑자기 흔들리는 느낌이 있었다.", pq:"Q6", sq:"Q1", r1:"R1", leak:"처리단", bug:"MND-FALSEPATCH-01", bugL:"가짜 패치 버그", patch:"Benchmark Filter", patchL:"기준 필터 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
-  { id:"I18", p:"최근 2주간, SNS나 메신저에서 타인의 근황을 확인한 뒤 자신의 상태를 다시 점검하거나 비교한 적이 잦았다.", pq:"Q6", sq:"Q7", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
+  { id:"I16", p:"최근 2주간, 누가 잘되는 걸 봤을 때 축하보다 내 처지가 먼저 초라하게 느껴졌다.", pq:"Q6", sq:"Q5", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
+  { id:"I17", p:"최근 2주간, 남의 성과를 본 직후 내 계획이나 속도가 갑자기 하찮게 느껴졌다.", pq:"Q6", sq:"Q1", r1:"R1", leak:"처리단", bug:"MND-FALSEPATCH-01", bugL:"가짜 패치 버그", patch:"Benchmark Filter", patchL:"기준 필터 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
+  { id:"I18", p:"최근 2주간, SNS를 보고 나서 내 하루를 다시 평가하거나 손보고 싶어진 적이 잦았다.", pq:"Q6", sq:"Q7", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
   { id:"I19", p:"최근 2주간, 일이 예상대로 정리되지 않으면 몸 전체가 경직되고 마음이 과하게 조여왔다.", pq:"Q7", sq:"Q3", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
   { id:"I20", p:"최근 2주간, 작은 실수나 사소한 허술함을 쉽게 흘려보내지 못하고 계속 붙들었다.", pq:"Q7", sq:"Q4", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
   { id:"I21", p:"최근 2주간, 쉬는 시간에도 무언가를 정리하거나 통제하려는 상태에서 완전히 벗어나지 못했다.", pq:"Q7", sq:"Q5", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
@@ -78,14 +78,21 @@ const SCALE = [
 
 // ─── Hot Fix DB (exec: 실행형 여부) ───
 const HOTFIX_DB = [
-  { ref:"universal-reset", label:"3분 리셋", desc:"모든 것을 멈추고 3분간 아무것도 하지 않습니다. 눈을 감고 호흡만 느끼세요.", cta:"지금 리셋하기", priority:0, bandMatch:["overload","low"], qMatch:null, exec:true, durationSec:180 },
-  { ref:"slow-down", label:"속도 낮추기", desc:"지금 하고 있는 모든 일의 속도를 의식적으로 절반으로 줄입니다.", cta:"5분 감속 시작", priority:1, bandMatch:null, qMatch:["Q1"], exec:true, durationSec:300 },
-  { ref:"root-reset", label:"통제 내려놓기", desc:"지금 통제하려는 것 하나를 골라 1분간 일부러 놓아봅니다. 완벽하지 않아도 세상은 안 무너집니다.", cta:"1분 내려놓기", priority:1, bandMatch:null, qMatch:["Q7"], exec:true, durationSec:60 },
-  { ref:"sensory-reset", label:"자극 차단", desc:"소리, 빛, 알림 등 외부 입력을 5분간 최소화합니다.", cta:"5분 차단 시작", priority:1, bandMatch:null, qMatch:["Q2"], exec:true, durationSec:300 },
-  { ref:"stop-signal", label:"출력 멈춤", desc:"말하거나 반응하려는 충동을 10초간 멈추고 내부를 먼저 점검합니다.", cta:"10초 멈춤 시작", priority:1, bandMatch:null, qMatch:["Q4"], exec:true, durationSec:10 },
-  { ref:"baseline-reset", label:"기준선 복구", desc:"가장 작은 움직임 하나(물 한 잔, 창문 열기)로 시스템 재가동을 시도합니다.", cta:"1분 회복 시작", priority:1, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
-  { ref:"voice-activate", label:"감정 이름 붙이기", desc:"지금 느끼는 것에 한 단어로 이름을 붙여봅니다. 정확하지 않아도 됩니다.", cta:"1분 감정 읽기", priority:2, bandMatch:null, qMatch:["Q3"], exec:true, durationSec:60 },
-  { ref:"permission-reset", label:"허용 기준 복구", desc:"'지금까지 한 것'을 하나 떠올리고 그것으로 충분하다고 허락합니다.", cta:"1분 기준 복구", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:60 },
+  { ref:"universal-reset", guideText:"아무것도 해결하려 하지 말고,\n호흡만 느끼세요.", label:"3분 리셋", desc:"모든 것을 멈추고 3분간 아무것도 하지 않습니다. 눈을 감고 호흡만 느끼세요.", cta:"지금 리셋하기", priority:0, bandMatch:["overload","low"], qMatch:null, exec:true, durationSec:180 },
+  { ref:"slow-down", guideText:"지금 하는 일의 속도를 의식적으로\n절반으로 늦춰보세요.", label:"속도 낮추기", desc:"지금 하고 있는 모든 일의 속도를 의식적으로 절반으로 줄입니다.", cta:"5분 감속 시작", priority:1, bandMatch:null, qMatch:["Q1"], exec:true, durationSec:300 },
+  { ref:"root-reset", guideText:"통제하려는 것 하나를 골라\n1분간 일부러 놓아봅니다.", label:"통제 내려놓기", desc:"지금 통제하려는 것 하나를 골라 1분간 일부러 놓아봅니다. 완벽하지 않아도 세상은 안 무너집니다.", cta:"1분 내려놓기", priority:1, bandMatch:null, qMatch:["Q7"], exec:true, durationSec:60 },
+  { ref:"sensory-reset", guideText:"알림을 끄고, 눈을 감거나 창을 닫아\n외부 자극을 차단합니다.", label:"자극 차단", desc:"소리, 빛, 알림 등 외부 입력을 5분간 최소화합니다.", cta:"5분 차단 시작", priority:1, bandMatch:null, qMatch:["Q2"], exec:true, durationSec:300 },
+  { ref:"stop-signal", guideText:"반응하고 싶은 충동을 내려두고\n속으로 10을 세어보세요.", label:"출력 멈춤", desc:"말하거나 반응하려는 충동을 10초간 멈추고 내부를 먼저 점검합니다.", cta:"10초 멈춤 시작", priority:1, bandMatch:null, qMatch:["Q4"], exec:true, durationSec:10 },
+  { ref:"baseline-reset", guideText:"가장 작은 움직임 하나—\n물 한 잔, 창문 열기, 자리에서 일어나기.", label:"기준선 복구", desc:"가장 작은 움직임 하나(물 한 잔, 창문 열기)로 시스템 재가동을 시도합니다.", cta:"1분 회복 시작", priority:1, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
+  { ref:"voice-activate", guideText:"지금 느끼는 감정에 한 단어로\n이름을 붙여봅니다.", label:"감정 이름 붙이기", desc:"지금 느끼는 것에 한 단어로 이름을 붙여봅니다. 정확하지 않아도 됩니다.", cta:"1분 감정 읽기", priority:2, bandMatch:null, qMatch:["Q3"], exec:true, durationSec:60 },
+  { ref:"permission-reset", guideText:"지금까지 한 것 하나를 떠올리고\n그것으로 충분하다고 허락합니다.", label:"허용 기준 복구", desc:"'지금까지 한 것'을 하나 떠올리고 그것으로 충분하다고 허락합니다.", cta:"1분 기준 복구", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:60 },
+  // ─── Reset 다양화 3종 (P1) ───
+  // 기록형: 감정 누수 순간 1줄 기록 (60초 집중)
+  { ref:"leak-note", guideText:"오늘 가장 에너지가 샌 순간을\n한 문장으로 써봅니다.", label:"누수 순간 기록", desc:"오늘 가장 많이 에너지가 샌 순간을 한 문장으로 적습니다. 정확하지 않아도 됩니다.", cta:"1분 기록 시작", priority:2, bandMatch:null, qMatch:["Q3","Q4","Q5"], exec:true, durationSec:60 },
+  // 움직임형: 1분 마이크로 무빙
+  { ref:"micro-move", guideText:"발을 바닥에 붙이고,\n팔을 한번 들고, 자리에서 일어섭니다.", label:"1분 마이크로 무빙", desc:"발을 바닥에 붙이고, 팔을 한번 들고, 자리에서 일어섭니다. 딱 이것만 합니다.", cta:"1분 움직임 시작", priority:2, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
+  // 환경정리형: 자극 차단 + 환경 조정 (300초)
+  { ref:"env-reset", guideText:"알림을 끄고, 조명을 낮추거나\n소음을 줄입니다.", label:"환경 정리", desc:"알림을 끄고, 조명을 낮추거나, 소음을 줄입니다. 5분간 외부 입력을 최소화합니다.", cta:"5분 환경 정리", priority:2, bandMatch:null, qMatch:["Q2","Q1"], exec:true, durationSec:300 },
 ];
 
 // ─── Protocol DB (7, Q별 1개) ───
@@ -105,7 +112,7 @@ const PRAC_DB = [
   { ref:"stim-log",     label:"자극 일지 기록",        desc:"오늘 가장 많은 에너지를 뺏은 자극 3개를 적어봅니다.", qMatch:["Q2"] },
   { ref:"emo-name",     label:"감정 이름 붙이기",      desc:"지금 느끼는 것에 3초 안에 한 단어로 이름을 붙이는 훈련입니다.", qMatch:["Q3"] },
   { ref:"10sec-pause",  label:"10초 멈춤 연습",        desc:"감정이 올라올 때 반응 전에 속으로 10을 세는 연습입니다.", qMatch:["Q4"] },
-  { ref:"micro-move",   label:"1분 마이크로 무빙",     desc:"발만 바닥에 대기, 팔 한번 들기 같은 최소 움직임으로 재가동을 연습합니다.", qMatch:["Q5"] },
+  { ref:"micro-move", guideText:"발을 바닥에 붙이고,\n팔을 한번 들고, 자리에서 일어섭니다.",   label:"1분 마이크로 무빙",     desc:"발만 바닥에 대기, 팔 한번 들기 같은 최소 움직임으로 재가동을 연습합니다.", qMatch:["Q5"] },
   { ref:"process-chk",  label:"과정 체크 연습",        desc:"오늘 '결과'가 아닌 '과정'에서 잘한 점 하나를 떠올리는 연습입니다.", qMatch:["Q6"] },
   { ref:"80pct-rule",   label:"80% 허용 연습",         desc:"오늘 하나의 일을 의도적으로 80%에서 멈추는 연습입니다.", qMatch:["Q7"] },
   { ref:"trigger-sig",  label:"Trigger Signal 연습",   desc:"손바닥(Stop), 손가락 2개(Time-out), [프리즈] 키워드를 미리 연습합니다.", qMatch:["Q3","Q4"] },
@@ -265,15 +272,50 @@ function calcRecheck(a, qs, prev) {
   return { nm:n, pq:prev.pq, sq:prev.sq, hi, mean:mn, band:bd, avail:av, spread:Object.values(n).filter(v => v >= 30).length >= 5, leak:prev.leak, r1:prev.r1, bug:prev.bug, bugL:prev.bugL, patch:prev.patch, patchL:prev.patchL, mode:prev.mode, modeD:prev.modeD, ts:Date.now(), type:"recheck", delta:av - prev.avail, baselineType:prev.type === "recheck" ? "recheck" : "full" };
 }
 
+// leak → 우선 ref 맵 (P1-2)
+const LEAK_PRIORITY_MAP = {
+  "입력단":  ["env-reset","sensory-reset"],
+  "처리단":  ["leak-note","voice-activate","permission-reset"],
+  "조절단":  ["slow-down","root-reset"],
+  "출력단":  ["stop-signal"],
+  "회복단":  ["baseline-reset","micro-move"],
+  "갱신단":  ["permission-reset"],
+};
+
+function scoreHotFix(h, r) {
+  // 기준 점수: priority * 10 (낮을수록 좋음)
+  let score = h.priority * 10;
+  // pq/sq 보정
+  if (h.qMatch) {
+    if (h.qMatch.includes(r.pq)) score -= 20;
+    else if (h.qMatch.includes(r.sq)) score -= 10;
+  }
+  // leak 보정
+  const leakRefs = LEAK_PRIORITY_MAP[r.leak] || [];
+  const leakIdx = leakRefs.indexOf(h.ref);
+  if (leakIdx === 0) score -= 15;
+  else if (leakIdx === 1) score -= 8;
+  else if (leakIdx > 1) score -= 3;
+  // band 보정: overload/low → universal-reset 최상단 고정
+  if ((r.band === "overload" || r.band === "low") && h.ref === "universal-reset") score -= 100;
+  // caution/stable → pq 기반 카드 한 번 더 강화
+  if ((r.band === "caution" || r.band === "stable") && h.qMatch && h.qMatch.includes(r.pq)) score -= 5;
+  return score;
+}
+
 function getHotFixes(r) {
   if (!r) return [];
-  const f = HOTFIX_DB.filter(h => {
+  const candidates = HOTFIX_DB.filter(h => {
     if (h.bandMatch && h.bandMatch.includes(r.band)) return true;
     if (h.qMatch && (h.qMatch.includes(r.pq) || h.qMatch.includes(r.sq))) return true;
+    // leak 기반 추가 포함
+    const leakRefs = LEAK_PRIORITY_MAP[r.leak] || [];
+    if (leakRefs.includes(h.ref)) return true;
     return false;
-  }).sort((a,b) => a.priority - b.priority);
-  if ((r.band === "overload" || r.band === "low") && !f.find(x => x.ref === "universal-reset")) f.unshift(HOTFIX_DB[0]);
-  return f.slice(0, 3);
+  });
+  const scored = candidates.map(h => ({ ...h, _score: scoreHotFix(h, r) }));
+  scored.sort((a, b) => a._score - b._score);
+  return scored.slice(0, 3);
 }
 
 function isExecutableHotFix(ref) {
@@ -680,6 +722,146 @@ function PrincipleBanner({ text, tone }) {
   );
 }
 
+// ─── Next Check-in 카드 ───
+// 아침(5~11) / 점심(11~14) / 저녁(14~20) / 밤(20~5) 4 타임포인트
+const CHECKIN_SLOTS = [
+  { id:"morning",  range:[5,11],  icon:"🌅", label:"오늘의 운영 자세 정하기",       hint:"하루가 시작됩니다. 오늘 핵심 패턴 1개를 먼저 읽어두세요.",    cta:"Full Scan 새로 하기" },
+  { id:"noon",     range:[11,14], icon:"☀️", label:"가동률 다시 보기",             hint:"오전의 피로 누적을 확인하고 지금 상태를 재점검합니다.",          cta:"가동률 재점검" },
+  { id:"evening",  range:[14,20], icon:"🌆", label:"오늘 가장 많이 샌 감정 1개 기록", hint:"지금 이 순간까지 가장 에너지가 샌 패턴을 한 줄로 적습니다.",   cta:"누수 순간 기록" },
+  { id:"night",    range:[20,29], icon:"🌙", label:"잠들기 전 3분 회복",            hint:"자기 전 3분. 오늘의 누수를 인정하고 내려놓는 시간입니다.",       cta:"3분 리셋" },
+];
+
+// 밴드별 하루 체크인 빈도 정의
+const CHECKIN_FREQ = { stable:1, caution:2, low:3, overload:4 };
+
+function getCheckinSlot() {
+  const h = new Date().getHours();
+  // 밤 20시 이후는 index 3, 아침 이전(0~4시)도 night으로 처리
+  if (h >= 20 || h < 5) return CHECKIN_SLOTS[3];
+  return CHECKIN_SLOTS.find(s => h >= s.range[0] && h < s.range[1]) || CHECKIN_SLOTS[0];
+}
+
+// 슬롯별 기본 ref + 폴백 체인
+const SLOT_REF_MAP = { morning:null, noon:null, evening:"leak-note", night:"universal-reset" };
+const CHECKIN_COOLDOWN_MS = 30 * 60 * 1000; // 30분 (P1 spec)
+
+// ref별 대체 우선순위 체인 (spec 그대로)
+const CHECKIN_FALLBACK = {
+  "universal-reset": ["leak-note", "micro-move"],
+  "leak-note":       ["micro-move", "env-reset"],
+  "micro-move":      ["leak-note", "env-reset"],
+  "env-reset":       ["leak-note", "universal-reset"],
+  "slow-down":       ["root-reset", "leak-note"],
+  "root-reset":      ["slow-down", "leak-note"],
+  "voice-activate":  ["leak-note", "micro-move"],
+};
+
+// 실행 가능한 ref를 반환 (30분 내 completed면 폴백 체인 탐색)
+function resolveCheckinRef(primaryRef, band, actionLog) {
+  if (!primaryRef) return { ref:null, isOverloadException:false };
+  const alog = actionLog || [];
+  const done = (ref) => isRecentlyCompleted(alog, ref, CHECKIN_COOLDOWN_MS);
+
+  // overload 예외: universal-reset은 방금 해도 한 번 더 허용
+  if (primaryRef === "universal-reset" && band === "overload") {
+    return { ref:"universal-reset", isOverloadException:true };
+  }
+
+  if (!done(primaryRef)) return { ref:primaryRef, isOverloadException:false };
+
+  // 폴백 체인 탐색
+  const chain = CHECKIN_FALLBACK[primaryRef] || [];
+  for (const fb of chain) {
+    if (!done(fb)) return { ref:fb, isOverloadException:false };
+  }
+  // 모든 체인이 소진 → 재점검 폴백 (ref null = onRc 호출)
+  return { ref:null, isOverloadException:false, exhausted:true };
+}
+
+function NextCheckinCard({ band, onScan, onRc, onTimer, actionLog }) {
+  const slot = getCheckinSlot();
+  const freq = CHECKIN_FREQ[band] || 1;
+  const freqLabel = freq >= 3 ? `하루 ${freq}회 체크인 권장` : freq === 2 ? "오전·저녁 체크인 권장" : "하루 1회 체크인";
+
+  const primaryRef = SLOT_REF_MAP[slot.id] || null;
+  const { ref:resolvedRef, isOverloadException, exhausted } = resolveCheckinRef(primaryRef, band, actionLog);
+
+  // 폴백 발생 여부 (원래 ref와 다른 ref가 나왔으면)
+  const isFallback = primaryRef && resolvedRef && resolvedRef !== primaryRef;
+  const isAllDone = primaryRef && (exhausted || (!resolvedRef && !isOverloadException));
+
+  // 폴백/예외 케이스에 맞는 라벨·힌트·cta 계산
+  const getDisplay = () => {
+    if (!primaryRef) {
+      // morning 소프트 분기: 어제 저녁·밤 실행 이력이 있으면 Full Scan 대신 운영 자세 확인
+      if (slot.id === "morning") {
+        const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+        const recentExecToday = (actionLog || []).some(a =>
+          a.status === "completed" && a.completedAt &&
+          a.completedAt >= todayStart.getTime() - 12 * 60 * 60 * 1000 // 12시간 내
+        );
+        if (recentExecToday) {
+          return {
+            label: "오늘의 운영 자세 확인",
+            hint: "어제의 리셋 이력이 있습니다. 새 스캔보다 현재 가동률을 먼저 확인해보세요.",
+            cta: "가동률 재점검",
+            ctaAction: onRc,
+            isMorningSoft: true,
+          };
+        }
+      }
+      return { label:slot.label, hint:slot.hint, cta:slot.cta, ctaAction:() => {
+        if (slot.cta === "Full Scan 새로 하기") onScan();
+        else onRc();
+      }};
+    }
+    if (isAllDone) return { label:"오늘 체크인 완료", hint:"오늘 권장 루틴을 모두 완료했습니다. 가동률 재점검으로 현재 상태를 확인해보세요.", cta:"가동률 재점검", ctaAction:onRc };
+    if (isOverloadException) return { label:slot.label, hint:"과부하 상태입니다. 한 번 더 안정화가 필요합니다.", cta:"한 번 더 안정화", ctaAction:() => onTimer && onTimer("universal-reset") };
+    if (isFallback) {
+      const fbHf = HOTFIX_DB.find(h => h.ref === resolvedRef);
+      return { label:fbHf?.label || slot.label, hint:`방금 ${slot.cta.replace(" →","")} 대신 다른 방식으로 안정화를 이어갑니다.`, cta:fbHf?.cta || "실행", ctaAction:() => onTimer && onTimer(resolvedRef) };
+    }
+    return { label:slot.label, hint:slot.hint, cta:slot.cta, ctaAction:() => {
+      if (slot.cta === "누수 순간 기록") onTimer && onTimer("leak-note");
+      else if (slot.cta === "3분 리셋") onTimer && onTimer("universal-reset");
+      else onScan();
+    }};
+  };
+
+  const display = getDisplay();
+  const { label, hint, cta, ctaAction } = display;
+  const isMorningSoft = !!display.isMorningSoft;
+  const accentColor = isAllDone ? C.green : isFallback ? C.teal : isMorningSoft ? C.blue : C.accent;
+  const borderColor = isAllDone ? C.green+"40" : isFallback ? C.teal+"40" : isMorningSoft ? C.blue+"40" : C.borderL;
+  const bgColor = isAllDone ? `${C.green}05` : isFallback ? `${C.teal}04` : isMorningSoft ? `${C.blue}04` : C.cardH;
+
+  return (
+    <div style={{ borderRadius:12, border:`1px solid ${borderColor}`, background:bgColor, padding:"14px 16px", marginBottom:14 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+        <span style={{ fontSize:fs(10), fontWeight:700, color:C.muted, letterSpacing:2, textTransform:"uppercase" }}>Next Check-in</span>
+        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+          {isAllDone && <span style={{ fontSize:fs(9), color:C.green, fontWeight:600, background:`${C.green}15`, padding:"1px 8px", borderRadius:8 }}>완료</span>}
+          {isFallback && <span style={{ fontSize:fs(9), color:C.teal, fontWeight:600, background:`${C.teal}15`, padding:"1px 8px", borderRadius:8 }}>대안</span>}
+          {isOverloadException && <span style={{ fontSize:fs(9), color:C.red, fontWeight:600, background:`${C.red}15`, padding:"1px 8px", borderRadius:8 }}>과부하</span>}
+          {isMorningSoft && <span style={{ fontSize:fs(9), color:C.blue, fontWeight:600, background:`${C.blue}15`, padding:"1px 8px", borderRadius:8 }}>이력 반영</span>}
+          <span style={{ fontSize:fs(9), color:C.muted }}>{freqLabel}</span>
+        </div>
+      </div>
+      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+        <span style={{ fontSize:fs(18) }}>{slot.icon}</span>
+        <span style={{ fontSize:fs(13), fontWeight:700, color:isAllDone ? C.green : C.text }}>{label}</span>
+      </div>
+      <p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.6, marginBottom:10 }}>{hint}</p>
+      <button
+        onClick={ctaAction}
+        style={{ padding:"8px 16px", borderRadius:9, border:`1px solid ${accentColor}40`, background:`${accentColor}10`, color:accentColor, fontSize:fs(12), fontWeight:600, fontFamily:FF, cursor:"pointer" }}
+      >
+        {cta} →
+      </button>
+    </div>
+  );
+}
+
 // ═══ M6-c: NAVIGATION ════════════════════════════════════════════
 // Bottom Navigation
 
@@ -716,17 +898,34 @@ function R5RadarInner({ pr, result }) {
   QS.forEach(q => { if (q.r1) rL[q.r1] = Math.max(rL[q.r1], result.nm[q.pq] || 0); });
   // R5(갱신)은 QS에 직접 매핑 없음 → Q6(비교)+Q7(통제) 평균으로 파생
   rL["R5"] = Math.round(((result.nm["Q6"] || 0) + (result.nm["Q7"] || 0)) / 2 * 10) / 10;
-  const cx = 75, cy = 75, rd = 55, as = 2*Math.PI/5, sa = -Math.PI/2;
+  // P0-1: SVG 180×180, rd 62, 라벨 반경 rd+22 — 모바일 한글 라벨 깨짐 방지
+  const SZ = 180;
+  const cx = SZ/2, cy = SZ/2, rd = 62, as = 2*Math.PI/5, sa = -Math.PI/2;
   const pts = RK.map((k,i) => { const a = sa+i*as, r = rd * Math.max(Math.min(rL[k]/100, 1), 0.08); return { x:cx+r*Math.cos(a), y:cy+r*Math.sin(a), k }; });
-  const lps = RK.map((k,i) => { const a = sa+i*as, r = rd+16; return { x:cx+r*Math.cos(a), y:cy+r*Math.sin(a), k }; });
+  // 라벨 반경 확대 + 각도별 dy 개별 보정 (상단·하단 라벨 잘림 방지)
+  const lps = RK.map((k,i) => {
+    const a = sa+i*as, r = rd+22;
+    const x = cx+r*Math.cos(a), y = cy+r*Math.sin(a);
+    const dy = i === 0 ? -2 : (i === 2 || i === 3) ? 3 : 0;
+    return { x, y, k, dy };
+  });
   return (
     <div style={{ display:"flex", justifyContent:"center", margin:"12px 0 8px" }}>
-      <svg width={150} height={150} viewBox="0 0 150 150">
+      <svg width={SZ} height={SZ} viewBox={`0 0 ${SZ} ${SZ}`}>
         {[.33,.66,1].map(s => (<polygon key={s} points={RK.map((k,i) => { const a = sa+i*as, r = rd*s; return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`; }).join(" ")} fill="none" stroke={C.border} strokeWidth=".5" />))}
         {RK.map((k,i) => <line key={i} x1={cx} y1={cy} x2={cx+rd*Math.cos(sa+i*as)} y2={cy+rd*Math.sin(sa+i*as)} stroke={C.border} strokeWidth=".5" />)}
         <polygon points={pts.map(p => `${p.x},${p.y}`).join(" ")} fill={`${C.accent}20`} stroke={C.accent} strokeWidth="1.5" />
         {pts.map((p,i) => <circle key={i} cx={p.x} cy={p.y} r={p.k===pr?4:2.5} fill={p.k===pr?C.accent:C.dim} />)}
-        {lps.map((p,i) => <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize:fs(9), fontWeight:p.k===pr?800:500, fill:p.k===pr?C.accent:C.dim, fontFamily:FF }}>{RS[p.k]}</text>)}
+        {lps.map((p,i) => (
+          <text
+            key={i} x={p.x} y={p.y} dy={p.dy}
+            textAnchor="middle" dominantBaseline="middle"
+            fontSize={12}
+            fontWeight={p.k===pr ? 800 : 500}
+            fill={p.k===pr ? C.accent : C.dim}
+            fontFamily={FF}
+          >{RS[p.k]}</text>
+        ))}
       </svg>
     </div>
   );
@@ -871,6 +1070,13 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actio
         );
       })()}
 
+      {/* 2.5 고정 모토 스트립 */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"8px 14px", marginBottom:10, borderRadius:8, border:`1px solid ${C.accent}18`, background:`${C.accent}05` }}>
+        <span style={{ fontSize:fs(11), color:C.accent, fontWeight:600, letterSpacing:0.3, textAlign:"center", lineHeight:1.5 }}>
+          감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.
+        </span>
+      </div>
+
       {/* 3. PrincipleBanner */}
       <PrincipleBanner text={getPrincipleText(hs.band)} tone={hs.band === "stable" ? "teal" : "accent"} />
 
@@ -943,6 +1149,9 @@ function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actio
         {hs.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
         {hs.source === "recheck_overlay" && <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>가동률은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
       </Accordion>
+
+      {/* 6.5 Next Check-in 카드 */}
+      <NextCheckinCard band={hs.band} onScan={onScan} onRc={onRc} onTimer={onTimer} actionLog={actionLog} />
 
       {/* 7. HistoryGraph (아래로 이동) */}
       <HistoryGraph history={hist} actionLog={actionLog} />
@@ -1091,7 +1300,7 @@ function ActionTab({ result, onTimer, actionLog }) {
       <p style={{ fontSize:fs(12), color:C.dim, marginBottom:18 }}>설명보다 버튼. 지금 바로 실행할 수 있는 개입입니다.</p>
 
       {/* 운영 기준 문장 */}
-      <PrincipleBanner text="지금은 문제를 다 해결하는 것보다, 감정 누수를 먼저 줄이는 편이 더 효과적입니다." tone="teal" />
+      <PrincipleBanner text="지금은 해결보다 누수 차단이 우선입니다." tone="accent" />
 
       {/* 실행 가능 Hot Fix */}
       {execFx.length > 0 && <>
@@ -1108,12 +1317,58 @@ function ActionTab({ result, onTimer, actionLog }) {
                 <Badge text="최우선" color={C.accent} />
               </div>
             </div>
-            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:10 }}>{f.desc}</p>
-            <Btn primary small onClick={() => onTimer && onTimer(f.ref)}>{f.cta}</Btn>
-            <p style={{ fontSize:fs(10), color:C.muted, marginTop:8, margin:0, marginTop:8 }}>이 패치는 감정 누수를 줄이기 위한 최소 개입입니다.</p>
+            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:16 }}>{f.desc}</p>
+            <div style={{ marginBottom:12 }}><Btn primary small onClick={() => onTimer && onTimer(f.ref)}>{f.cta}</Btn></div>
+            <p style={{ fontSize:fs(10), color:C.muted, margin:0 }}>이 패치는 감정 누수를 줄이기 위한 최소 개입입니다.</p>
           </Card>
         ))}
       </>}
+
+      {/* Reset 다양화 3종 — 패턴 기반 조건부 노출 */}
+      {(() => {
+        const RESET_TYPES = [
+          { ref:"leak-note",  icon:"✏️", type:"기록형",     color:C.blue,  qMatch:["Q3","Q4","Q5"] },
+          { ref:"micro-move", icon:"🏃", type:"움직임형",   color:C.green, qMatch:["Q5"] },
+          { ref:"env-reset",  icon:"🔇", type:"환경정리형", color:C.teal,  qMatch:["Q2","Q1"] },
+        ];
+        const pq = result?.pq, sq = result?.sq;
+        let diverseResets = RESET_TYPES
+          .map(rt => ({ ...rt, hf: HOTFIX_DB.find(h => h.ref === rt.ref) }))
+          .filter(rt => rt.hf && (rt.qMatch.includes(pq) || rt.qMatch.includes(sq)))
+          // pq 직접 매칭 → 최상위, sq 매칭 → 하위 (pq 패턴이 가장 급한 항목 우선 노출)
+          .sort((a, b) => {
+            const aPri = a.qMatch.includes(pq) ? 0 : 1;
+            const bPri = b.qMatch.includes(pq) ? 0 : 1;
+            return aPri - bPri;
+          });
+        if (diverseResets.length === 0) {
+          const fb = RESET_TYPES[0];
+          diverseResets = [{ ...fb, hf: HOTFIX_DB.find(h => h.ref === fb.ref) }].filter(rt => rt.hf);
+        }
+        return (
+          <div style={{ marginBottom:18 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+              <span style={{ fontSize:fs(11), fontWeight:700, color:C.blue, letterSpacing:2, textTransform:"uppercase" }}>Reset 다양화</span>
+              <span style={{ fontSize:fs(10), color:C.muted }}>{diverseResets.length}종 추천</span>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {diverseResets.map(rt => (
+                <div key={rt.ref} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 14px", borderRadius:12, border:`1px solid ${rt.color}25`, background:`${rt.color}06` }}>
+                  <span style={{ fontSize:fs(20), flexShrink:0 }}>{rt.icon}</span>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
+                      <span style={{ fontSize:fs(12), fontWeight:700, color:C.text }}>{rt.hf.label}</span>
+                      <span style={{ fontSize:fs(9), color:rt.color, fontWeight:600, background:`${rt.color}15`, padding:"1px 6px", borderRadius:8 }}>{rt.type}</span>
+                    </div>
+                    <p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.5, margin:0 }}>{rt.hf.desc}</p>
+                  </div>
+                  <button onClick={() => onTimer && onTimer(rt.ref)} style={{ flexShrink:0, padding:"7px 12px", borderRadius:9, border:`1px solid ${rt.color}40`, background:`${rt.color}12`, color:rt.color, fontSize:fs(11), fontWeight:700, fontFamily:FF, cursor:"pointer", whiteSpace:"nowrap" }}>{rt.hf.cta}</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Protocol / Practice (접이식) */}
       {!hi && (proto || prac) && (
@@ -1290,18 +1545,37 @@ function Result({ result, onDone, isRc, onCp }) {
       <div style={{ textAlign:"center", marginBottom:22 }}>
         <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
         <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
-        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 기준 시스템 운영 상태</p>
+        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>운영 상태 리포트 · 최근 2주 기준</p>
+        <p style={{ fontSize:fs(11), color:C.muted, marginTop:6, lineHeight:1.65 }}>
+          이 리포트는 최근 2주의 반복 패턴을 기준으로, 오늘의 운영 상태를 해석한 결과입니다.
+        </p>
         {isRc && result.delta != null && <div style={{ marginTop:10 }}><DBadge delta={result.delta} big /><p style={{ fontSize:fs(10), color:C.muted, marginTop:4 }}>{result.baselineType === "recheck" ? "직전 재점검 대비" : "풀 스캔 대비"}</p></div>}
       </div>
 
-      {/* 1. 체감 요약 (사용자 언어 먼저) */}
+      {/* 1. 브랜드 고정 모토 (안 A: 설명 아래 · LiveSummary 위 · 가장 강한 각인 위치) */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"10px 16px", marginBottom:14, borderRadius:10, border:`1px solid ${C.accent}22`, background:`${C.accent}06` }}>
+        <span style={{ fontSize:fs(12), color:C.accent, fontWeight:700, letterSpacing:0.3, textAlign:"center", lineHeight:1.55 }}>
+          감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.
+        </span>
+      </div>
+
+      {/* 2. 체감 요약 (사용자 언어 먼저) */}
       <LiveSummaryCard result={result} />
 
       {/* 2. 체감 척도 3종 */}
       <LiveMetricsCard result={result} />
 
-      {/* 운영 기준 전환 카드 */}
-      <PrincipleBanner text={getPrincipleText(result.band)} tone={result.band === "stable" ? "teal" : "accent"} />
+      {/* 운영 기준 — 변주형 (고정 원문보다 한 단계 얇게) */}
+      {(() => {
+        const bColor = result.band === "stable" ? C.teal : C.accent;
+        return (
+          <div style={{ padding:"7px 12px", borderRadius:8, border:`1px solid ${bColor}12`, background:`${bColor}04`, marginBottom:12 }}>
+            <p style={{ fontSize:fs(10), fontWeight:500, color:`${bColor}cc`, lineHeight:1.55, margin:0 }}>
+              오늘은 완벽한 회복보다 10% 감소가 더 중요합니다.
+            </p>
+          </div>
+        );
+      })()}
 
       {/* 3. 기술 지표: 가동률 */}
       <Card accent={`${b.c}30`} style={{ background:b.bg }}>
@@ -1479,7 +1753,11 @@ function TimerScreen({ timer, onComplete, onCancel }) {
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
       <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700, marginBottom:24 }}>Emotion OS</div>
       <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, marginBottom:8 }}>{timer.label}</h2>
-      <p style={{ fontSize:fs(13), color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>아무것도 해결하려 하지 말고,<br/>호흡만 느끼세요.</p>
+      <p style={{ fontSize:fs(13), color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>
+        {(timer.guideText || "").split("\n").map((line, i, arr) => (
+          <React.Fragment key={i}>{line}{i < arr.length - 1 && <br/>}</React.Fragment>
+        ))}
+      </p>
       <div style={{ position:"relative", width:200, height:200, marginBottom:32 }}>
         <svg width="200" height="200" viewBox="0 0 200 200" style={{ transform:"rotate(-90deg)" }}>
           <circle cx="100" cy="100" r={circR} fill="none" stroke={C.border} strokeWidth="4" />
@@ -1492,7 +1770,14 @@ function TimerScreen({ timer, onComplete, onCancel }) {
         </div>
       </div>
       {!done && <Btn small onClick={onCancel} style={{ maxWidth:200, marginBottom:8 }}>중단하기</Btn>}
-      {done && <Btn primary onClick={onComplete} style={{ maxWidth:260 }}>완료 · 돌아가기</Btn>}
+      {done && (
+        <>
+          <p style={{ fontSize:fs(13), color:C.green, marginBottom:18, lineHeight:1.7, maxWidth:280, textAlign:"center", fontStyle:"italic" }}>
+            잘했습니다.<br />감정 누수를 조금만 줄여도 오늘은 달라집니다.
+          </p>
+          <Btn primary onClick={onComplete} style={{ maxWidth:260 }}>완료 · 돌아가기</Btn>
+        </>
+      )}
     </div>
   );
 }
@@ -1559,7 +1844,7 @@ function EmotionOSApp() {
   const openHotFixTimer = (ref, result) => {
     const hf = HOTFIX_DB.find(h => h.ref === ref);
     if (!hf || !hf.exec) return;
-    setActiveTimer({ ref, label:hf.label, durationSec:hf.durationSec, startedAt:Date.now(), availAtStart:result?.avail ?? null, resultType:result?.type ?? null });
+    setActiveTimer({ ref, label:hf.label, durationSec:hf.durationSec, guideText:hf.guideText ?? "아무것도 해결하려 하지 말고,\n호흡만 느끼세요.", startedAt:Date.now(), availAtStart:result?.avail ?? null, resultType:result?.type ?? null });
     setScr("timer");
   };
 
