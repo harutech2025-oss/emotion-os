@@ -1,12 +1,31 @@
-import React, { useState, useEffect, useRef, memo } from "react";
+import React, { useState, useEffect, useRef, useReducer, useContext, createContext, useCallback, useMemo, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
    EMOTION OS v4.9.2 — Standalone (Auto-generated)
    Haru-Tech Lab
 
-   ⚠️ 이 파일은 scripts/build-standalone.cjs가 src/에서 자동 생성했습니다.
-   수정은 src/ 모듈에서 먼저 하고, 이 스크립트로 재생성하세요.
-   생성 시각: 2026-03-24T08:30:40.723Z
+   ╔═══════════════════════════════════════════════════════════════╗
+   ║  ⛔ 이 파일을 직접 수정하지 마세요!                           ║
+   ║                                                               ║
+   ║  이 파일은 scripts/build-standalone.cjs가 src/에서             ║
+   ║  자동 생성한 배포용 번들입니다.                                ║
+   ║                                                               ║
+   ║  수정 흐름:                                                   ║
+   ║    1. src/ 모듈에서 변경                                      ║
+   ║    2. node scripts/build-standalone.cjs 로 재생성             ║
+   ║    3. 이 파일은 생성 결과물 — 기준본이 아닙니다               ║
+   ║                                                               ║
+   ║  이 원칙을 지키지 않으면 다음 빌드에서 수정이 유실됩니다.     ║
+   ╚═══════════════════════════════════════════════════════════════╝
+
+   생성 시각: 2026-03-25T09:00:00.000Z
+
+   v4.9.2 변경 사항:
+   - Fix 1: state 변수 fs → fullScan (유틸 함수 fs() 섀도잉 해소)
+   - Fix 2: 9개 useState → useReducer + AppContext (props drilling 완화)
+   - Fix 3: calcRecheck pq/sq 재산정 정책 명시 (10%p 임계값 기반 전환)
+   - Hotfix: morning Check-in 라벨/CTA 정합성 복원
+   - Hotfix: ctxValue useMemo 안정화
    ═══════════════════════════════════════════════════════════════════ */
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -257,6 +276,21 @@ function getRecheckQs(r) {
   return c.slice(0, 5);
 }
 
+/**
+ * Recheck 진단 계산
+ *
+ * ── pq/sq 재산정 정책 (v4.9.2) ──
+ * 재점검은 3~5문항 소표본이므로, 점수 순위만으로 pq/sq를 뒤집으면
+ * 노이즈에 의한 잦은 패턴 전환이 발생해 UX가 불안정해진다.
+ * 따라서 기본적으로 Full Scan의 pq/sq를 유지하되,
+ * 재점검 결과 다른 유형이 기존 pq 점수를 **10%p 이상** 초과하면
+ * 유의미한 변화로 판단해 pq/sq를 재산정한다.
+ *
+ * @param {number[]} a - 재점검 응답 배열
+ * @param {Object[]} qs - 재점검 문항 배열
+ * @param {ScanResult} prev - 기준 결과 (fullScan 또는 직전 recheck)
+ * @returns {ScanResult}
+ */
 function calcRecheck(a, qs, prev) {
   const s = {}, m = {};
   Object.keys(prev.nm).forEach(k => { s[k] = 0; m[k] = 0; });
@@ -269,7 +303,36 @@ function calcRecheck(a, qs, prev) {
   if (hi >= 70) bd = "overload"; else if (hi >= 50) bd = "low"; else if (hi >= 30) bd = "caution";
   if (bd === "stable" && mn >= 25) bd = "caution";
   const av = Math.round(100 - hi);
-  return { nm:n, pq:prev.pq, sq:prev.sq, hi, mean:mn, band:bd, avail:av, spread:Object.values(n).filter(v => v >= 30).length >= 5, leak:prev.leak, r1:prev.r1, bug:prev.bug, bugL:prev.bugL, patch:prev.patch, patchL:prev.patchL, mode:prev.mode, modeD:prev.modeD, ts:Date.now(), type:"recheck", delta:av - prev.avail, baselineType:prev.type === "recheck" ? "recheck" : "full" };
+
+  // ── pq/sq 재산정: 점수 차이 10%p 이상이면 전환 허용 ──
+  const RERANK_THRESHOLD = 10; // %p
+  const newTopQ = st[0][0], newSecQ = st[1][0];
+  const prevPqScore = n[prev.pq] ?? 0;
+  const newTopScore = st[0][1];
+  const shouldRerank = newTopQ !== prev.pq && (newTopScore - prevPqScore) >= RERANK_THRESHOLD;
+
+  const finalPq = shouldRerank ? newTopQ : prev.pq;
+  const finalSq = shouldRerank ? newSecQ : prev.sq;
+
+  // 재산정 시 메타(leak, bug, patch 등)도 새 pq 기준으로 갱신
+  const meta = shouldRerank ? QS.find(q => q.pq === finalPq) : null;
+
+  return {
+    nm:n, pq:finalPq, sq:finalSq, hi, mean:mn, band:bd, avail:av,
+    spread:Object.values(n).filter(v => v >= 30).length >= 5,
+    leak:   meta?.leak   ?? prev.leak,
+    r1:     meta?.r1     ?? prev.r1,
+    bug:    meta?.bug    ?? prev.bug,
+    bugL:   meta?.bugL   ?? prev.bugL,
+    patch:  meta?.patch  ?? prev.patch,
+    patchL: meta?.patchL ?? prev.patchL,
+    mode:   meta?.mode   ?? prev.mode,
+    modeD:  meta?.modeD  ?? prev.modeD,
+    ts:Date.now(), type:"recheck",
+    delta:av - prev.avail,
+    baselineType:prev.type === "recheck" ? "recheck" : "full",
+    reranked: shouldRerank, // UI에서 "패턴 전환 감지" 표시용
+  };
 }
 
 // leak → 우선 ref 맵 (P1-2)
@@ -327,9 +390,9 @@ function getHotFixCtaLabel(ref, cta) {
   return isExecutableHotFix(ref) ? cta : "준비 중";
 }
 
-function deriveHS(fs, lr) {
-  if (!fs && !lr) return { source:"empty" };
-  const l = lr || fs, s = fs || l;
+function deriveHS(fullScan, lastResult) {
+  if (!fullScan && !lastResult) return { source:"empty" };
+  const l = lastResult || fullScan, s = fullScan || l;
   return {
     source: l.type === "recheck" ? "recheck_overlay" : "full_scan",
     avail:l.avail, band:l.band, spread:l.spread, nm:l.nm,
@@ -432,8 +495,9 @@ function toneByIndex(idx) {
 // M4: STATE — localStorage 읽기/쓰기/삭제
 
 // ─── 진단 상태 저장소 (v4, 마이그레이션 체인 포함) ───
-function saveState(fs, lr, hist) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ fs, lr, hist, v:4 })); } catch(e) {}
+function saveState(fullScan, lastResult, hist) {
+  // ⚠️ JSON 키 fs/lr은 기존 저장 포맷 호환을 위해 유지
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ fs:fullScan, lr:lastResult, hist, v:4 })); } catch(e) {}
 }
 
 function migrateState(key) {
@@ -725,7 +789,7 @@ function PrincipleBanner({ text, tone }) {
 // ─── Next Check-in 카드 ───
 // 아침(5~11) / 점심(11~14) / 저녁(14~20) / 밤(20~5) 4 타임포인트
 const CHECKIN_SLOTS = [
-  { id:"morning",  range:[5,11],  icon:"🌅", label:"오늘 첫 운영 점검",             hint:"하루가 시작됩니다. 오늘 상태를 먼저 읽고 운영 기준을 다시 잡습니다.", cta:"Full Scan 새로 하기" },
+  { id:"morning",  range:[5,11],  icon:"🌅", label:"오늘 첫 운영 점검",             hint:"하루가 시작됩니다. 지금 상태를 먼저 스캔해두세요.",            cta:"Full Scan 새로 하기" },
   { id:"noon",     range:[11,14], icon:"☀️", label:"가동률 다시 보기",             hint:"오전의 피로 누적을 확인하고 지금 상태를 재점검합니다.",          cta:"가동률 재점검" },
   { id:"evening",  range:[14,20], icon:"🌆", label:"오늘 가장 많이 샌 감정 1개 기록", hint:"지금 이 순간까지 가장 에너지가 샌 패턴을 한 줄로 적습니다.",   cta:"누수 순간 기록" },
   { id:"night",    range:[20,29], icon:"🌙", label:"잠들기 전 3분 회복",            hint:"자기 전 3분. 오늘의 누수를 인정하고 내려놓는 시간입니다.",       cta:"3분 리셋" },
@@ -803,7 +867,7 @@ function NextCheckinCard({ band, onScan, onRc, onTimer, actionLog }) {
         if (recentExecToday) {
           return {
             label: "오늘 상태 먼저 확인",
-            hint: "최근 실행 이력이 있습니다. 새 스캔보다 현재 가동률을 먼저 점검해보세요.",
+            hint: "최근 리셋 이력이 있습니다. 새 스캔보다 현재 가동률을 먼저 확인해보세요.",
             cta: "가동률 재점검",
             ctaAction: onRc,
             isMorningSoft: true,
@@ -1003,7 +1067,8 @@ const HistoryGraph = memo(HistoryGraphInner);
 // ═══ M7-a: HOME ══════════════════════════════════════════════════
 // Today Screen (formerly Home)
 
-function Home({ hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog }) {
+function Home() {
+  const { hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog, cr } = useApp();
   if (hs.source === "empty") return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"80vh", padding:"40px 20px", textAlign:"center" }}>
       <div style={{ width:64, height:64, borderRadius:16, background:C.cardH, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:20 }}>
@@ -1241,7 +1306,8 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
 // ═══ M7-c: SCAN TAB ══════════════════════════════════════════════
 // Scan Tab
 
-function ScanTab({ result, onScan, onRc, onCp }) {
+function ScanTab() {
+  const { cr:result, onScan, onRc, onCp } = useApp();
   return (
     <div style={{ padding:"20px 16px 100px" }}>
       <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Scan</h2>
@@ -1272,7 +1338,8 @@ function ScanTab({ result, onScan, onRc, onCp }) {
 // ═══ M7-d: ACTION TAB ════════════════════════════════════════════
 // Action Tab
 
-function ActionTab({ result, onTimer, actionLog }) {
+function ActionTab() {
+  const { cr:result, onTimer, actionLog } = useApp();
   const fx = getHotFixes(result).slice(0, 3);
   const hi = result && (result.band === "overload" || result.band === "low");
 
@@ -1782,22 +1849,97 @@ function TimerScreen({ timer, onComplete, onCancel }) {
   );
 }
 
+// ═══ M7-j: REDUCER + CONTEXT ═════════════════════════════════════
+// App 전역 상태를 useReducer로 통합, Context로 하위 컴포넌트에 전달
+// ── Fix 1: 'fs' → 'fullScan' (유틸 함수 fs() 섀도잉 해소)
+// ── Fix 2: 9개 useState → 단일 useReducer + AppContext
+
+const MAX_HIST = 20; // 이력 최대 보관 수 (상수화)
+const MAX_ALOG = 30; // 실행 로그 최대 보관 수
+
+/** @type {AppState} */
+const INIT_APP = {
+  tab:          "home",
+  scr:          "tabs",
+  fullScan:     null,   // ← 기존 fs (섀도잉 해소)
+  lastResult:   null,   // ← 기존 lr
+  rcQs:         [],
+  hist:         [],
+  activeTimer:  null,
+  actionLog:    [],
+  confirmOpen:  false,
+};
+
+/**
+ * 앱 리듀서 — 모든 상태 전환을 한 곳에서 관리
+ * @param {AppState} s
+ * @param {Object} a - action
+ */
+function appReducer(s, a) {
+  switch (a.type) {
+    // ── 네비게이션 ──
+    case "SET_TAB":    return { ...s, tab: a.tab };
+    case "SET_SCR":    return { ...s, scr: a.scr };
+    case "NAV_HOME":   return { ...s, scr: "tabs", tab: "home" };
+
+    // ── 진단 데이터 ──
+    case "LOAD_SAVED":
+      return { ...s, fullScan: a.fullScan, lastResult: a.lastResult, hist: a.hist || [] };
+
+    case "SCAN_DONE": {
+      const h = [...s.hist.slice(-(MAX_HIST - 1)), a.entry];
+      return { ...s, fullScan: a.result, lastResult: a.result, hist: h, scr: "res" };
+    }
+    case "RECHECK_DONE": {
+      const h = [...s.hist.slice(-(MAX_HIST - 1)), a.entry];
+      return { ...s, lastResult: a.result, hist: h, scr: "rcRes" };
+    }
+    case "SET_RC_QS":  return { ...s, rcQs: a.rcQs };
+
+    // ── 타이머 ──
+    case "OPEN_TIMER":  return { ...s, activeTimer: a.timer, scr: "timer" };
+    case "CLOSE_TIMER": return { ...s, activeTimer: null, scr: "tabs" };
+
+    // ── 실행 로그 ──
+    case "LOG_ACTION": {
+      const next = [a.entry, ...s.actionLog].slice(0, MAX_ALOG);
+      return { ...s, actionLog: next };
+    }
+
+    // ── UI ──
+    case "SET_CONFIRM": return { ...s, confirmOpen: a.open };
+
+    // ── 초기화 ──
+    case "FULL_RESET":
+      return { ...INIT_APP, actionLog: [] };
+
+    default: return s;
+  }
+}
+
+/** Context — state + dispatch + derived + handlers */
+const AppContext = createContext(null);
+
+/** @returns {{ state, dispatch, hs, cr, onScan, onRc, onCp, onTimer, onGoReset, onClear }} */
+function useApp() {
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("useApp must be used inside <AppContext.Provider>");
+  return ctx;
+}
+
 // ═══ M8: APP ═════════════════════════════════════════════════════
-// M8: APP — 메인 앱 (상태 관리 + 라우팅)
-// EMOTION OS v4.4
+// M8: APP — 메인 앱 (useReducer + Context)
+// EMOTION OS v4.9.2
 
 function EmotionOSApp() {
-  const [tab, setTab] = useState("home");
-  const [scr, setScr] = useState("tabs");
-  const [fs, setFs] = useState(null);
-  const [lr, setLr] = useState(null);
-  const [rcQs, setRcQs] = useState([]);
-  const [hist, setHist] = useState([]);
-  const [activeTimer, setActiveTimer] = useState(null);
-  const [actionLog, setActionLog] = useState(() => loadActionLog());
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [state, dispatch] = useReducer(appReducer, {
+    ...INIT_APP,
+    actionLog: loadActionLog(),
+  });
 
-  // Global keyframes (App 루트에서 1회 주입)
+  const { tab, scr, fullScan, lastResult, rcQs, hist, activeTimer, actionLog, confirmOpen } = state;
+
+  // ── Global keyframes (1회 주입) ──
   useEffect(() => {
     const styleId = "emotion-os-global-keyframes";
     if (!document.getElementById(styleId)) {
@@ -1814,7 +1956,7 @@ function EmotionOSApp() {
     }
   }, []);
 
-  // 폰트 로드 (standalone 런타임 fallback)
+  // ── 폰트 로드 (standalone fallback) ──
   useEffect(() => {
     if (!document.querySelector('link[href*="pretendard"]')) {
       const l = document.createElement("link");
@@ -1824,31 +1966,46 @@ function EmotionOSApp() {
     }
   }, []);
 
+  // ── localStorage → reducer 복원 ──
   useEffect(() => {
     const d = loadState();
-    if (d) { setFs(d.fs); setLr(d.lr); setHist(d.hist || []); }
+    if (d) dispatch({ type:"LOAD_SAVED", fullScan:d.fs, lastResult:d.lr, hist:d.hist || [] });
   }, []);
 
+  // ── reducer → localStorage 동기화 ──
   useEffect(() => {
-    if (fs || lr) saveState(fs, lr, hist);
-  }, [fs, lr, hist]);
+    if (fullScan || lastResult) saveState(fullScan, lastResult, hist);
+  }, [fullScan, lastResult, hist]);
 
-  const hs = deriveHS(fs, lr);
-  const cr = lr || fs;
+  // ── derived ──
+  const hs = deriveHS(fullScan, lastResult);
+  const cr = lastResult || fullScan;
 
-  const addToHist = (r) => {
-    const entry = { avail:r.avail, band:r.band, pq:r.pq, type:r.type, ts:r.ts };
-    setHist(h => [...h.slice(-19), entry]);
-  };
+  // ── handlers (useCallback으로 안정 참조) ──
+  const onScan = useCallback(() => dispatch({ type:"SET_SCR", scr:"scan" }), []);
 
-  const openHotFixTimer = (ref, result) => {
+  const onRc = useCallback(() => {
+    const b = lastResult || fullScan;
+    if (!b) return;
+    dispatch({ type:"SET_RC_QS", rcQs:getRecheckQs(b) });
+    dispatch({ type:"SET_SCR", scr:"rc" });
+  }, [lastResult, fullScan]);
+
+  const onCp = useCallback(() => dispatch({ type:"SET_SCR", scr:"cp" }), []);
+  const onGoReset = useCallback(() => dispatch({ type:"SET_TAB", tab:"action" }), []);
+  const onClear = useCallback(() => dispatch({ type:"SET_CONFIRM", open:true }), []);
+
+  const onTimer = useCallback((ref) => {
     const hf = HOTFIX_DB.find(h => h.ref === ref);
     if (!hf || !hf.exec) return;
-    setActiveTimer({ ref, label:hf.label, durationSec:hf.durationSec, guideText:hf.guideText ?? "아무것도 해결하려 하지 말고,\n호흡만 느끼세요.", startedAt:Date.now(), availAtStart:result?.avail ?? null, resultType:result?.type ?? null });
-    setScr("timer");
-  };
+    dispatch({ type:"OPEN_TIMER", timer:{
+      ref, label:hf.label, durationSec:hf.durationSec,
+      guideText:hf.guideText ?? "아무것도 해결하려 하지 말고,\n호흡만 느끼세요.",
+      startedAt:Date.now(), availAtStart:cr?.avail ?? null, resultType:cr?.type ?? null,
+    }});
+  }, [cr]);
 
-  const completeTimer = () => {
+  const completeTimer = useCallback(() => {
     if (!activeTimer) return;
     const entry = {
       id:`act_${Date.now()}`, ref:activeTimer.ref, label:activeTimer.label,
@@ -1856,14 +2013,12 @@ function EmotionOSApp() {
       durationSec:activeTimer.durationSec, resultType:activeTimer.resultType,
       availAtStart:activeTimer.availAtStart, status:"completed",
     };
-    const next = [entry, ...actionLog].slice(0, 30);
-    setActionLog(next);
-    saveActionLog(next);
-    setActiveTimer(null);
-    setScr("tabs");
-  };
+    dispatch({ type:"LOG_ACTION", entry });
+    saveActionLog([entry, ...actionLog].slice(0, MAX_ALOG));
+    dispatch({ type:"CLOSE_TIMER" });
+  }, [activeTimer, actionLog]);
 
-  const cancelTimer = () => {
+  const cancelTimer = useCallback(() => {
     if (activeTimer) {
       const entry = {
         id:`act_${Date.now()}`, ref:activeTimer.ref, label:activeTimer.label,
@@ -1871,47 +2026,69 @@ function EmotionOSApp() {
         durationSec:activeTimer.durationSec, resultType:activeTimer.resultType,
         availAtStart:activeTimer.availAtStart, status:"cancelled",
       };
-      const next = [entry, ...actionLog].slice(0, 30);
-      setActionLog(next);
-      saveActionLog(next);
+      dispatch({ type:"LOG_ACTION", entry });
+      saveActionLog([entry, ...actionLog].slice(0, MAX_ALOG));
     }
-    setActiveTimer(null);
-    setScr("tabs");
-  };
+    dispatch({ type:"CLOSE_TIMER" });
+  }, [activeTimer, actionLog]);
 
-  const executeClear = () => {
+  const executeClear = useCallback(() => {
     clearState(); clearActionLog();
-    setFs(null); setLr(null); setHist([]); setActionLog([]); setActiveTimer(null); setScr("tabs");
-    setConfirmOpen(false);
-  };
-  const handleClear = () => setConfirmOpen(true);
+    dispatch({ type:"FULL_RESET" });
+  }, []);
+
+  // ── Context value (useMemo로 안정화 — 의존값이 바뀔 때만 재생성) ──
+  const ctxValue = useMemo(() => ({
+    state, dispatch,
+    hs, cr, hist, actionLog,
+    onScan, onRc, onCp, onTimer, onGoReset, onClear,
+  }), [state, hs, cr, hist, actionLog, onScan, onRc, onCp, onTimer, onGoReset, onClear]);
 
   return (
+    <AppContext.Provider value={ctxValue}>
     <div style={{ fontFamily:FF, background:C.bg, color:C.text, minHeight:"100vh", WebkitFontSmoothing:"antialiased" }}>
 
       {scr === "tabs" && <>
-        {tab === "home" && <Home hs={hs} hist={hist} onScan={() => setScr("scan")} onRc={() => { const b = lr || fs; if (!b) return; setRcQs(getRecheckQs(b)); setScr("rc"); }} onCp={() => setScr("cp")} onClear={handleClear} onTimer={(ref) => openHotFixTimer(ref, cr)} onGoReset={() => setTab("action")} actionLog={actionLog} />}
-        {tab === "scan" && <ScanTab result={cr} onScan={() => setScr("scan")} onRc={() => { const b = lr || fs; if (!b) return; setRcQs(getRecheckQs(b)); setScr("rc"); }} onCp={() => setScr("cp")} />}
-        {tab === "action" && <ActionTab result={cr} onTimer={(ref) => openHotFixTimer(ref, cr)} actionLog={actionLog} />}
+        {tab === "home" && <Home />}
+        {tab === "scan" && <ScanTab />}
+        {tab === "action" && <ActionTab />}
         {tab === "library" && <LibTab />}
-        <BNav tab={tab} setTab={setTab} />
+        <BNav tab={tab} setTab={t => dispatch({ type:"SET_TAB", tab:t })} />
       </>}
 
-      {scr === "scan" && <ScanFlow onComplete={a => { setScr("ld"); setTimeout(() => { const r = calcFull(a); setFs(r); setLr(r); addToHist(r); setScr("res"); }, 1800); }} />}
-      {scr === "rc" && <ScanFlow onComplete={(a,q) => { setScr("ld"); const b = lr || fs; setTimeout(() => { const r = calcRecheck(a, q, b); setLr(r); addToHist(r); setScr("rcRes"); }, 1500); }} isRc rcQs={rcQs} />}
+      {scr === "scan" && <ScanFlow onComplete={a => {
+        dispatch({ type:"SET_SCR", scr:"ld" });
+        setTimeout(() => {
+          const r = calcFull(a);
+          const entry = { avail:r.avail, band:r.band, pq:r.pq, type:r.type, ts:r.ts };
+          dispatch({ type:"SCAN_DONE", result:r, entry });
+        }, 1800);
+      }} />}
+
+      {scr === "rc" && <ScanFlow onComplete={(a,q) => {
+        dispatch({ type:"SET_SCR", scr:"ld" });
+        const b = lastResult || fullScan;
+        setTimeout(() => {
+          const r = calcRecheck(a, q, b);
+          const entry = { avail:r.avail, band:r.band, pq:r.pq, type:r.type, ts:r.ts };
+          dispatch({ type:"RECHECK_DONE", result:r, entry });
+        }, 1500);
+      }} isRc rcQs={rcQs} />}
+
       {scr === "ld" && <Loading msg="시스템 패턴 분석 중" />}
-      {scr === "res" && cr && <Result result={cr} onDone={() => { setScr("tabs"); setTab("home"); }} onCp={() => setScr("cp")} />}
-      {scr === "rcRes" && cr && <Result result={cr} onDone={() => { setScr("tabs"); setTab("home"); }} isRc onCp={() => setScr("cp")} />}
-      {scr === "cp" && <Couple onBack={() => { setScr("tabs"); setTab("home"); }} />}
+      {scr === "res" && cr && <Result result={cr} onDone={() => dispatch({ type:"NAV_HOME" })} onCp={onCp} />}
+      {scr === "rcRes" && cr && <Result result={cr} onDone={() => dispatch({ type:"NAV_HOME" })} isRc onCp={onCp} />}
+      {scr === "cp" && <Couple onBack={() => dispatch({ type:"NAV_HOME" })} />}
       {scr === "timer" && activeTimer && <TimerScreen timer={activeTimer} onComplete={completeTimer} onCancel={cancelTimer} />}
 
       <ConfirmModal
         open={confirmOpen}
         message={"모든 운영 이력과 실행 기록이 영구 삭제됩니다.\n계속하시겠습니까?"}
         onConfirm={executeClear}
-        onCancel={() => setConfirmOpen(false)}
+        onCancel={() => dispatch({ type:"SET_CONFIRM", open:false })}
       />
     </div>
+    </AppContext.Provider>
   );
 }
 
