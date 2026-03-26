@@ -962,20 +962,20 @@ function R5RadarInner({ pr, result }) {
   QS.forEach(q => { if (q.r1) rL[q.r1] = Math.max(rL[q.r1], result.nm[q.pq] || 0); });
   // R5(갱신)은 QS에 직접 매핑 없음 → Q6(비교)+Q7(통제) 평균으로 파생
   rL["R5"] = Math.round(((result.nm["Q6"] || 0) + (result.nm["Q7"] || 0)) / 2 * 10) / 10;
-  // P0-1: SVG 180×180, rd 62, 라벨 반경 rd+22 — 모바일 한글 라벨 깨짐 방지
+  // P0-1: SVG 180×180, rd 62, 라벨 반경 rd+20 — 모바일 한글 라벨 깨짐 방지
   const SZ = 180;
   const cx = SZ/2, cy = SZ/2, rd = 62, as = 2*Math.PI/5, sa = -Math.PI/2;
   const pts = RK.map((k,i) => { const a = sa+i*as, r = rd * Math.max(Math.min(rL[k]/100, 1), 0.08); return { x:cx+r*Math.cos(a), y:cy+r*Math.sin(a), k }; });
   // 라벨 반경 확대 + 각도별 dy 개별 보정 (상단·하단 라벨 잘림 방지)
   const lps = RK.map((k,i) => {
-    const a = sa+i*as, r = rd+22;
+    const a = sa+i*as, r = rd+20;
     const x = cx+r*Math.cos(a), y = cy+r*Math.sin(a);
-    const dy = i === 0 ? -2 : (i === 2 || i === 3) ? 3 : 0;
+    const dy = i === 0 ? 2 : (i === 2 || i === 3) ? 3 : 0;
     return { x, y, k, dy };
   });
   return (
     <div style={{ display:"flex", justifyContent:"center", margin:"12px 0 8px" }}>
-      <svg width={SZ} height={SZ} viewBox={`0 0 ${SZ} ${SZ}`}>
+      <svg width={SZ} height={SZ} viewBox={`0 0 ${SZ} ${SZ}`} style={{ overflow:"visible" }}>
         {[.33,.66,1].map(s => (<polygon key={s} points={RK.map((k,i) => { const a = sa+i*as, r = rd*s; return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`; }).join(" ")} fill="none" stroke={C.border} strokeWidth=".5" />))}
         {RK.map((k,i) => <line key={i} x1={cx} y1={cy} x2={cx+rd*Math.cos(sa+i*as)} y2={cy+rd*Math.sin(sa+i*as)} stroke={C.border} strokeWidth=".5" />)}
         <polygon points={pts.map(p => `${p.x},${p.y}`).join(" ")} fill={`${C.accent}20`} stroke={C.accent} strokeWidth="1.5" />
@@ -1095,8 +1095,8 @@ function Home() {
       {/* 헤더 */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
         <div>
-          <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Stato</div>
-          <div style={{ fontSize:fs(7), letterSpacing:2, color:C.dim, textTransform:"uppercase", marginTop:1 }}>Powered by Emotion OS</div>
+          <div style={{ fontSize:fs(13), letterSpacing:2.2, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.1 }}>Stato</div>
+          <div style={{ fontSize:fs(7.5), letterSpacing:1.4, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.2 }}>Powered by Emotion OS</div>
           <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:2 }}>Today</div>
           <div style={{ fontSize:fs(8), color:C.muted, marginTop:2 }}>by HaruTech Lab · Emotional Engineering Institute</div>
         </div>
@@ -1611,8 +1611,8 @@ function Result({ result, onDone, isRc, onCp }) {
     <div style={{ padding:"28px 16px 100px", maxWidth:500, margin:"0 auto" }}>
       {/* Header */}
       <div style={{ textAlign:"center", marginBottom:22 }}>
-        <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Stato</div>
-        <div style={{ fontSize:fs(7), letterSpacing:2, color:C.dim, textTransform:"uppercase", marginTop:1 }}>Powered by Emotion OS</div>
+        <div style={{ fontSize:fs(13), letterSpacing:2.2, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.1 }}>Stato</div>
+        <div style={{ fontSize:fs(7.5), letterSpacing:1.4, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.2 }}>Powered by Emotion OS</div>
         <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
         <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 반복 패턴 기준</p>
         <p style={{ fontSize:fs(11), color:C.muted, marginTop:6, lineHeight:1.65 }}>
@@ -1821,7 +1821,7 @@ function TimerScreen({ timer, onComplete, onCancel }) {
 
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
-      <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700, marginBottom:24 }}>Stato</div>
+      <div style={{ fontSize:fs(13), letterSpacing:2.2, color:C.accent, textTransform:"uppercase", fontWeight:800, marginBottom:24, lineHeight:1.1 }}>Stato</div>
       <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, marginBottom:8 }}>{timer.label}</h2>
       <p style={{ fontSize:fs(13), color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>
         {(timer.guideText || "").split("\n").map((line, i, arr) => (
