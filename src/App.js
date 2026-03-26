@@ -1085,15 +1085,15 @@ function Home() {
           <div style={{ fontSize:fs(6.2), letterSpacing:0.7, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, marginTop:5, opacity:0.82 }}>Powered by Emotion OS</div>
         </div>
         {/* Hook */}
-        <h2 style={{ fontSize:fs(20), fontWeight:800, color:C.text, lineHeight:1.28, marginBottom:10 }}>요즘 감정 날씨는 어떤가요?</h2>
-        <p style={{ fontSize:fs(12.6), color:C.accent, fontWeight:700, lineHeight:1.55, marginBottom:18 }}>감정 누수 10%만 줄여도 하루의 질이 달라집니다.</p>
+        <h2 style={{ fontSize:fs(18.8), fontWeight:800, color:C.text, lineHeight:1.28, marginBottom:8 }}>요즘 감정 날씨는 어떤가요?</h2>
+        <p style={{ fontSize:fs(12.2), color:C.accent, fontWeight:700, lineHeight:1.5, marginBottom:16 }}>감정 누수 10%만 줄여도 하루의 질이 달라집니다.</p>
         {/* Empty info card */}
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:18, padding:"15px 16px 14px", marginBottom:20 }}>
-          <div style={{ fontSize:fs(13.8), fontWeight:750, color:C.text, marginBottom:6 }}>아직 시스템 데이터가 없습니다</div>
-          <p style={{ fontSize:fs(11.8), color:C.dim, lineHeight:1.55, margin:0 }}>먼저 2분 스캔으로 현재 감정 운영 상태를 확인하세요.</p>
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:18, padding:"13px 16px 12px", marginBottom:18 }}>
+          <div style={{ fontSize:fs(12.9), fontWeight:720, color:C.text, marginBottom:4 }}>아직 시스템 데이터가 없습니다</div>
+          <p style={{ fontSize:fs(11.2), color:C.dim, lineHeight:1.5, margin:0 }}>먼저 2분 스캔으로 현재 감정 운영 상태를 확인하세요.</p>
         </div>
-        <Btn primary onClick={onScan} style={{ width:"100%", maxWidth:320, marginBottom:14 }}>지금 스캔 시작하기</Btn>
-        <div style={{ fontSize:fs(8.3), color:C.muted, opacity:0.84, lineHeight:1.45 }}>by HaruTech Lab · Emotional Engineering Institute</div>
+        <Btn primary onClick={onScan} style={{ width:"100%", maxWidth:320, marginBottom:12 }}>지금 스캔 시작하기</Btn>
+        <div style={{ fontSize:fs(8.6), color:C.muted, opacity:0.92, lineHeight:1.45, marginTop:2 }}>by HaruTech Lab · Emotional Engineering Institute</div>
       </div>
     </div>
   );
