@@ -1070,30 +1070,30 @@ const HistoryGraph = memo(HistoryGraphInner);
 function Home() {
   const { hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog, cr } = useApp();
   if (hs.source === "empty") return (
-    <div style={{ minHeight:"80vh", padding:"32px 20px 112px", display:"flex", alignItems:"center", justifyContent:"center" }}>
+    <div style={{ minHeight:"76vh", padding:"28px 20px 112px", display:"flex", alignItems:"center", justifyContent:"center" }}>
       <div style={{ width:"100%", maxWidth:360, textAlign:"center" }}>
-        {/* Brand mark */}
+        {/* Brand block */}
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:22 }}>
-          <div style={{ width:72, height:72, borderRadius:22, background:"linear-gradient(135deg, #0c8a89 0%, #2eb5a5 100%)", border:`1px solid ${C.borderL}`, boxShadow:"0 14px 34px rgba(0,0,0,0.28)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
-            <svg width="38" height="38" viewBox="0 0 48 48" fill="none">
-              <circle cx="24" cy="24" r="24" fill="transparent" />
+          <div style={{ width:70, height:70, borderRadius:22, background:"linear-gradient(135deg, #0c8a89 0%, #2eb5a5 100%)", border:`1px solid ${C.borderL}`, boxShadow:"0 14px 34px rgba(0,0,0,0.28)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:14 }}>
+            <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
               <path d="M23.8 17.8C20.1 17.8 16.7 20.2 15.4 23.7C19.4 24.4 22.4 22.8 24.2 19.4C24.4 19 24.1 17.8 23.8 17.8Z" fill="#B9F58F" />
               <path d="M26.1 16.8C31.7 16.8 35.7 20.5 36.7 25.8C31.8 26.6 28.2 24.7 25.9 20.5C25.6 20 25.8 16.8 26.1 16.8Z" fill="#B9F58F" />
               <path d="M24.7 23.5C24.7 23.1 23.3 23.1 23.3 23.5V35.5C23.3 36.4 24 37.1 24.9 37.1H25.1C26 37.1 26.7 36.4 26.7 35.5V24.7C26.7 24 25.6 23.5 24.7 23.5Z" fill="#B9F58F" />
             </svg>
           </div>
-          <div style={{ fontSize:fs(15), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0 }}>Stato</div>
-          <div style={{ fontSize:fs(7.2), letterSpacing:0.9, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, marginTop:4 }}>Powered by Emotion OS</div>
+          <div style={{ fontSize:fs(16.5), letterSpacing:1.0, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0 }}>Stato</div>
+          <div style={{ fontSize:fs(6.2), letterSpacing:0.7, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, marginTop:5, opacity:0.82 }}>Powered by Emotion OS</div>
         </div>
-        {/* Hook copy */}
-        <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, lineHeight:1.28, marginBottom:10 }}>요즘 감정 날씨는 어떤가요?</h2>
-        <p style={{ fontSize:fs(13.5), color:C.accent, fontWeight:700, lineHeight:1.55, marginBottom:14 }}>감정 누수 10%만 줄여도 하루의 질이 달라집니다.</p>
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:18, padding:"16px 16px 14px", marginBottom:22 }}>
-          <div style={{ fontSize:fs(14), fontWeight:700, color:C.text, marginBottom:6 }}>아직 시스템 데이터가 없습니다</div>
-          <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.6, margin:0 }}>먼저 2분 스캔으로 현재 감정 운영 상태를 확인하세요.</p>
+        {/* Hook */}
+        <h2 style={{ fontSize:fs(20), fontWeight:800, color:C.text, lineHeight:1.28, marginBottom:10 }}>요즘 감정 날씨는 어떤가요?</h2>
+        <p style={{ fontSize:fs(12.6), color:C.accent, fontWeight:700, lineHeight:1.55, marginBottom:18 }}>감정 누수 10%만 줄여도 하루의 질이 달라집니다.</p>
+        {/* Empty info card */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:18, padding:"15px 16px 14px", marginBottom:20 }}>
+          <div style={{ fontSize:fs(13.8), fontWeight:750, color:C.text, marginBottom:6 }}>아직 시스템 데이터가 없습니다</div>
+          <p style={{ fontSize:fs(11.8), color:C.dim, lineHeight:1.55, margin:0 }}>먼저 2분 스캔으로 현재 감정 운영 상태를 확인하세요.</p>
         </div>
-        <Btn primary onClick={onScan} style={{ width:"100%", maxWidth:320 }}>지금 스캔 시작하기</Btn>
-        <div style={{ marginTop:14, fontSize:fs(8.5), color:C.muted }}>by HaruTech Lab · Emotional Engineering Institute</div>
+        <Btn primary onClick={onScan} style={{ width:"100%", maxWidth:320, marginBottom:14 }}>지금 스캔 시작하기</Btn>
+        <div style={{ fontSize:fs(8.3), color:C.muted, opacity:0.84, lineHeight:1.45 }}>by HaruTech Lab · Emotional Engineering Institute</div>
       </div>
     </div>
   );
