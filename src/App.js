@@ -1095,10 +1095,9 @@ function Home() {
       {/* 헤더 */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
         <div>
-          <div style={{ fontSize:fs(13), letterSpacing:2.2, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.1 }}>Stato</div>
-          <div style={{ fontSize:fs(7.5), letterSpacing:1.4, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.2 }}>Powered by Emotion OS</div>
-          <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:2 }}>Today</div>
-          <div style={{ fontSize:fs(8), color:C.muted, marginTop:2 }}>by HaruTech Lab · Emotional Engineering Institute</div>
+          <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
+          <div style={{ fontSize:fs(7.4), letterSpacing:0.9, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
+          <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:6 }}>Today</div>
         </div>
         {hs.isRc && hs.delta != null && <DBadge delta={hs.delta} />}
       </div>
@@ -1611,8 +1610,8 @@ function Result({ result, onDone, isRc, onCp }) {
     <div style={{ padding:"28px 16px 100px", maxWidth:500, margin:"0 auto" }}>
       {/* Header */}
       <div style={{ textAlign:"center", marginBottom:22 }}>
-        <div style={{ fontSize:fs(13), letterSpacing:2.2, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.1 }}>Stato</div>
-        <div style={{ fontSize:fs(7.5), letterSpacing:1.4, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.2 }}>Powered by Emotion OS</div>
+        <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
+        <div style={{ fontSize:fs(7.4), letterSpacing:0.9, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
         <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
         <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 반복 패턴 기준</p>
         <p style={{ fontSize:fs(11), color:C.muted, marginTop:6, lineHeight:1.65 }}>
@@ -1821,7 +1820,7 @@ function TimerScreen({ timer, onComplete, onCancel }) {
 
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
-      <div style={{ fontSize:fs(13), letterSpacing:2.2, color:C.accent, textTransform:"uppercase", fontWeight:800, marginBottom:24, lineHeight:1.1 }}>Stato</div>
+      <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, marginBottom:24, lineHeight:1.0 }}>Stato</div>
       <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, marginBottom:8 }}>{timer.label}</h2>
       <p style={{ fontSize:fs(13), color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>
         {(timer.guideText || "").split("\n").map((line, i, arr) => (
