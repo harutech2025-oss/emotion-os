@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useReducer, useContext, createContext, useCallback, useMemo, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   EMOTION OS v4.9.2 — Standalone (Auto-generated)
+   Stato v4.9.2 — Powered by Emotion OS — Standalone (Auto-generated)
    Haru-Tech Lab
 
    ╔═══════════════════════════════════════════════════════════════╗
@@ -585,7 +585,7 @@ function buildShareText(r) {
   // 행동 권고 1문장 축약 (첫 문장만)
   const actionShort = action.split(".")[0] + ".";
   return [
-    `📊 Emotion OS 운영 상태 리포트`, ``,
+    `📊 Stato 운영 상태 리포트`, ``,
     headline, ``,
     `삶의 피로도: ${m.fatigueLabel}`,
     `몰입 생산성: ${m.productivityLabel}`,
@@ -593,7 +593,7 @@ function buildShareText(r) {
     `💡 오늘의 한 마디: ${actionShort}`, ``,
     `가동률: ${r.avail}% · ${QL[r.pq]} · ${r.leak}`,
     ``, `감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.`,
-    `— Emotion OS by HaruTech Lab`,
+    `— Stato · Powered by Emotion OS`,
     `Emotional Engineering Institute`, shareUrl,
   ].join("\n");
 }
@@ -608,7 +608,7 @@ function ShareBtn({ result }) {
     // AbortError = 사용자가 직접 취소 → 조용히 종료
     // 그 외 오류(NotAllowedError, 웹뷰 제한 등) → Tier 2로 fallback
     if (navigator.share) {
-      try { await navigator.share({ title:"Emotion OS 운영 상태 리포트", text, url:shareUrl }); return; }
+      try { await navigator.share({ title:"Stato 운영 상태 리포트", text, url:shareUrl }); return; }
       catch(e) { if (e instanceof DOMException && e.name === "AbortError") return; }
     }
 
@@ -857,7 +857,7 @@ function NextCheckinCard({ band, onScan, onRc, onTimer, actionLog }) {
   // 폴백/예외 케이스에 맞는 라벨·힌트·cta 계산
   const getDisplay = () => {
     if (!primaryRef) {
-      // morning 소프트 분기: 어제 저녁·밤 실행 이력이 있으면 Full Scan 대신 운영 자세 확인
+      // morning 소프트 분기: 최근 12시간 내 실행 이력이 있으면 Full Scan 대신 가동률 확인 유도
       if (slot.id === "morning") {
         const todayStart = new Date(); todayStart.setHours(0,0,0,0);
         const recentExecToday = (actionLog || []).some(a =>
@@ -867,7 +867,7 @@ function NextCheckinCard({ band, onScan, onRc, onTimer, actionLog }) {
         if (recentExecToday) {
           return {
             label: "오늘 상태 먼저 확인",
-            hint: "최근 리셋 이력이 있습니다. 새 스캔보다 현재 가동률을 먼저 확인해보세요.",
+            hint: "최근 실행 이력이 있습니다. 새 스캔보다 현재 가동률을 먼저 확인해보세요.",
             cta: "가동률 재점검",
             ctaAction: onRc,
             isMorningSoft: true,
@@ -1095,7 +1095,8 @@ function Home() {
       {/* 헤더 */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
         <div>
-          <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
+          <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Stato</div>
+          <div style={{ fontSize:fs(7), letterSpacing:2, color:C.dim, textTransform:"uppercase", marginTop:1 }}>Powered by Emotion OS</div>
           <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:2 }}>Today</div>
           <div style={{ fontSize:fs(8), color:C.muted, marginTop:2 }}>by HaruTech Lab · Emotional Engineering Institute</div>
         </div>
@@ -1610,9 +1611,10 @@ function Result({ result, onDone, isRc, onCp }) {
     <div style={{ padding:"28px 16px 100px", maxWidth:500, margin:"0 auto" }}>
       {/* Header */}
       <div style={{ textAlign:"center", marginBottom:22 }}>
-        <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Emotion OS</div>
+        <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700 }}>Stato</div>
+        <div style={{ fontSize:fs(7), letterSpacing:2, color:C.dim, textTransform:"uppercase", marginTop:1 }}>Powered by Emotion OS</div>
         <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
-        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>운영 상태 리포트 · 최근 2주 기준</p>
+        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 반복 패턴 기준</p>
         <p style={{ fontSize:fs(11), color:C.muted, marginTop:6, lineHeight:1.65 }}>
           이 리포트는 최근 2주의 반복 패턴을 기준으로, 오늘의 운영 상태를 해석한 결과입니다.
         </p>
@@ -1721,7 +1723,8 @@ function Result({ result, onDone, isRc, onCp }) {
 
       {/* 11. 브랜드 */}
       <Card style={{ textAlign:"center", background:C.cardH, border:`1px solid ${C.border}` }}>
-        <div style={{ fontSize:fs(11), fontWeight:700, color:C.text, marginBottom:4 }}>Emotion OS</div>
+        <div style={{ fontSize:fs(11), fontWeight:700, color:C.text, marginBottom:4 }}>Stato</div>
+        <div style={{ fontSize:fs(9), color:C.dim, marginBottom:4 }}>Powered by Emotion OS</div>
         <div style={{ fontSize:fs(10), color:C.dim, lineHeight:1.6 }}>HaruTech Lab<br />Emotional Engineering Institute</div>
       </Card>
 
@@ -1754,7 +1757,7 @@ function Loading({ msg }) {
 function Couple({ onBack }) {
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
-      <div style={{ fontSize:fs(10), letterSpacing:4, color:C.blue, textTransform:"uppercase", fontWeight:700, marginBottom:16 }}>Couple OS <span style={{ color:C.amber }}>(Beta)</span></div>
+      <div style={{ fontSize:fs(10), letterSpacing:4, color:C.blue, textTransform:"uppercase", fontWeight:700, marginBottom:16 }}>Couple Sync <span style={{ color:C.amber }}>(Beta)</span></div>
       <h2 style={{ fontSize:fs(20), fontWeight:700, color:C.text, marginBottom:16 }}>파트너 연결 미리보기</h2>
 
       <Card accent={`${C.blue}30`} style={{ background:`${C.blue}06`, maxWidth:340, width:"100%" }}>
@@ -1818,7 +1821,7 @@ function TimerScreen({ timer, onComplete, onCancel }) {
 
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
-      <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700, marginBottom:24 }}>Emotion OS</div>
+      <div style={{ fontSize:fs(10), letterSpacing:4, color:C.accent, textTransform:"uppercase", fontWeight:700, marginBottom:24 }}>Stato</div>
       <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, marginBottom:8 }}>{timer.label}</h2>
       <p style={{ fontSize:fs(13), color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>
         {(timer.guideText || "").split("\n").map((line, i, arr) => (
@@ -1929,7 +1932,7 @@ function useApp() {
 
 // ═══ M8: APP ═════════════════════════════════════════════════════
 // M8: APP — 메인 앱 (useReducer + Context)
-// EMOTION OS v4.9.2
+// Stato v4.9.2 — Powered by Emotion OS
 
 function EmotionOSApp() {
   const [state, dispatch] = useReducer(appReducer, {
