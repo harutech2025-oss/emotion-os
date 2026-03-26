@@ -165,6 +165,27 @@ const QLinks = {"Q1":"https://www.notion.so/Q1-326604b060a4805497f1e228d3d81440"
 const BLinks = {"MND-OVERCLOCK-01":"https://www.notion.so/326604b060a48067bd84e0dd1fdf9f07","MND-INPUTFLOOD-01":"https://www.notion.so/326604b060a48019be9bcac800bc768d","MND-EMOSUPPRESS-01":"https://www.notion.so/326604b060a480f0be69e58d38f61451","MND-OUTPUTHEAT-01":"https://www.notion.so/326604b060a480edb48be7ef7259bad4","BDY-BOOTFAIL-01":"https://www.notion.so/326604b060a480e49d80de69bb688bfa","BDY-LOWPOWERLOCK-01":"https://www.notion.so/326604b060a480c1bbedf33b4e3325f1","BDY-BEDLOCK-01":"https://www.notion.so/326604b060a4800f9195e1879f6adaba","MND-SELFDEVALUE-01":"https://www.notion.so/326604b060a4805bb3e4f39fe27642e7","MND-FALSEPATCH-01":"https://www.notion.so/326604b060a4809c9b66f76c9631835a","MND-OVERCONTROL-01":"https://www.notion.so/326604b060a4804da9e9d0927b1af375"};
 const PLinks = {"Slow-Down Patch":"https://www.notion.so/Slow-Down-Patch-326604b060a480a29a93c43517f3560d","Sensory Reset":"https://www.notion.so/Sensory-Reset-Routine-327604b060a480bd967be841111490f6","Voice Activation":"https://www.notion.so/Voice-Activation-Patch-326604b060a480da82fee6cef256b41e","Stop Signal":"https://www.notion.so/Stop-Signal-Patch-326604b060a48049b883f43b729c4e4b","Baseline Reset":"https://www.notion.so/Baseline-Reset-Patch-v1-1-327604b060a4801a83b0f56d0ecf2506","Permission Reset":"https://www.notion.so/Permission-Reset-Patch-v1-3-327604b060a480bd8173c8981cc359e5","Benchmark Filter":"https://www.notion.so/Benchmark-Filter-Patch-326604b060a480e09cd3fb1dd87bea5f","Root Reset":"https://www.notion.so/Root-Reset-Patch-v1-2-327604b060a48081a8fcdfacb08f9f3c","Boundary Filter":"https://www.notion.so/Boundary-Filter-Patch-v1-3-327604b060a4807cb540d52fee668e91","Cooldown":"https://www.notion.so/Cooldown-Patch-v1-3-327604b060a480498e3ecc8ca3179e9c"};
 
+// ═══ M1-B: BUG ALIAS — 사용자 언어 매핑 ════════════════════════════
+const BUG_ALIAS = {
+  "MND-OVERCLOCK-01":      { userName:"무한 불안 루프",      subName:"과속 실행",     oneLiner:"멈추면 더 불안해져 생각과 긴장이 계속 과속하는 상태입니다.", why:"속도 과열과 통제 긴장이 겹칠 때 잘 켜집니다." },
+  "MND-INPUTFLOOD-01":     { userName:"입력 과부하",        subName:"자극 과부하",   oneLiner:"소리, 표정, 알림 같은 외부 자극이 너무 많이 들어오는 상태입니다.", why:"사람·소음·알림이 많은 환경에서 잘 켜집니다." },
+  "MND-EMOSUPPRESS-01":    { userName:"감정 억제 누적",     subName:"감정 억압",     oneLiner:"느낌은 있는데 이름 붙이지 못하고 안으로 눌러두는 상태입니다.", why:"서운함·화·무거움을 넘기는 습관이 쌓일 때 잘 켜집니다." },
+  "MND-OUTPUTHEAT-01":     { userName:"과열 반응 폭주",     subName:"출력 과열",     oneLiner:"감정이 말과 행동으로 나갈 때 예상보다 크게 터지는 상태입니다.", why:"누적 억제 뒤 폭발하거나 반응 속도가 빨라질 때 잘 켜집니다." },
+  "BDY-BOOTFAIL-01":       { userName:"시동 실패",          subName:"시동 실패",     oneLiner:"해야 할 걸 알아도 몸에 시동이 잘 걸리지 않는 상태입니다.", why:"회복 저하와 무기력이 겹칠 때 잘 켜집니다." },
+  "BDY-LOWPOWERLOCK-01":   { userName:"저출력 고착",        subName:"저출력 고착",   oneLiner:"많이 하지 않아도 방전되고 에너지 기준선이 낮아진 상태입니다.", why:"기본 가용성이 떨어진 채 오래 버틸 때 잘 켜집니다." },
+  "BDY-BEDLOCK-01":        { userName:"침대 고착",          subName:"침대 고착",     oneLiner:"누워 있을수록 더 움직이기 어려워지는 악순환 상태입니다.", why:"회복단 정지와 무기력이 겹칠 때 잘 켜집니다." },
+  "MND-SELFDEVALUE-01":    { userName:"자기비하 증폭",      subName:"자기비하 증폭", oneLiner:"남과 비교한 직후 내 삶과 속도가 과하게 초라해지는 상태입니다.", why:"성과 비교와 자기평가 오염이 겹칠 때 잘 켜집니다." },
+  "MND-FALSEPATCH-01":     { userName:"비교 누수",          subName:"가짜 패치",     oneLiner:"남의 기준을 내 기준처럼 받아들여 하루를 다시 뜯어고치려는 상태입니다.", why:"SNS·성과 자극 직후 비교 충동이 올라올 때 잘 켜집니다." },
+  "MND-OVERCONTROL-01":    { userName:"완벽주의 통제 과잉", subName:"과통제",       oneLiner:"작은 허술함도 놓치지 못하고 계속 조이고 붙드는 상태입니다.", why:"예상 밖 변수와 완벽주의가 겹칠 때 잘 켜집니다." },
+};
+function getBugAlias(bugId, bugL) {
+  return BUG_ALIAS[bugId] || { userName:bugL||"대표 버그", subName:bugL||"", oneLiner:"지금 시스템에서 가장 부담이 큰 버그입니다.", why:"최근 2주 반복 패턴에서 활성화된 상태입니다." };
+}
+function getBugDisplay(src) {
+  const meta = getBugAlias(src?.bug, src?.bugL);
+  return { bugId:src?.bug, bugL:src?.bugL, patch:src?.patch, patchL:src?.patchL, ...meta, bugHref:BLinks[src?.bug], patchHref:PLinks[src?.patch] };
+}
+
 // ═══ M2: THEME ═══════════════════════════════════════════════════
 // M2: THEME — 색상 팔레트, 밴드 정의, 폰트
 
@@ -764,6 +785,31 @@ function ConfirmModal({ open, message, onConfirm, onCancel }) {
   );
 }
 
+// ─── BugSignalCard (Today용 대표 버그 카드) ───
+function BugSignalCard({ hs, onGoReset }) {
+  if (!hs?.bug) return null;
+  const d = getBugDisplay(hs);
+  return (
+    <Card>
+      <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:10 }}>지금 켜진 대표 버그</div>
+      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12 }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontSize:fs(18), fontWeight:800, color:C.text, lineHeight:1.25 }}>{d.userName}</div>
+          <div style={{ fontSize:fs(11), color:C.dim, marginTop:3 }}>{d.subName ? `${d.subName} · ${d.bugId}` : d.bugId}</div>
+        </div>
+        <div style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap" }}>{d.patchL}</div>
+      </div>
+      <div style={{ marginTop:12, fontSize:fs(13), color:C.text, lineHeight:1.6 }}>{d.oneLiner}</div>
+      <div style={{ marginTop:8, fontSize:fs(11.5), color:C.dim, lineHeight:1.55 }}>{d.why}</div>
+      <div style={{ marginTop:14, display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+        <button onClick={() => d.bugHref && window.open(d.bugHref, "_blank", "noopener,noreferrer")} style={{ height:40, borderRadius:12, border:`1px solid ${C.border}`, background:C.cardH, color:C.text, fontWeight:700, fontSize:fs(12), fontFamily:FF, cursor:"pointer" }}>버그 카드 보기</button>
+        <button onClick={onGoReset} style={{ height:40, borderRadius:12, border:"none", background:C.accent, color:"#fff", fontWeight:800, fontSize:fs(12), fontFamily:FF, cursor:"pointer" }}>리셋으로 이동</button>
+      </div>
+      {d.patchHref && <div style={{ marginTop:10, fontSize:fs(10.5), color:C.muted }}>연결 패치: <a href={d.patchHref} target="_blank" rel="noopener noreferrer" style={{ color:C.accent, textDecoration:"none" }}>{d.patchL}</a></div>}
+    </Card>
+  );
+}
+
 // ─── PrincipleBanner (핵심 운영 문장 배너) ───
 const PRINCIPLE_BY_BAND = {
   stable:  "작은 누수를 미리 줄이면, 좋은 흐름은 더 오래 유지됩니다.",
@@ -1162,6 +1208,9 @@ function Home() {
 
       {/* 3. PrincipleBanner */}
       <PrincipleBanner text={getPrincipleText(hs.band)} tone={hs.band === "stable" ? "teal" : "accent"} />
+
+      {/* 3.5 지금 켜진 대표 버그 */}
+      <BugSignalCard hs={hs} onGoReset={onGoReset} />
 
       {/* 4. Quick Patch 1순위 (열자마자 지금 할 일 1개) */}
       {justCompleted ? (
@@ -1712,12 +1761,19 @@ function Result({ result, onDone, isRc, onCp }) {
       </Card>
 
       {/* 8. Bug / Patch */}
+      {(() => { const bm = getBugAlias(result.bug, result.bugL); return (
       <Card>
-        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>연결 Bug / Patch</div>
-        <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:6, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span><span style={{ color:C.accent, fontWeight:600, marginRight:6, fontSize:fs(11) }}>{result.bug}</span>{result.bugL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
-        <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>→ {result.patchL}</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Bug</div>
+        <div style={{ fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35 }}>{bm.userName}</div>
+        <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.bugL} · {result.bug}</div>
+        <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:10, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>{bm.oneLiner}</span><span style={{ color:C.muted, fontSize:fs(11), marginLeft:8, flexShrink:0 }}>→</span></div></a>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Patch</div>
+        <div style={{ fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35 }}>{result.patchL}</div>
+        <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.patch}</div>
+        <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>패치 카드 보기</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
         <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p>
       </Card>
+      ); })()}
 
       {/* 9. 안내 + 참고 링크 */}
       <Card>
