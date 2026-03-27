@@ -822,6 +822,61 @@ function SectionBrandHeader({ title, subtitle }) {
   );
 }
 
+// ─── BugDetailModal (Library용 버그 상세 화면) ───
+const BUG_META = {
+  "MND-OVERCLOCK-01":    { linkedQ:["Q1"], patch:"Slow-Down Patch", patchL:"속도 강제 저하 패치", leak:"조절단" },
+  "MND-INPUTFLOOD-01":   { linkedQ:["Q2"], patch:"Sensory Reset", patchL:"감각 리셋 루틴", leak:"입력단" },
+  "MND-EMOSUPPRESS-01":  { linkedQ:["Q3"], patch:"Voice Activation", patchL:"표현 활성화 패치", leak:"처리단" },
+  "MND-OUTPUTHEAT-01":   { linkedQ:["Q4"], patch:"Stop Signal", patchL:"출력 차단 신호 패치", leak:"출력단" },
+  "BDY-BOOTFAIL-01":     { linkedQ:["Q5"], patch:"Baseline Reset", patchL:"기준선 복구 패치", leak:"회복단" },
+  "BDY-LOWPOWERLOCK-01": { linkedQ:["Q5"], patch:"Baseline Reset", patchL:"기준선 복구 패치", leak:"회복단" },
+  "BDY-BEDLOCK-01":      { linkedQ:["Q5"], patch:"Baseline Reset", patchL:"기준선 복구 패치", leak:"회복단" },
+  "MND-SELFDEVALUE-01":  { linkedQ:["Q6"], patch:"Permission Reset", patchL:"허용 기준 복구 패치", leak:"처리단" },
+  "MND-FALSEPATCH-01":   { linkedQ:["Q6"], patch:"Benchmark Filter", patchL:"기준 필터 패치", leak:"처리단" },
+  "MND-OVERCONTROL-01":  { linkedQ:["Q7"], patch:"Root Reset", patchL:"근원 재설정 패치", leak:"조절단" },
+};
+
+function BugDetailModal({ bugId, onClose }) {
+  if (!bugId) return null;
+  const alias = BUG_ALIAS[bugId];
+  const meta = BUG_META[bugId];
+  if (!alias || !meta) return null;
+  return (
+    <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.65)", zIndex:999, display:"flex", alignItems:"center", justifyContent:"center", padding:"0 20px", animation:"esFadeIn 0.2s ease" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:18, padding:"24px 20px", maxWidth:380, width:"100%", animation:"esSlideUp 0.25s ease", maxHeight:"85vh", overflowY:"auto" }}>
+        {/* 버그명 */}
+        <div style={{ fontSize:fs(20), fontWeight:850, color:C.text, lineHeight:1.25, marginBottom:4 }}>{alias.userName}</div>
+        <div style={{ fontSize:fs(11), color:C.dim, marginBottom:14 }}>{alias.subName} · {bugId}</div>
+        {/* 한 줄 상태 */}
+        <div style={{ padding:"10px 14px", borderRadius:10, background:C.bg, marginBottom:12 }}>
+          <div style={{ fontSize:fs(13), color:C.text, lineHeight:1.6 }}>{alias.oneLiner}</div>
+        </div>
+        {/* 원인 */}
+        <div style={{ fontSize:fs(11), color:C.muted, marginBottom:4 }}>활성화 조건</div>
+        <div style={{ fontSize:fs(12), color:C.dim, lineHeight:1.55, marginBottom:14 }}>{alias.why}</div>
+        {/* 누수 위치 + 관련 Q유형 */}
+        <div style={{ display:"flex", gap:8, marginBottom:14, flexWrap:"wrap" }}>
+          <span style={{ padding:"4px 10px", borderRadius:8, background:`${C.accent}10`, border:`1px solid ${C.accent}25`, fontSize:fs(10), fontWeight:700, color:C.accent }}>누수: {meta.leak}</span>
+          {meta.linkedQ.map(q => (
+            <a key={q} href={QLinks[q]} target="_blank" rel="noopener noreferrer" style={{ padding:"4px 10px", borderRadius:8, background:`${C.blue}10`, border:`1px solid ${C.blue}25`, fontSize:fs(10), fontWeight:700, color:C.blue, textDecoration:"none" }}>{QL[q]}</a>
+          ))}
+        </div>
+        {/* 연결 패치 */}
+        <div style={{ fontSize:fs(11), color:C.muted, marginBottom:4 }}>연결 패치</div>
+        <div onClick={() => PLinks[meta.patch] && window.open(PLinks[meta.patch], "_blank", "noopener,noreferrer")} style={{ padding:"10px 14px", borderRadius:10, background:`${C.teal}06`, border:`1px solid ${C.teal}18`, marginBottom:14, cursor:"pointer" }}>
+          <div style={{ fontSize:fs(14), fontWeight:700, color:C.teal }}>{meta.patchL}</div>
+          <div style={{ fontSize:fs(10), color:C.dim, marginTop:2 }}>{meta.patch}</div>
+        </div>
+        {/* 하단 버튼 */}
+        <div style={{ display:"flex", gap:8 }}>
+          {BLinks[bugId] && <a href={BLinks[bugId]} target="_blank" rel="noopener noreferrer" style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", height:40, borderRadius:12, border:`1px solid ${C.border}`, background:C.cardH, color:C.text, fontWeight:700, fontSize:fs(12), textDecoration:"none", fontFamily:FF }}>노션에서 자세히 보기</a>}
+          <button onClick={onClose} style={{ flex:1, height:40, borderRadius:12, border:"none", background:C.accent, color:"#fff", fontWeight:800, fontSize:fs(12), fontFamily:FF, cursor:"pointer" }}>닫기</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── PrincipleBanner (핵심 운영 문장 배너) ───
 const PRINCIPLE_BY_BAND = {
   stable:  "좋은 흐름을 오래 유지하세요.",
@@ -1580,10 +1635,28 @@ function ActionTab() {
 // Library Tab
 
 function LibTab() {
+  const [detailBugId, setDetailBugId] = useState(null);
   const cc = { "핵심 프레임":C.accent, "운영 구조":C.blue, "OS 영역":C.teal, "심화 주제":C.purple, "실전 도구":C.amber };
   return (
     <div style={{ padding:"20px 16px 100px" }}>
       <SectionBrandHeader title="Library" subtitle="버그, 패치, 운영 구조를 탐색하는 지식 레이어" />
+
+      {/* 대표 버그 카드 섹션 */}
+      <div style={{ marginBottom:22 }}>
+        <div style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>대표 버그 10종</div>
+        <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+          {Object.entries(BUG_ALIAS).map(([bugId, meta]) => (
+            <div key={bugId} onClick={() => setDetailBugId(bugId)} style={{ padding:"12px 14px", borderRadius:12, border:`1px solid ${C.border}`, background:C.card, cursor:"pointer" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
+                <div style={{ fontSize:fs(14), fontWeight:800, color:C.text, lineHeight:1.25 }}>{meta.userName}</div>
+                <span style={{ fontSize:fs(9), color:C.muted, flexShrink:0, marginLeft:8 }}>{bugId.split("-").slice(0,2).join("-")}</span>
+              </div>
+              <div style={{ fontSize:fs(11), color:C.dim, lineHeight:1.5 }}>{meta.oneLiner}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {LCATS.map(cat => {
         const items = LIB.filter(i => i.cat === cat);
         if (!items.length) return null;
@@ -1614,6 +1687,7 @@ function LibTab() {
         );
       })}
       <div style={{ textAlign:"center", padding:"16px 0 0", fontSize:fs(9), color:C.muted }}>by HaruTech Lab · Emotional Engineering Institute</div>
+      <BugDetailModal bugId={detailBugId} onClose={() => setDetailBugId(null)} />
     </div>
   );
 }
