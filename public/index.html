@@ -1,34 +1,42 @@
-<!DOCTYPE html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+<!-- ═══ Stato HTML Head Snippet ═══
+     이 내용을 배포 프로젝트의 index.html <head> 안에 반영하세요.
+     기존 Emotion OS 관련 title/meta/OG가 있다면 교체합니다.
+     ═══════════════════════════════════════════════════════════ -->
 
-    <meta name="theme-color" content="#060a14" />
-    <meta name="description" content="감정 운영체계 점검 · 하루테크랩 감정공학연구소" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="감정 OS" />
+<!-- 기본 메타 -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Stato — 감정공학 기반 하루 운영 앱</title>
+<meta name="description" content="오늘의 상태를 읽고, 에너지가 새는 지점을 찾아, 하루를 다시 운영하게 만드는 앱. 2분 점검 → 상태 해석 → 실행 패치 → 백과사전 연결까지 하나의 생태계." />
+<meta name="theme-color" content="#0c8a89" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Stato" />
 
-    <title>감정 OS · 하루테크랩 감정공학연구소</title>
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
 
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/icon-48x48.png" />
-    <link rel="apple-touch-icon" href="/icon-180x180.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icon-180x180.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="120x120" href="/icon-120x120.png" />
+<!-- Apple Touch Icon -->
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+<link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120x120.png" />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.json" />
 
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-      html, body, #root { height: 100%; width: 100%; }
-      body { background: #060a14; color: #e0ecf4; overflow-x: hidden; -webkit-text-size-adjust: none; }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-</html>
+<!-- Open Graph (카카오톡, 페이스북, 슬랙 공유 미리보기) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Stato — 감정공학 기반 하루 운영 앱" />
+<meta property="og:description" content="감정 누수를 10%만 줄여도, 하루의 질은 달라집니다. 2분 점검으로 오늘의 운영 상태를 확인하세요." />
+<meta property="og:image" content="/og-image.png" />
+<meta property="og:url" content="https://stato.kr" />
+<meta property="og:site_name" content="Stato" />
+<meta property="og:locale" content="ko_KR" />
+
+<!-- Twitter Card (X/트위터 공유 미리보기) -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Stato — 감정공학 기반 하루 운영 앱" />
+<meta name="twitter:description" content="감정 누수를 10%만 줄여도, 하루의 질은 달라집니다." />
+<meta name="twitter:image" content="/og-image.png" />
