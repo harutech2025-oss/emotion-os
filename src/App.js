@@ -112,6 +112,10 @@ const HOTFIX_DB = [
   { ref:"micro-move", guideText:"발을 바닥에 붙이고,\n팔을 한번 들고, 자리에서 일어섭니다.", label:"1분 마이크로 무빙", desc:"발을 바닥에 붙이고, 팔을 한번 들고, 자리에서 일어섭니다. 딱 이것만 합니다.", cta:"1분 움직임 시작", priority:2, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
   // 환경정리형: 자극 차단 + 환경 조정 (300초)
   { ref:"env-reset", guideText:"알림을 끄고, 조명을 낮추거나\n소음을 줄입니다.", label:"환경 정리", desc:"알림을 끄고, 조명을 낮추거나, 소음을 줄입니다. 5분간 외부 입력을 최소화합니다.", cta:"5분 환경 정리", priority:2, bandMatch:null, qMatch:["Q2","Q1"], exec:true, durationSec:300 },
+  { ref:"focus-anchor", guideText:"눈앞의 한 가지에만\n주의를 고정합니다.", label:"주의력 앵커", desc:"지금 눈앞의 한 가지(손, 물건, 소리)에만 3분간 주의를 고정합니다. 다른 생각이 와도 다시 돌아옵니다.", cta:"3분 앵커 시작", priority:2, bandMatch:null, qMatch:["Q1","Q7"], exec:true, durationSec:180 },
+  { ref:"compare-block", guideText:"SNS를 닫고,\n2분간 내 기준만 봅니다.", label:"비교 차단", desc:"SNS, 알림, 타인의 소식을 닫고 2분간 나만의 기준으로 오늘을 봅니다.", cta:"2분 차단 시작", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:120 },
+  { ref:"body-scan", guideText:"머리부터 발끝까지\n긴장을 천천히 훑어내립니다.", label:"바디 스캔", desc:"눈을 감고 머리 → 어깨 → 배 → 다리 → 발끝 순서로 긴장을 알아차리고 내려놓습니다.", cta:"3분 스캔 시작", priority:2, bandMatch:null, qMatch:["Q3","Q5"], exec:true, durationSec:180 },
+  { ref:"boundary-line", guideText:"지금 응하지 않아도 되는\n요청 하나를 정합니다.", label:"경계 한 줄", desc:"지금 당장 응하지 않아도 되는 요청이나 기대 하나를 정하고, 그것만 미뤄둡니다.", cta:"1분 경계 설정", priority:2, bandMatch:null, qMatch:["Q2","Q4"], exec:true, durationSec:60 },
 ];
 
 // ─── Protocol DB (7, Q별 1개) ───
@@ -810,6 +814,58 @@ function BugSignalCard({ hs, onGoReset }) {
   );
 }
 
+// ─── MetricsTrendCard (체감 척도 3종 추이 미니 그래프) ───
+function MetricsTrendCard({ history }) {
+  const recent = history.slice(-8);
+  if (recent.length < 2) return null;
+  const data = recent.map(h => {
+    const m = deriveLiveMetrics({ avail:h.avail, pq:h.pq });
+    return { fatigue:m.fatigueIdx, productivity:m.productivityIdx, friction:m.frictionIdx, ts:h.ts };
+  });
+  const W = 260, H = 40, pad = 4;
+  const renderSparkline = (key, color) => {
+    const vals = data.map(d => d[key]);
+    const max = 4;
+    const pts = vals.map((v, i) => {
+      const x = pad + (i / (vals.length - 1)) * (W - pad * 2);
+      const y = pad + (v / max) * (H - pad * 2);
+      return `${x},${y}`;
+    }).join(" ");
+    return (
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display:"block" }}>
+        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+        {vals.map((v, i) => {
+          const x = pad + (i / (vals.length - 1)) * (W - pad * 2);
+          const y = pad + (v / max) * (H - pad * 2);
+          return <circle key={i} cx={x} cy={y} r={i === vals.length - 1 ? 3 : 1.5} fill={color} />;
+        })}
+      </svg>
+    );
+  };
+  const last = data[data.length - 1];
+  const metrics = [
+    { key:"fatigue", label:"피로", color:C.accent, val:LIVE_LABELS.fatigue[last.fatigue] },
+    { key:"productivity", label:"몰입", color:C.blue, val:LIVE_LABELS.productivity[last.productivity] },
+    { key:"friction", label:"마찰", color:C.amber, val:LIVE_LABELS.friction[last.friction] },
+  ];
+  return (
+    <Accordion title={`체감 척도 추이 · 최근 ${recent.length}회`} defaultOpen={false}>
+      <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+        {metrics.map(m => (
+          <div key={m.key}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:2 }}>
+              <span style={{ fontSize:fs(10), color:C.dim }}>{m.label}</span>
+              <span style={{ fontSize:fs(10), fontWeight:700, color:m.color }}>{m.val}</span>
+            </div>
+            {renderSparkline(m.key, m.color)}
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize:fs(9), color:C.muted, marginTop:8, lineHeight:1.4 }}>위로 갈수록 부하 높음 · 아래로 갈수록 안정</p>
+    </Accordion>
+  );
+}
+
 // ─── SectionBrandHeader (탭 공통 브랜드 헤더) ───
 function SectionBrandHeader({ title, subtitle }) {
   return (
@@ -1351,6 +1407,9 @@ function Home() {
       {/* 7. HistoryGraph (아래로 이동) */}
       <HistoryGraph history={hist} actionLog={actionLog} />
 
+      {/* 7.5 체감 척도 추이 */}
+      <MetricsTrendCard history={hist} />
+
       {/* 8. 활성 패턴 (아래로 이동) */}
       <Card>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
@@ -1364,6 +1423,18 @@ function Home() {
         </div>
         {hs.mode && <p style={{ fontSize:fs(12), color:C.dim, marginTop:8 }}><strong style={{ color:C.teal }}>{hs.mode}</strong> — {hs.modeD}</p>}
       </Card>
+
+      {/* 8.5 오늘의 운영 모드 */}
+      {hs.mode && (
+        <Card accent={`${C.teal}20`} style={{ background:`${C.teal}04` }}>
+          <div style={{ fontSize:fs(10), color:C.muted, marginBottom:6 }}>오늘의 운영 모드</div>
+          <div style={{ fontSize:fs(17), fontWeight:800, color:C.teal, lineHeight:1.2, marginBottom:6 }}>{hs.mode}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.55, marginBottom:8 }}>{hs.modeD}</p>
+          <div style={{ padding:"8px 12px", borderRadius:8, background:C.bg, border:`1px solid ${C.border}` }}>
+            <p style={{ fontSize:fs(10.5), color:C.muted, lineHeight:1.5, margin:0 }}>성격을 바꾸라는 뜻이 아닙니다. 지금 시스템 상태에서 가동률을 덜 잃는 임시 운영 자세입니다.</p>
+          </div>
+        </Card>
+      )}
 
       {/* 하단 버튼 */}
       <div style={{ display:"flex", gap:8, marginTop:4 }}>
@@ -1521,9 +1592,13 @@ function ActionTab() {
       {/* Reset 다양화 3종 — 패턴 기반 조건부 노출 */}
       {(() => {
         const RESET_TYPES = [
-          { ref:"leak-note",  icon:"✏️", type:"기록형",     color:C.blue,  qMatch:["Q3","Q4","Q5"] },
-          { ref:"micro-move", icon:"🏃", type:"움직임형",   color:C.green, qMatch:["Q5"] },
-          { ref:"env-reset",  icon:"🔇", type:"환경정리형", color:C.teal,  qMatch:["Q2","Q1"] },
+          { ref:"leak-note",     icon:"✏️", type:"기록형",     color:C.blue,   qMatch:["Q3","Q4","Q5"] },
+          { ref:"micro-move",    icon:"🏃", type:"움직임형",   color:C.green,  qMatch:["Q5"] },
+          { ref:"env-reset",     icon:"🔇", type:"환경정리형", color:C.teal,   qMatch:["Q2","Q1"] },
+          { ref:"focus-anchor",  icon:"🎯", type:"집중형",     color:C.amber,  qMatch:["Q1","Q7"] },
+          { ref:"compare-block", icon:"🚫", type:"차단형",     color:C.purple, qMatch:["Q6"] },
+          { ref:"body-scan",     icon:"🧘", type:"신체감각형", color:C.green,  qMatch:["Q3","Q5"] },
+          { ref:"boundary-line", icon:"🛡️", type:"경계형",     color:C.blue,   qMatch:["Q2","Q4"] },
         ];
         const pq = result?.pq, sq = result?.sq;
         const featuredRefs = new Set([...execFx.map(f => f.ref), ...pendFx.map(f => f.ref)]);
@@ -1832,12 +1907,14 @@ function Result({ result, onDone, isRc, onCp }) {
         <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p>
       </Accordion>
 
-      {/* 7. 추천 운영 자세 */}
+      {/* 7. 추천 운영 모드 */}
       <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
-        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 자세</div>
-        <div style={{ fontSize:fs(16), fontWeight:700, color:C.teal, marginBottom:4 }}>{result.mode}</div>
-        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{result.modeD}</p>
-        <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>성격을 바꾸라는 뜻이 아니라, 지금 시스템을 덜 망가지게 운영하기 위한 임시 자세입니다.</p>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 모드</div>
+        <div style={{ fontSize:fs(18), fontWeight:800, color:C.teal, marginBottom:6 }}>{result.mode}</div>
+        <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.55, marginBottom:8 }}>{result.modeD}</p>
+        <div style={{ padding:"8px 12px", borderRadius:8, background:C.bg, border:`1px solid ${C.border}` }}>
+          <p style={{ fontSize:fs(10.5), color:C.muted, lineHeight:1.5, margin:0 }}>성격을 바꾸라는 뜻이 아닙니다. 지금 시스템 상태에서 가동률을 덜 잃는 임시 운영 자세입니다.</p>
+        </div>
       </Card>
 
       {/* 8. Bug / Patch */}
