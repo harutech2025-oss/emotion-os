@@ -594,8 +594,7 @@ function clearActionLog() {
 // M5: SERVICES — 공유 URL, 공유 텍스트, ShareBtn
 
 function getShareUrl() {
-  try { const u = new URL(window.location.href); u.hash = ""; u.search = ""; return u.toString(); }
-  catch(e) { return window.location.origin || window.location.href; }
+  return "https://stato.kr";
 }
 
 function buildShareText(r) {
@@ -791,7 +790,7 @@ function BugSignalCard({ hs, onGoReset }) {
   const d = getBugDisplay(hs);
   return (
     <Card>
-      <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:10 }}>지금 켜진 대표 버그</div>
+      <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:10 }}>지금 가동률이 떨어진 이유</div>
       <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12 }}>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontSize:fs(18), fontWeight:800, color:C.text, lineHeight:1.25 }}>{d.userName}</div>
@@ -800,24 +799,37 @@ function BugSignalCard({ hs, onGoReset }) {
         <div style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap" }}>{d.patchL}</div>
       </div>
       <div style={{ marginTop:12, fontSize:fs(13), color:C.text, lineHeight:1.6 }}>{d.oneLiner}</div>
-      <div style={{ marginTop:8, fontSize:fs(11.5), color:C.dim, lineHeight:1.55 }}>{d.why}</div>
+      <div style={{ marginTop:8, fontSize:fs(11.5), color:C.dim, lineHeight:1.55 }}>이 상태가 계속되면 하루의 리듬이 더 흔들릴 수 있습니다.</div>
       <div style={{ marginTop:14, display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
         <button onClick={() => d.bugHref && window.open(d.bugHref, "_blank", "noopener,noreferrer")} style={{ height:40, borderRadius:12, border:`1px solid ${C.border}`, background:C.cardH, color:C.text, fontWeight:700, fontSize:fs(12), fontFamily:FF, cursor:"pointer" }}>버그 카드 보기</button>
         <button onClick={onGoReset} style={{ height:40, borderRadius:12, border:"none", background:C.accent, color:"#fff", fontWeight:800, fontSize:fs(12), fontFamily:FF, cursor:"pointer" }}>리셋으로 이동</button>
       </div>
       {d.patchHref && <div style={{ marginTop:10, fontSize:fs(10.5), color:C.muted }}>연결 패치: <a href={d.patchHref} target="_blank" rel="noopener noreferrer" style={{ color:C.accent, textDecoration:"none" }}>{d.patchL}</a></div>}
+      <div style={{ marginTop:10, fontSize:fs(10.5), color:C.muted }}>실행 후에는 재점검으로 변화를 확인해보세요.</div>
     </Card>
+  );
+}
+
+// ─── SectionBrandHeader (탭 공통 브랜드 헤더) ───
+function SectionBrandHeader({ title, subtitle }) {
+  return (
+    <div style={{ marginBottom:20 }}>
+      <div style={{ fontSize:fs(12.6), letterSpacing:1.1, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0, marginBottom:4 }}>Stato</div>
+      <div style={{ fontSize:fs(5.8), letterSpacing:0.7, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, opacity:0.82, marginBottom:10 }}>Powered by Emotion OS</div>
+      <div style={{ fontSize:fs(24), fontWeight:850, color:C.text, lineHeight:1.08, marginBottom:subtitle?6:0 }}>{title}</div>
+      {!!subtitle && <div style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.5, maxWidth:520 }}>{subtitle}</div>}
+    </div>
   );
 }
 
 // ─── PrincipleBanner (핵심 운영 문장 배너) ───
 const PRINCIPLE_BY_BAND = {
-  stable:  "작은 누수를 미리 줄이면, 좋은 흐름은 더 오래 유지됩니다.",
-  caution: "지금은 무너지기 전에 작은 누수를 막을 타이밍입니다.",
-  low:     "오늘은 크게 바꾸려 하지 말고, 누수 하나만 줄여도 충분합니다.",
-  overload:"지금은 회복을 완성하는 단계가 아니라, 더 새지 않게 막는 단계입니다.",
+  stable:  "좋은 흐름을 오래 유지하세요.",
+  caution: "지금은 가동률이 떨어지기 전에 조정할 타이밍입니다.",
+  low:     "오늘은 가동률 회복이 우선입니다.",
+  overload:"지금은 더 새지 않게 막는 것이 먼저입니다.",
 };
-const PRINCIPLE_DEFAULT = "감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.";
+const PRINCIPLE_DEFAULT = "지금 상태를 읽고, 하루를 다시 운영하세요.";
 
 function getPrincipleText(band) {
   return PRINCIPLE_BY_BAND[band] || PRINCIPLE_DEFAULT;
@@ -826,8 +838,8 @@ function getPrincipleText(band) {
 function PrincipleBanner({ text, tone }) {
   const color = tone === "accent" ? C.accent : tone === "teal" ? C.teal : tone === "blue" ? C.blue : C.muted;
   return (
-    <div style={{ padding:"12px 16px", borderRadius:10, border:`1px solid ${color}18`, background:`${color}06`, marginBottom:12 }}>
-      <p style={{ fontSize:fs(12), fontWeight:600, color, lineHeight:1.6, margin:0 }}>{text}</p>
+    <div style={{ padding:"8px 14px", borderRadius:8, border:`1px solid ${color}14`, background:`${color}04`, marginBottom:10 }}>
+      <p style={{ fontSize:fs(11), fontWeight:600, color, lineHeight:1.5, margin:0 }}>{text}</p>
     </div>
   );
 }
@@ -1169,7 +1181,7 @@ function Home() {
       {/* 1. 상단 Full Scan CTA */}
       <Btn primary onClick={onScan} style={{ width:"100%", marginBottom:14 }}>새 Full Scan</Btn>
 
-      {/* 2. TodayHeroCard: 체감 요약 + 에너지 잔량 */}
+      {/* 2. TodayHeroCard: 상태 요약 + 가동률 */}
       {(() => {
         const m = deriveLiveMetrics(hs);
         const headline = deriveSummaryHeadline(hs, m);
@@ -1183,11 +1195,12 @@ function Home() {
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
               <span style={{ fontSize:fs(11), color:C.muted }}>오늘의 상태</span>
               <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                <span style={{ fontSize:fs(10), color:C.dim }}>에너지 잔량</span>
+                <span style={{ fontSize:fs(10), color:C.dim }}>현재 가동률</span>
                 <ANum value={hs.avail} color={b.c} size={18} suffix="%" />
               </div>
             </div>
-            <p style={{ fontSize:fs(14), fontWeight:700, color:C.text, lineHeight:1.5, marginBottom:10 }}>{headline}</p>
+            <p style={{ fontSize:fs(14), fontWeight:700, color:C.text, lineHeight:1.5, marginBottom:8 }}>{headline}</p>
+            <div style={{ fontSize:fs(12), color:C.accent, fontWeight:700, lineHeight:1.45, marginBottom:10 }}>오늘은 5%만 올려보세요</div>
             <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
               {badges.map((bg,i) => (
                 <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"4px 8px", borderRadius:999, fontSize:fs(10), fontWeight:600, color:bg.t.fg, background:bg.t.bg, border:`1px solid ${bg.t.border}` }}>
@@ -1199,32 +1212,26 @@ function Home() {
         );
       })()}
 
-      {/* 2.5 고정 모토 스트립 */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"8px 14px", marginBottom:10, borderRadius:8, border:`1px solid ${C.accent}18`, background:`${C.accent}05` }}>
-        <span style={{ fontSize:fs(11), color:C.accent, fontWeight:600, letterSpacing:0.3, textAlign:"center", lineHeight:1.5 }}>
-          감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.
-        </span>
-      </div>
-
       {/* 3. PrincipleBanner */}
       <PrincipleBanner text={getPrincipleText(hs.band)} tone={hs.band === "stable" ? "teal" : "accent"} />
 
-      {/* 3.5 지금 켜진 대표 버그 */}
+      {/* 3.5 지금 가동률이 떨어진 이유 */}
       <BugSignalCard hs={hs} onGoReset={onGoReset} />
 
-      {/* 4. Quick Patch 1순위 (열자마자 지금 할 일 1개) */}
+      {/* 4. Quick Patch 1순위 (지금 가장 먼저 할 것) */}
       {justCompleted ? (
         <Card accent={`${C.green}30`} style={{ background:`${C.green}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>실행 완료</div>
           <div style={{ fontSize:fs(15), fontWeight:700, color:C.green, marginBottom:4 }}>잘했습니다</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>방금 실행한 패치의 효과가 안착하려면 잠시 시간이 필요합니다. 지금은 현재 리듬을 유지하세요.</p>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>지금은 현재 리듬을 유지하세요. 변화가 느껴진다면 재점검으로 확인해보세요.</p>
+          <div style={{ marginTop:10 }}><Btn small style={{ maxWidth:220 }} onClick={onRc}>재점검으로 변화 확인</Btn></div>
         </Card>
       ) : showExecTop ? (
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
-          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>Quick Patch</div>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
           <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{execTop.label}</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{execTop.desc}</p>
-          <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:200 }} onClick={() => onTimer && onTimer(execTop.ref)}>{execTop.cta}</Btn></div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>이 패치 하나로 오늘 흐름이 달라질 수 있습니다.</p>
+          <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:220 }} onClick={() => onTimer && onTimer(execTop.ref)}>{execTop.cta}</Btn></div>
         </Card>
       ) : homeProto ? (
         <Card accent={`${C.blue}20`} style={{ background:`${C.blue}05` }}>
@@ -1280,6 +1287,7 @@ function Home() {
         <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
         {hs.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
         {hs.source === "recheck_overlay" && <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>가동률은 최근 재점검 기준이며, 핵심 패턴은 Full Scan 기준입니다</p>}
+        {(() => { const fst = hist.filter(h => h.type === "full").slice(-1)[0]?.ts; if (!fst) return null; const days = Math.floor((Date.now() - fst) / 86400000); return <p style={{ fontSize:fs(10), color:C.muted, marginTop:6 }}>마지막 Full Scan: {days === 0 ? "오늘" : `${days}일 전`}{days >= 14 ? " · 새 Full Scan을 권장합니다" : ""}</p>; })()}
       </Accordion>
 
       {/* 6.5 Next Check-in 카드 */}
@@ -1377,8 +1385,7 @@ function ScanTab() {
   const { cr:result, onScan, onRc, onCp } = useApp();
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Scan</h2>
-      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:16 }}>새 스캔, 재점검, Couple 연결을 관리하는 도구 탭</p>
+      <SectionBrandHeader title="Scan" subtitle="새 스캔, 재점검, Couple 연결을 관리하는 도구 탭" />
       <Card onClick={onScan} style={{ cursor:"pointer" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.accentD, display:"flex", alignItems:"center", justifyContent:"center" }}><IS a /></div>
@@ -1412,8 +1419,7 @@ function ActionTab() {
 
   if (!result) return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:8 }}>Reset</h2>
-      <p style={{ fontSize:fs(13), color:C.dim, lineHeight:1.6 }}>스캔 결과가 있어야 맞춤형 패치를 추천할 수 있습니다.</p>
+      <SectionBrandHeader title="Reset" subtitle="스캔 결과가 있어야 맞춤형 패치를 추천할 수 있습니다." />
     </div>
   );
 
@@ -1430,8 +1436,7 @@ function ActionTab() {
 
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Reset</h2>
-      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:18 }}>설명보다 버튼. 지금 바로 실행할 수 있는 개입입니다.</p>
+      <SectionBrandHeader title="Reset" subtitle="설명보다 버튼. 지금 바로 실행할 수 있는 개입입니다." />
 
       {/* 운영 기준 문장 */}
       <PrincipleBanner text="지금은 해결보다 누수 차단이 우선입니다." tone="accent" />
@@ -1466,23 +1471,24 @@ function ActionTab() {
           { ref:"env-reset",  icon:"🔇", type:"환경정리형", color:C.teal,  qMatch:["Q2","Q1"] },
         ];
         const pq = result?.pq, sq = result?.sq;
+        const featuredRefs = new Set([...execFx.map(f => f.ref), ...pendFx.map(f => f.ref)]);
         let diverseResets = RESET_TYPES
           .map(rt => ({ ...rt, hf: HOTFIX_DB.find(h => h.ref === rt.ref) }))
-          .filter(rt => rt.hf && (rt.qMatch.includes(pq) || rt.qMatch.includes(sq)))
-          // pq 직접 매칭 → 최상위, sq 매칭 → 하위 (pq 패턴이 가장 급한 항목 우선 노출)
+          .filter(rt => rt.hf && !featuredRefs.has(rt.ref) && (rt.qMatch.includes(pq) || rt.qMatch.includes(sq)))
           .sort((a, b) => {
             const aPri = a.qMatch.includes(pq) ? 0 : 1;
             const bPri = b.qMatch.includes(pq) ? 0 : 1;
             return aPri - bPri;
           });
         if (diverseResets.length === 0) {
-          const fb = RESET_TYPES[0];
-          diverseResets = [{ ...fb, hf: HOTFIX_DB.find(h => h.ref === fb.ref) }].filter(rt => rt.hf);
+          const fb = RESET_TYPES.find(rt => !featuredRefs.has(rt.ref)) || RESET_TYPES[0];
+          diverseResets = [{ ...fb, hf: HOTFIX_DB.find(h => h.ref === fb.ref) }].filter(rt => rt.hf && !featuredRefs.has(rt.ref));
         }
+        if (diverseResets.length === 0) return null;
         return (
           <div style={{ marginBottom:18 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-              <span style={{ fontSize:fs(11), fontWeight:700, color:C.blue, letterSpacing:2, textTransform:"uppercase" }}>Reset 다양화</span>
+              <span style={{ fontSize:fs(11), fontWeight:700, color:C.blue, letterSpacing:2, textTransform:"uppercase" }}>다른 리셋 시도</span>
               <span style={{ fontSize:fs(10), color:C.muted }}>{diverseResets.length}종 추천</span>
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -1577,8 +1583,7 @@ function LibTab() {
   const cc = { "핵심 프레임":C.accent, "운영 구조":C.blue, "OS 영역":C.teal, "심화 주제":C.purple, "실전 도구":C.amber };
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <h2 style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginBottom:4 }}>Library</h2>
-      <p style={{ fontSize:fs(12), color:C.dim, marginBottom:20 }}>감정공학 백과사전 요약 · 상세는 노션 참고 자료에서</p>
+      <SectionBrandHeader title="Library" subtitle="버그, 패치, 운영 구조를 탐색하는 지식 레이어" />
       {LCATS.map(cat => {
         const items = LIB.filter(i => i.cat === cat);
         if (!items.length) return null;
@@ -1680,11 +1685,12 @@ function Result({ result, onDone, isRc, onCp }) {
         <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
         <div style={{ fontSize:fs(7.4), letterSpacing:0.9, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
         <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
-        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>최근 2주 반복 패턴 기준</p>
+        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>{isRc ? "직전 스캔 기준 · 3~5문항 소표본 재점검" : "최근 2주 반복 패턴 기준"}</p>
         <p style={{ fontSize:fs(11), color:C.muted, marginTop:6, lineHeight:1.65 }}>
-          이 리포트는 최근 2주의 반복 패턴을 기준으로, 오늘의 운영 상태를 해석한 결과입니다.
+          {isRc ? "이 리포트는 직전 스캔 결과를 기준축으로, 현재 가동률 변화만 다시 확인한 결과입니다." : "이 리포트는 최근 2주의 반복 패턴을 기준으로, 오늘의 운영 상태를 해석한 결과입니다."}
         </p>
         {isRc && result.delta != null && <div style={{ marginTop:10 }}><DBadge delta={result.delta} big /><p style={{ fontSize:fs(10), color:C.muted, marginTop:4 }}>{result.baselineType === "recheck" ? "직전 재점검 대비" : "풀 스캔 대비"}</p></div>}
+        {isRc && result.reranked && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}08`, border:`1px solid ${C.amber}25` }}><span style={{ fontSize:fs(11), fontWeight:700, color:C.amber }}>패턴 전환 감지</span><p style={{ fontSize:fs(10), color:C.dim, margin:"4px 0 0", lineHeight:1.5 }}>재점검 결과, 주 패턴이 {QL[result.pq]}으로 전환되었습니다. 가동률 변화와 함께 확인해보세요.</p></div>}
       </div>
 
       {/* 1. 브랜드 고정 모토 (안 A: 설명 아래 · LiveSummary 위 · 가장 강한 각인 위치) */}
