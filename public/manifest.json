@@ -1,20 +1,54 @@
 {
-  "name": "감정 OS · 하루테크랩 감정공학연구소",
-  "short_name": "감정 OS",
-  "description": "감정 운영 상태 점검 · Emotion OS by Haru-Tech Lab",
+  "name": "Stato — 감정공학 기반 하루 운영 앱",
+  "short_name": "Stato",
+  "description": "오늘의 상태를 읽고, 에너지가 새는 지점을 찾아, 하루를 다시 운영하게 만드는 앱입니다.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#060a14",
-  "theme_color": "#060a14",
+  "background_color": "#0c1120",
+  "theme_color": "#0c8a89",
   "orientation": "portrait",
   "icons": [
-    { "src": "/icon-48x48.png", "sizes": "48x48", "type": "image/png" },
-    { "src": "/icon-72x72.png", "sizes": "72x72", "type": "image/png" },
-    { "src": "/icon-96x96.png", "sizes": "96x96", "type": "image/png" },
-    { "src": "/icon-120x120.png", "sizes": "120x120", "type": "image/png" },
-    { "src": "/icon-152x152.png", "sizes": "152x152", "type": "image/png" },
-    { "src": "/icon-180x180.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-120x120.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    }
   ]
 }
