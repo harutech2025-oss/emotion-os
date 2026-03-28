@@ -1601,13 +1601,17 @@ function Home() {
       <BugSignalCard hs={hs} onGoReset={onGoReset} />
 
       {/* 4. Quick Patch 1순위 (지금 가장 먼저 할 것) */}
-      {justCompleted ? (
+      {justCompleted ? (() => {
+        const todayCount = (actionLog || []).filter(a => { const t = a.completedAt; return t && new Date(t).toDateString() === new Date().toDateString() && a.status === "completed"; }).length;
+        return (
         <Card accent={`${C.green}30`} style={{ background:`${C.green}05` }}>
-          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>실행 완료</div>
-          <div style={{ fontSize:fs(15), fontWeight:700, color:C.green, marginBottom:4 }}>잘했습니다</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>지금은 현재 리듬을 유지하세요. 변화가 느껴진다면 재점검으로 확인해보세요.</p>
+          <div style={{ fontSize:fs(11), color:C.green, fontWeight:700, marginBottom:6 }}>✓ 방금 회복 완료</div>
+          <div style={{ fontSize:fs(15), fontWeight:700, color:C.green, marginBottom:4 }}>과열이 낮아졌습니다</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>지금 가벼운 일 하나를 처리하기 좋은 상태입니다.</p>
+          {todayCount > 0 && <p style={{ fontSize:fs(10), color:C.teal, fontWeight:600, margin:"6px 0 0" }}>오늘 {todayCount}회 회복 완료</p>}
           <div style={{ marginTop:10 }}><Btn small style={{ maxWidth:220 }} onClick={onRc}>재점검으로 변화 확인</Btn></div>
-        </Card>
+        </Card>);
+      })()
       ) : showExecTop ? (
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
@@ -1850,120 +1854,116 @@ function ActionTab() {
     return latest ? latest.status === "completed" && !!latest.completedAt : false;
   };
 
+  // Reset 탭 Hero 추천 결정
+  const b = BAND[result.band] || BAND.stable;
+  const heroFx = execFxForReset[0] || null;
+  const heroRef = heroFx?.ref || "universal-reset";
+  const heroHf = heroFx || HOTFIX_DB.find(h => h.ref === "universal-reset");
+  const restFx = execFxForReset.slice(1);
+
+  // 상태 인식 문구 (진단 + 행동 명령)
+  const statusLine = result.band === "overload" ? "지금은 해결하려 하지 마세요. 먼저 식히세요"
+    : result.band === "low" ? "시동이 안 걸리는 상태입니다. 가장 작은 것부터 시작하세요"
+    : result.band === "caution" ? "누수가 감지되고 있습니다. 지금 차단하세요"
+    : "안정 상태입니다. 리듬을 유지하세요";
+
+  // Hero 버튼 문구 (행동형)
+  const heroCta = result.band === "overload" ? `지금 식히기 (${Math.floor((heroHf?.durationSec||180)/60)}분)`
+    : result.band === "low" ? `시동 걸기 (${Math.floor((heroHf?.durationSec||60)/60)}분)`
+    : `지금 시작 (${Math.floor((heroHf?.durationSec||180)/60)}분)`;
+
+  // Hero 효과 문구
+  const heroEffect = result.band === "overload" ? "90초 안에 과열을 낮춥니다"
+    : result.band === "low" ? "가장 작은 움직임으로 시스템을 재가동합니다"
+    : result.band === "caution" ? "지금 상태에서 가장 빠르게 안정되는 방법입니다"
+    : "현재 리듬을 더 단단하게 만듭니다";
+
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <SectionBrandHeader title="Reset" subtitle="설명보다 버튼. 지금 바로 실행할 수 있는 개입입니다." />
+      <SectionBrandHeader title="Reset" subtitle="설명보다 실행. 지금 바로." />
 
-      {/* 운영 기준 문장 */}
-      <PrincipleBanner text="지금은 해결보다 누수 차단이 우선입니다." tone="accent" />
-
-      {/* 실행 가능 Hot Fix (Today 1순위 제외) */}
-      {execFxForReset.length > 0 && <>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-          <span style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase" }}>다른 실행형 리셋</span>
-          <span style={{ fontSize:fs(10), color:C.muted }}>실행 가능 {execFxForReset.length}개</span>
+      {/* 1. 상태 인식 (진단 + 명령) */}
+      <div style={{ padding:"8px 14px", borderRadius:8, background:b.bg, border:`1px solid ${b.c}20`, marginBottom:14 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <div style={{ width:8, height:8, borderRadius:4, background:b.c, flexShrink:0 }} />
+          <span style={{ fontSize:fs(11), fontWeight:700, color:b.c }}>{b.l} 상태</span>
         </div>
-        {execFxForReset.map((f, fi) => (
-          <Card key={f.ref} accent={`${C.accent}30`} style={{ background:`${C.accent}05` }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-              <span style={{ fontSize:fs(14), fontWeight:700, color:C.accent }}>{f.label}</span>
-              <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-                {wasExecuted(f.ref) && <Badge text="✓ 실행됨" color={C.green} />}
-                <Badge text={fi === 0 ? "최우선" : "권장"} color={fi === 0 ? C.accent : `${C.muted}88`} />
-              </div>
-            </div>
-            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:16 }}>{f.desc}</p>
-            <div style={{ marginBottom:12 }}><Btn primary small onClick={() => onTimer && onTimer(f.ref)}>{f.cta}</Btn></div>
-            <p style={{ fontSize:fs(10), color:C.muted, margin:0 }}>이 패치는 감정 누수를 줄이기 위한 최소 개입입니다.</p>
-          </Card>
-        ))}
-      </>}
+        <p style={{ fontSize:fs(11.5), fontWeight:600, color:C.text, margin:"4px 0 0", lineHeight:1.45 }}>{statusLine}</p>
+      </div>
 
-      {/* Reset 다양화 3종 — 패턴 기반 조건부 노출 */}
-      {(() => {
-        const RESET_TYPES = [
-          { ref:"leak-note",     icon:"✏️", type:"기록형",     color:C.blue,   qMatch:["Q3","Q4","Q5"] },
-          { ref:"micro-move",    icon:"🏃", type:"움직임형",   color:C.green,  qMatch:["Q5"] },
-          { ref:"env-reset",     icon:"🔇", type:"환경정리형", color:C.teal,   qMatch:["Q2","Q1"] },
-          { ref:"focus-anchor",  icon:"🎯", type:"집중형",     color:C.amber,  qMatch:["Q1","Q7"] },
-          { ref:"compare-block", icon:"🚫", type:"차단형",     color:C.purple, qMatch:["Q6"] },
-          { ref:"body-scan",     icon:"🧘", type:"신체감각형", color:C.green,  qMatch:["Q3","Q5"] },
-          { ref:"boundary-line", icon:"🛡️", type:"경계형",     color:C.blue,   qMatch:["Q2","Q4"] },
-        ];
-        const pq = result?.pq, sq = result?.sq;
-        const featuredRefs = new Set([...execFx.map(f => f.ref), ...pendFx.map(f => f.ref)]);
-        let diverseResets = RESET_TYPES
-          .map(rt => ({ ...rt, hf: HOTFIX_DB.find(h => h.ref === rt.ref) }))
-          .filter(rt => rt.hf && !featuredRefs.has(rt.ref) && (rt.qMatch.includes(pq) || rt.qMatch.includes(sq)))
-          .sort((a, b) => {
-            const aPri = a.qMatch.includes(pq) ? 0 : 1;
-            const bPri = b.qMatch.includes(pq) ? 0 : 1;
-            return aPri - bPri;
-          });
-        if (diverseResets.length === 0) {
-          const fb = RESET_TYPES.find(rt => !featuredRefs.has(rt.ref)) || RESET_TYPES[0];
-          diverseResets = [{ ...fb, hf: HOTFIX_DB.find(h => h.ref === fb.ref) }].filter(rt => rt.hf && !featuredRefs.has(rt.ref));
-        }
-        if (diverseResets.length === 0) return null;
-        return (
-          <div style={{ marginBottom:18 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-              <span style={{ fontSize:fs(11), fontWeight:700, color:C.blue, letterSpacing:2, textTransform:"uppercase" }}>다른 리셋 시도</span>
-              <span style={{ fontSize:fs(10), color:C.muted }}>{diverseResets.length}종 추천</span>
+      {/* 2. Hero: 버튼 먼저 → 설명 나중 */}
+      {heroHf && (
+        <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05`, textAlign:"center", padding:"20px 16px" }}>
+          {wasExecuted(heroRef) && <div style={{ marginBottom:10 }}><Badge text="✓ 오늘 실행 완료" color={C.green} /></div>}
+          <Btn primary onClick={() => onTimer && onTimer(heroRef)} style={{ width:"100%", maxWidth:300, padding:"16px 0", fontSize:fs(15), marginBottom:14 }}>{heroCta}</Btn>
+          <div style={{ fontSize:fs(16), fontWeight:800, color:C.teal, lineHeight:1.2, marginBottom:4 }}>{heroHf.label}</div>
+          <p style={{ fontSize:fs(11.5), color:C.dim, lineHeight:1.5, maxWidth:280, margin:"0 auto" }}>{heroEffect}</p>
+        </Card>
+      )}
+
+      {/* 3. 다른 리셋 보기 (전부 접기) */}
+      <Accordion title="다른 리셋 보기" defaultOpen={false}>
+        {/* 3a. 나머지 실행형 패치 */}
+        {restFx.length > 0 && restFx.map(f => (
+          <div key={f.ref} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 12px", borderRadius:10, border:`1px solid ${C.accent}20`, background:`${C.accent}04`, marginBottom:6 }}>
+            <div style={{ flex:1, minWidth:0 }}>
+              <span style={{ fontSize:fs(12), fontWeight:700, color:C.accent }}>{f.label}</span>
+              {wasExecuted(f.ref) && <Badge text="✓" color={C.green} />}
+              <p style={{ fontSize:fs(10.5), color:C.dim, margin:"2px 0 0", lineHeight:1.4 }}>{f.desc}</p>
             </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-              {diverseResets.map(rt => (
-                <div key={rt.ref} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 14px", borderRadius:12, border:`1px solid ${rt.color}25`, background:`${rt.color}06` }}>
-                  <span style={{ fontSize:fs(20), flexShrink:0 }}>{rt.icon}</span>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
-                      <span style={{ fontSize:fs(12), fontWeight:700, color:C.text }}>{rt.hf.label}</span>
-                      <span style={{ fontSize:fs(9), color:rt.color, fontWeight:600, background:`${rt.color}15`, padding:"1px 6px", borderRadius:8 }}>{rt.type}</span>
-                    </div>
-                    <p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.5, margin:0 }}>{rt.hf.desc}</p>
-                  </div>
-                  <button onClick={() => onTimer && onTimer(rt.ref)} style={{ flexShrink:0, padding:"7px 12px", borderRadius:9, border:`1px solid ${rt.color}40`, background:`${rt.color}12`, color:rt.color, fontSize:fs(11), fontWeight:700, fontFamily:FF, cursor:"pointer", whiteSpace:"nowrap" }}>{rt.hf.cta}</button>
-                </div>
-              ))}
-            </div>
+            <button onClick={() => onTimer && onTimer(f.ref)} style={{ flexShrink:0, padding:"6px 10px", borderRadius:8, border:`1px solid ${C.accent}33`, background:`${C.accent}10`, color:C.accent, fontSize:fs(10), fontWeight:700, fontFamily:FF, cursor:"pointer" }}>{f.cta}</button>
           </div>
-        );
-      })()}
+        ))}
 
-      {/* Protocol / Practice (접이식) */}
-      {!hi && (proto || prac) && (
-        <Accordion title="추천 Protocol · Practice" defaultOpen={false}>
-          {proto && <Card accent={`${C.blue}20`} style={{ marginBottom:8 }}>
-            <div style={{ fontSize:fs(11), color:C.blue, fontWeight:700, marginBottom:4 }}>Protocol</div>
-            <div style={{ fontSize:fs(14), fontWeight:700, color:C.text, marginBottom:4 }}>{proto.label}</div>
-            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>{proto.desc}</p>
-          </Card>}
-          {prac && <Card accent={`${C.teal}20`} style={{ marginBottom:8 }}>
-            <div style={{ fontSize:fs(11), color:C.teal, fontWeight:700, marginBottom:4 }}>Practice</div>
-            <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{prac.label}</div>
-            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{prac.desc}</p>
-          </Card>}
-          {extra.map(e => (
-            <Card key={e.ref} style={{ marginBottom:8 }}>
-              <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{e.label}</div>
-              <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{e.desc}</p>
-            </Card>
-          ))}
-        </Accordion>
-      )}
-
-      {/* 준비 중 패치 (접이식) */}
-      {pendFx.length > 0 && (
-        <Accordion title={`추천 패치 ${pendFx.length}개 (준비 중)`}>
-          {pendFx.map(f => (
-            <div key={f.ref} style={{ marginBottom:10 }}>
-              <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:3 }}>{f.label}</div>
-              <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:4 }}>{f.desc}</p>
-              <p style={{ fontSize:fs(10), color:C.muted }}>다음 버전에서 실행형으로 연결됩니다.</p>
+        {/* 3b. 유형별 대안 */}
+        {(() => {
+          const RESET_TYPES = [
+            { ref:"leak-note",     icon:"✏️", type:"기록형",     color:C.blue,   qMatch:["Q3","Q4","Q5"] },
+            { ref:"micro-move",    icon:"🏃", type:"움직임형",   color:C.green,  qMatch:["Q5"] },
+            { ref:"env-reset",     icon:"🔇", type:"환경정리형", color:C.teal,   qMatch:["Q2","Q1"] },
+            { ref:"focus-anchor",  icon:"🎯", type:"집중형",     color:C.amber,  qMatch:["Q1","Q7"] },
+            { ref:"compare-block", icon:"🚫", type:"차단형",     color:C.purple, qMatch:["Q6"] },
+            { ref:"body-scan",     icon:"🧘", type:"신체감각형", color:C.green,  qMatch:["Q3","Q5"] },
+            { ref:"boundary-line", icon:"🛡️", type:"경계형",     color:C.blue,   qMatch:["Q2","Q4"] },
+          ];
+          const pq = result?.pq, sq = result?.sq;
+          const featuredRefs = new Set([...execFx.map(f => f.ref), ...pendFx.map(f => f.ref), heroRef]);
+          let diverseResets = RESET_TYPES
+            .map(rt => ({ ...rt, hf: HOTFIX_DB.find(h => h.ref === rt.ref) }))
+            .filter(rt => rt.hf && !featuredRefs.has(rt.ref) && (rt.qMatch.includes(pq) || rt.qMatch.includes(sq)))
+            .slice(0, 3);
+          if (diverseResets.length === 0) return null;
+          return diverseResets.map(rt => (
+            <div key={rt.ref} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:10, border:`1px solid ${rt.color}20`, background:`${rt.color}04`, marginBottom:6 }}>
+              <span style={{ fontSize:fs(18), flexShrink:0 }}>{rt.icon}</span>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                  <span style={{ fontSize:fs(12), fontWeight:700, color:C.text }}>{rt.hf.label}</span>
+                  <span style={{ fontSize:fs(8), color:rt.color, fontWeight:600, background:`${rt.color}12`, padding:"1px 5px", borderRadius:6 }}>{rt.type}</span>
+                </div>
+                <p style={{ fontSize:fs(10.5), color:C.dim, margin:"2px 0 0", lineHeight:1.4 }}>{rt.hf.desc}</p>
+              </div>
+              <button onClick={() => onTimer && onTimer(rt.ref)} style={{ flexShrink:0, padding:"6px 10px", borderRadius:8, border:`1px solid ${rt.color}33`, background:`${rt.color}10`, color:rt.color, fontSize:fs(10), fontWeight:700, fontFamily:FF, cursor:"pointer" }}>{rt.hf.cta}</button>
             </div>
-          ))}
-        </Accordion>
-      )}
+          ));
+        })()}
+
+        {/* 3c. Protocol / Practice */}
+        {!hi && proto && (
+          <div style={{ padding:"10px 12px", borderRadius:10, border:`1px solid ${C.blue}20`, background:`${C.blue}04`, marginBottom:6 }}>
+            <span style={{ fontSize:fs(9), color:C.blue, fontWeight:600 }}>Protocol</span>
+            <div style={{ fontSize:fs(12), fontWeight:700, color:C.text, marginTop:2 }}>{proto.label}</div>
+            <p style={{ fontSize:fs(10.5), color:C.dim, margin:"2px 0 0", lineHeight:1.4 }}>{proto.desc}</p>
+          </div>
+        )}
+        {!hi && prac && (
+          <div style={{ padding:"10px 12px", borderRadius:10, border:`1px solid ${C.teal}20`, background:`${C.teal}04`, marginBottom:6 }}>
+            <span style={{ fontSize:fs(9), color:C.teal, fontWeight:600 }}>Practice</span>
+            <div style={{ fontSize:fs(12), fontWeight:700, color:C.text, marginTop:2 }}>{prac.label}</div>
+            <p style={{ fontSize:fs(10.5), color:C.dim, margin:"2px 0 0", lineHeight:1.4 }}>{prac.desc}</p>
+          </div>
+        )}
+      </Accordion>
 
       {/* 실행 이력 */}
       {recentActs.length > 0 && (
@@ -2378,7 +2378,7 @@ function TimerScreen({ timer, onComplete, onCancel }) {
       {done && (
         <>
           <p style={{ fontSize:fs(13), color:C.green, marginBottom:18, lineHeight:1.7, maxWidth:280, textAlign:"center", fontStyle:"italic" }}>
-            잘했습니다.<br />감정 누수를 조금만 줄여도 오늘은 달라집니다.
+            과열이 낮아졌습니다.<br />지금 가벼운 일 하나를 처리하기 좋은 상태입니다.
           </p>
           <Btn primary onClick={onComplete} style={{ maxWidth:260 }}>완료 · 돌아가기</Btn>
         </>
