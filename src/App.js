@@ -1478,7 +1478,7 @@ function Home() {
   const b = BAND[hs.band];
   const fx = getHotFixes(hs.qpr);
   const patchExecTop = fx.find(f => isExecutableHotFix(f.ref) && f.ref !== "universal-reset");
-  const execTop = patchExecTop || fx.find(f => isExecutableHotFix(f.ref));
+  const execTop = patchExecTop; // Quick Patch는 patchExecTop만 사용, universal-reset은 맨 마지막 fallback으로
   const homeProto = PROTO_DB.find(p => p.qMatch.includes(hs.pq));
   const homePrac = PRAC_DB.find(p => p.qMatch.includes(hs.pq));
   const recentActions = getVisibleActions(actionLog, 3);
