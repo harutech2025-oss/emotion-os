@@ -1464,6 +1464,17 @@ function Home() {
   const [onboardDone, setOnboardDone] = useState(() => { try { return !!localStorage.getItem(ONBOARD_KEY); } catch(e) { return false; } });
   const finishOnboard = () => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} setOnboardDone(true); };
 
+  // D3-beta: 내부 개인화 점수 계산 (콘솔 전용, UI 미노출)
+  // ⚠️ React Hook 순서 보장: 모든 useEffect는 조기 반환 전에 배치
+  const fx = (hs.source !== "empty" && hs.qpr) ? getHotFixes(hs.qpr) : [];
+  useEffect(() => {
+    if (hs.source === "empty" || fx.length === 0) return;
+    const ps = loadPersonalState();
+    if (!canRunD3Beta(ps)) return;
+    const personalized = getPersonalizedCandidates(fx, ps);
+    debugPersonalization(fx, personalized);
+  }, [hs.avail]);
+
   if (hs.source === "empty" && !onboardDone) return <Onboarding onDone={finishOnboard} onScan={() => { finishOnboard(); onScan(); }} />;
 
   if (hs.source === "empty") return (
@@ -1496,7 +1507,7 @@ function Home() {
   );
 
   const b = BAND[hs.band];
-  const fx = getHotFixes(hs.qpr);
+  // fx는 이미 조기 반환 전에 계산됨
   const patchExecTop = fx.find(f => isExecutableHotFix(f.ref) && f.ref !== "universal-reset");
   const execTop = patchExecTop; // Quick Patch는 patchExecTop만 사용, universal-reset은 맨 마지막 fallback으로
   const homeProto = PROTO_DB.find(p => p.qMatch.includes(hs.pq));
@@ -1505,15 +1516,6 @@ function Home() {
   const isHighStress = hs.band === "overload" || hs.band === "low";
   const justCompleted = !isHighStress && execTop && isRecentlyCompleted(actionLog, execTop.ref);
   const showExecTop = execTop && !justCompleted;
-
-  // D3-beta: 내부 개인화 점수 계산 (콘솔 전용, UI 미노출)
-  useEffect(() => {
-    if (hs.source === "empty") return;
-    const ps = loadPersonalState();
-    if (!canRunD3Beta(ps)) return;
-    const personalized = getPersonalizedCandidates(fx, ps);
-    debugPersonalization(fx, personalized);
-  }, [hs.avail]);
 
   return (
     <div style={{ padding:"20px 16px 100px" }}>
