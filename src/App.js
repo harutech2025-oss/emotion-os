@@ -568,6 +568,37 @@ function attachPatchEffect(ps, ref, availDiff) {
   return { ...ps, patchStats:{ ...ps.patchStats, [ref]:{ ...prev, recentEffects:[...(prev.recentEffects||[]), availDiff].slice(-3) } }, lastCompletedPatchRef:null };
 }
 
+// ─── D3-beta: 개인화 점수 계산 (내부 전용, UI 미노출) ───
+function getPatchEffectScore(stat) {
+  if (!stat?.recentEffects || stat.recentEffects.length === 0) return 0;
+  const recent = stat.recentEffects.slice(-3);
+  return Math.round(recent.reduce((a, b) => a + b, 0) / recent.length * 10) / 10;
+}
+function getPatchResistanceScore(stat) {
+  if (!stat) return 0;
+  const tries = stat.tries || 0, completes = stat.completes || 0, skips = stat.skips || 0;
+  if (tries === 0 && skips === 0) return 0;
+  let score = 0;
+  if (skips >= 3) score += 3; else if (skips === 2) score += 2; else if (skips === 1) score += 1;
+  if (tries >= 3) { const cr = completes / tries; if (cr < 0.34) score += 2; else if (cr < 0.5) score += 1; }
+  return score;
+}
+function getPatchConfidence(stat) {
+  if (!stat) return 0;
+  const samples = (stat.recentEffects?.length || 0) + (stat.tries || 0) + (stat.skips || 0);
+  if (samples >= 8) return 3; if (samples >= 5) return 2; if (samples >= 2) return 1; return 0;
+}
+function getPersonalAdjustment(stat) {
+  const effect = getPatchEffectScore(stat), resistance = getPatchResistanceScore(stat), confidence = getPatchConfidence(stat);
+  if (confidence === 0) return 0;
+  const raw = effect - resistance;
+  if (confidence === 1) return raw * 0.25; if (confidence === 2) return raw * 0.5; return raw * 0.75;
+}
+function canRunD3Beta(ps) {
+  const stats = Object.values(ps?.patchStats || {});
+  return stats.filter(s => (s.recentEffects?.length || 0) >= 2 || (s.tries || 0) >= 3 || (s.skips || 0) >= 2).length >= 2;
+}
+
 // ─── 실행 이력 저장소 (v4, 정규화 + 상태-시간 정합성 검사) ───
 function saveActionLog(log) {
   try { localStorage.setItem(ALOG_KEY, JSON.stringify(log)); } catch(e) {}
@@ -944,6 +975,12 @@ function DailyChecklistCard({ items, onAction }) {
   const hasHighlight = items.some(i => i.highlight);
   return (
     <Card style={{ padding:"14px 16px", ...(hasHighlight ? { border:`1px solid ${C.amber}40` } : {}) }}>
+      {hasHighlight && (
+        <div style={{ marginBottom:10, padding:"8px 10px", borderRadius:8, background:`${C.amber}08`, border:`1px solid ${C.amber}20` }}>
+          <div style={{ fontSize:fs(10.5), fontWeight:700, color:C.amber }}>리셋 루틴이 아직 완료되지 않았습니다</div>
+          <div style={{ fontSize:fs(9.5), color:C.muted, marginTop:2, lineHeight:1.45 }}>지금 3분이면 충분합니다</div>
+        </div>
+      )}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
         <span style={{ fontSize:fs(11), fontWeight:700, color:C.muted }}>오늘의 시스템 운영</span>
         {allDone && <span style={{ fontSize:fs(9), color:C.teal, fontWeight:700, padding:"2px 8px", borderRadius:6, background:`${C.teal}12`, border:`1px solid ${C.teal}25` }}>완료</span>}
@@ -951,7 +988,7 @@ function DailyChecklistCard({ items, onAction }) {
       {items.map((item, i) => (
         <div key={item.id} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"8px 0", borderTop:i > 0 ? `1px solid ${C.border}` : "none" }}>
           <div style={{ flex:1, minWidth:0 }}>
-            <div style={{ fontSize:fs(12), fontWeight:item.done ? 700 : 500, color:item.done ? C.text : C.dim }}>
+            <div style={{ fontSize:fs(12), fontWeight:item.done ? 600 : 750, color:item.done ? C.dim : C.text }}>
               <span style={{ color:item.done ? C.teal : C.muted, marginRight:6 }}>{item.done ? "✓" : "○"}</span>
               {item.label}
             </div>
@@ -1377,6 +1414,21 @@ function Home() {
   const justCompleted = !isHighStress && execTop && isRecentlyCompleted(actionLog, execTop.ref);
   const showExecTop = execTop && !justCompleted;
 
+  // D3-beta: 내부 개인화 점수 계산 (콘솔 전용, UI 미노출)
+  useEffect(() => {
+    if (hs.source === "empty") return;
+    const ps = loadPersonalState();
+    if (!canRunD3Beta(ps)) return;
+    const base = fx;
+    const personalized = base.map(item => {
+      const stat = ps.patchStats?.[item.ref];
+      return { ref:item.ref, label:item.label, base:item._score, effect:getPatchEffectScore(stat), resistance:getPatchResistanceScore(stat), confidence:getPatchConfidence(stat), adj:getPersonalAdjustment(stat) };
+    });
+    console.group("D3-beta personalization");
+    console.table(personalized);
+    console.groupEnd();
+  }, [hs.avail]);
+
   return (
     <div style={{ padding:"20px 16px 100px" }}>
       {/* 헤더 */}
@@ -1540,37 +1592,34 @@ function Home() {
       {/* 6.5 Next Check-in 카드 */}
       <NextCheckinCard band={hs.band} onScan={onScan} onRc={onRc} onTimer={onTimer} actionLog={actionLog} />
 
-      {/* 7. HistoryGraph (아래로 이동) */}
-      <HistoryGraph history={hist} actionLog={actionLog} />
-
-      {/* 7.5 체감 척도 추이 */}
-      <MetricsTrendCard history={hist} />
-
-      {/* 8. 활성 패턴 (아래로 이동) */}
-      <Card>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-          <span style={{ fontSize:fs(12), color:C.muted }}>현재 활성 패턴</span>
-          {hs.source === "recheck_overlay" && <span style={{ fontSize:fs(9), color:C.muted }}>Full Scan 기준</span>}
-        </div>
-        <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
-          <span style={{ fontSize:fs(15), fontWeight:700, color:C.accent }}>{QL[hs.pq]}</span>
-          <Badge text={hs.leak} color={C.blue} />
-          <Badge text={RL[hs.r1]} color={C.purple} />
-        </div>
-        {hs.mode && <p style={{ fontSize:fs(12), color:C.dim, marginTop:8 }}><strong style={{ color:C.teal }}>{hs.mode}</strong> — {hs.modeD}</p>}
-      </Card>
-
-      {/* 8.5 오늘의 운영 모드 */}
-      {hs.mode && (
-        <Card accent={`${C.teal}20`} style={{ background:`${C.teal}04` }}>
-          <div style={{ fontSize:fs(10), color:C.muted, marginBottom:6 }}>오늘의 운영 모드</div>
-          <div style={{ fontSize:fs(17), fontWeight:800, color:C.teal, lineHeight:1.2, marginBottom:6 }}>{hs.mode}</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.55, marginBottom:8 }}>{hs.modeD}</p>
-          <div style={{ padding:"8px 12px", borderRadius:8, background:C.bg, border:`1px solid ${C.border}` }}>
-            <p style={{ fontSize:fs(10.5), color:C.muted, lineHeight:1.5, margin:0 }}>성격을 바꾸라는 뜻이 아닙니다. 지금 시스템 상태에서 가동률을 덜 잃는 임시 운영 자세입니다.</p>
+      {/* 7~8: 운영 데이터 더 보기 (2차 영역 — 접기) */}
+      <div style={{ fontSize:fs(10), color:C.muted, margin:"8px 0 6px", paddingLeft:2, letterSpacing:1.4, textTransform:"uppercase" }}>analysis</div>
+      <Accordion title="운영 데이터 더 보기" defaultOpen={false}>
+        <HistoryGraph history={hist} actionLog={actionLog} />
+        <MetricsTrendCard history={hist} />
+        <Card>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+            <span style={{ fontSize:fs(12), color:C.muted }}>현재 활성 패턴</span>
+            {hs.source === "recheck_overlay" && <span style={{ fontSize:fs(9), color:C.muted }}>Full Scan 기준</span>}
           </div>
+          <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+            <span style={{ fontSize:fs(15), fontWeight:700, color:C.accent }}>{QL[hs.pq]}</span>
+            <Badge text={hs.leak} color={C.blue} />
+            <Badge text={RL[hs.r1]} color={C.purple} />
+          </div>
+          {hs.mode && <p style={{ fontSize:fs(12), color:C.dim, marginTop:8 }}><strong style={{ color:C.teal }}>{hs.mode}</strong> — {hs.modeD}</p>}
         </Card>
-      )}
+        {hs.mode && (
+          <Card accent={`${C.teal}20`} style={{ background:`${C.teal}04` }}>
+            <div style={{ fontSize:fs(10), color:C.muted, marginBottom:6 }}>오늘의 운영 모드</div>
+            <div style={{ fontSize:fs(17), fontWeight:800, color:C.teal, lineHeight:1.2, marginBottom:6 }}>{hs.mode}</div>
+            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.55, marginBottom:8 }}>{hs.modeD}</p>
+            <div style={{ padding:"8px 12px", borderRadius:8, background:C.bg, border:`1px solid ${C.border}` }}>
+              <p style={{ fontSize:fs(10.5), color:C.muted, lineHeight:1.5, margin:0 }}>성격을 바꾸라는 뜻이 아닙니다. 지금 시스템 상태에서 가동률을 덜 잃는 임시 운영 자세입니다.</p>
+            </div>
+          </Card>
+        )}
+      </Accordion>
 
       {/* 하단 버튼 */}
       <div style={{ display:"flex", gap:8, marginTop:4 }}>
