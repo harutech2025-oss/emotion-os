@@ -2219,11 +2219,11 @@ function Result({ result, onDone, isRc, onCp }) {
       {(() => { const bm = getBugAlias(result.bug, result.bugL); return (
       <Card>
         <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Bug</div>
-        <div style={{ fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35 }}>{bm.userName}</div>
+        <div onClick={() => (BLinks[result.bug]||NL.bug) && window.open(BLinks[result.bug]||NL.bug, "_blank", "noopener,noreferrer")} style={{ fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35, cursor:"pointer" }}>{bm.userName}</div>
         <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.bugL || ""} · {result.bug || ""}</div>
         <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:10, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>{bm.oneLiner}</span><span style={{ color:C.muted, fontSize:fs(11), marginLeft:8, flexShrink:0 }}>→</span></div></a>
         <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Patch</div>
-        <div style={{ fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35 }}>{result.patchL}</div>
+        <div onClick={() => (PLinks[result.patch]||NL.patch) && window.open(PLinks[result.patch]||NL.patch, "_blank", "noopener,noreferrer")} style={{ fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35, cursor:"pointer" }}>{result.patchL}</div>
         <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.patch}</div>
         <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>패치 카드 보기</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
         <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p>
