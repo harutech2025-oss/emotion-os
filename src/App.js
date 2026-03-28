@@ -920,6 +920,52 @@ function deriveEffectLayer({ history }) {
   return "현재 상태가 유지되고 있습니다";
 }
 
+// ─── D4-1: Daily Checklist (오늘의 시스템 운영) ───
+function deriveDailyChecklist({ hist, actionLog }) {
+  const today = new Date().toDateString();
+  const todayScans = (hist || []).filter(h => new Date(h.ts).toDateString() === today);
+  const todayActions = (actionLog || []).filter(a => {
+    const t = a.completedAt || a.startedAt;
+    return t && new Date(t).toDateString() === today && a.status === "completed";
+  });
+  const didScan = todayScans.length > 0;
+  const didPatch = todayActions.some(a => a.ref !== "universal-reset");
+  const didReset = todayActions.some(a => a.ref === "universal-reset");
+  const isNight = (() => { const h = new Date().getHours(); return h >= 20 || h < 5; })();
+  return [
+    { id:"scan", label:"시스템 스캔", done:didScan, status:didScan ? "최신 상태가 반영되었습니다" : "시스템 데이터가 아직 업데이트되지 않았습니다" },
+    { id:"patch", label:"운영 패치", done:didPatch, status:didPatch ? "부하 조정 이력이 기록되었습니다" : "미해결 부하가 감지되어 패치 대기 중입니다" },
+    { id:"reset", label:"시스템 리셋", done:didReset, highlight:isNight && !didReset, status:didReset ? "회복 루틴이 적용되었습니다" : "오늘의 시스템 리셋이 아직 적용되지 않았습니다" },
+  ];
+}
+
+function DailyChecklistCard({ items, onAction }) {
+  const allDone = items.every(i => i.done);
+  const hasHighlight = items.some(i => i.highlight);
+  return (
+    <Card style={{ padding:"14px 16px", ...(hasHighlight ? { border:`1px solid ${C.amber}40` } : {}) }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+        <span style={{ fontSize:fs(11), fontWeight:700, color:C.muted }}>오늘의 시스템 운영</span>
+        {allDone && <span style={{ fontSize:fs(9), color:C.teal, fontWeight:700, padding:"2px 8px", borderRadius:6, background:`${C.teal}12`, border:`1px solid ${C.teal}25` }}>완료</span>}
+      </div>
+      {items.map((item, i) => (
+        <div key={item.id} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"8px 0", borderTop:i > 0 ? `1px solid ${C.border}` : "none" }}>
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ fontSize:fs(12), fontWeight:item.done ? 700 : 500, color:item.done ? C.text : C.dim }}>
+              <span style={{ color:item.done ? C.teal : C.muted, marginRight:6 }}>{item.done ? "✓" : "○"}</span>
+              {item.label}
+            </div>
+            <div style={{ fontSize:fs(10), color:C.muted, marginTop:2, marginLeft:18 }}>{item.status}</div>
+          </div>
+          {!item.done && (
+            <button onClick={() => onAction(item.id)} style={{ flexShrink:0, fontSize:fs(10), padding:"5px 10px", borderRadius:8, border:item.highlight ? `1px solid ${C.amber}` : `1px solid ${C.accent}33`, background:item.highlight ? `${C.amber}12` : `${C.accent}10`, color:item.highlight ? C.amber : C.accent, fontWeight:700, fontFamily:FF, cursor:"pointer", marginLeft:8 }}>바로 하기</button>
+          )}
+        </div>
+      ))}
+    </Card>
+  );
+}
+
 // ─── SectionBrandHeader (탭 공통 브랜드 헤더) ───
 function SectionBrandHeader({ title, subtitle }) {
   return (
@@ -1375,6 +1421,17 @@ function Home() {
             </div>
           </Card>
         );
+      })()}
+
+      {/* 2.5 오늘의 시스템 운영 체크리스트 */}
+      {(() => {
+        const checklist = deriveDailyChecklist({ hist, actionLog });
+        const handleAction = (id) => {
+          if (id === "scan") onScan();
+          else if (id === "patch") { if (execTop) onTimer(execTop.ref); else onGoReset(); }
+          else if (id === "reset") onTimer("universal-reset");
+        };
+        return <DailyChecklistCard items={checklist} onAction={handleAction} />;
       })()}
 
       {/* 3. PrincipleBanner */}
