@@ -38,6 +38,7 @@ const ALOG_KEY = "emotion-os-v4-actionlog";
 const ALOG_KEY_V3 = "emotion-os-v3-actionlog";
 const ALOG_KEY_OLD = "emotion-os-actionlog";
 const PERSONAL_KEY = "stato-personal-v1";
+const ONBOARD_KEY = "stato-onboard-done";
 const FONT_CDN = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css";
 
 
@@ -1393,11 +1394,55 @@ function HistoryGraphInner({ history, actionLog }) {
 
 const HistoryGraph = memo(HistoryGraphInner);
 
+// ─── Onboarding (최초 1회, 3페이지) ───
+function Onboarding({ onDone, onScan }) {
+  const [page, setPage] = useState(0);
+  const pages = [
+    { title:"감정도 운영이 됩니다", body:"Stato는 오늘의 감정 상태를 읽고, 에너지가 새는 지점을 찾아, 하루를 다시 운영하게 만드는 앱입니다.\n\n2분 점검으로 지금 가동률을 확인해보세요." },
+    { title:"점검 → 해석 → 실행", body:"21문항 스캔으로 현재 상태를 읽고,\n켜진 버그와 맞춤 패치를 확인하고,\n타이머 기반으로 바로 실행합니다.\n\n지금 바로 시작할 수 있습니다.", cta:"지금 스캔 시작하기", ctaAction:() => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} onScan(); }, footnote:"기록은 현재 기기에 저장됩니다" },
+    { title:"기록은 이 기기에 저장됩니다", body:"운영 기록은 현재 이 기기의 브라우저에 저장됩니다.\n브라우저 초기화 또는 기기 변경 시 기록이 삭제될 수 있습니다.\n\n서버 연동은 추후 업데이트에서 지원할 예정입니다." },
+  ];
+  const p = pages[page];
+  return (
+    <div style={{ minHeight:"76vh", padding:"28px 20px 112px", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ width:"100%", maxWidth:360, textAlign:"center" }}>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:22 }}>
+          <div style={{ width:70, height:70, borderRadius:22, background:"linear-gradient(135deg, #0c8a89 0%, #2eb5a5 100%)", border:`1px solid ${C.borderL}`, boxShadow:"0 14px 34px rgba(0,0,0,0.28)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:14 }}>
+            <svg width="36" height="36" viewBox="0 0 48 48" fill="none"><path d="M23.8 17.8C20.1 17.8 16.7 20.2 15.4 23.7C19.4 24.4 22.4 22.8 24.2 19.4C24.4 19 24.1 17.8 23.8 17.8Z" fill="#B9F58F"/><path d="M26.1 16.8C31.7 16.8 35.7 20.5 36.7 25.8C31.8 26.6 28.2 24.7 25.9 20.5C25.6 20 25.8 16.8 26.1 16.8Z" fill="#B9F58F"/><path d="M24.7 23.5C24.7 23.1 23.3 23.1 23.3 23.5V35.5C23.3 36.4 24 37.1 24.9 37.1H25.1C26 37.1 26.7 36.4 26.7 35.5V24.7C26.7 24 25.6 23.5 24.7 23.5Z" fill="#B9F58F"/></svg>
+          </div>
+          <div style={{ fontSize:fs(16.5), letterSpacing:1.0, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0 }}>Stato</div>
+        </div>
+        <h2 style={{ fontSize:fs(20), fontWeight:800, color:C.text, lineHeight:1.3, marginBottom:12 }}>{p.title}</h2>
+        <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.65, marginBottom:20, whiteSpace:"pre-line" }}>{p.body}</p>
+        {p.cta && <Btn primary onClick={p.ctaAction} style={{ width:"100%", maxWidth:320, marginBottom:8 }}>{p.cta}</Btn>}
+        {p.footnote && <p style={{ fontSize:fs(9), color:C.muted, opacity:0.7, marginBottom:12 }}>{p.footnote}</p>}
+        <div style={{ display:"flex", justifyContent:"center", gap:6, marginBottom:16 }}>
+          {pages.map((_, i) => <div key={i} style={{ width:i===page?20:6, height:6, borderRadius:3, background:i===page?C.accent:`${C.muted}40`, transition:"width 0.2s ease" }} />)}
+        </div>
+        <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+          {page > 0 && <Btn small onClick={() => setPage(page-1)} style={{ minWidth:80 }}>이전</Btn>}
+          {page < pages.length - 1 ? (
+            <Btn small onClick={() => setPage(page+1)} style={{ minWidth:80 }}>다음</Btn>
+          ) : (
+            <Btn primary small onClick={onDone} style={{ minWidth:120 }}>시작하기</Btn>
+          )}
+        </div>
+        {page < pages.length - 1 && <button onClick={onDone} style={{ marginTop:12, background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF }}>건너뛰기</button>}
+      </div>
+    </div>
+  );
+}
+
 // ═══ M7-a: HOME ══════════════════════════════════════════════════
 // Today Screen (formerly Home)
 
 function Home() {
   const { hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog, cr } = useApp();
+  const [onboardDone, setOnboardDone] = useState(() => { try { return !!localStorage.getItem(ONBOARD_KEY); } catch(e) { return false; } });
+  const finishOnboard = () => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} setOnboardDone(true); };
+
+  if (hs.source === "empty" && !onboardDone) return <Onboarding onDone={finishOnboard} onScan={() => { finishOnboard(); onScan(); }} />;
+
   if (hs.source === "empty") return (
     <div style={{ minHeight:"76vh", padding:"28px 20px 112px", display:"flex", alignItems:"center", justifyContent:"center" }}>
       <div style={{ width:"100%", maxWidth:360, textAlign:"center" }}>
@@ -1610,7 +1655,7 @@ function Home() {
       <NextCheckinCard band={hs.band} onScan={onScan} onRc={onRc} onTimer={onTimer} actionLog={actionLog} />
 
       {/* 7~8: 운영 데이터 더 보기 (2차 영역 — 접기) */}
-      <div style={{ fontSize:fs(10), color:C.muted, margin:"8px 0 6px", paddingLeft:2, letterSpacing:1.4, textTransform:"uppercase" }}>analysis</div>
+      <div style={{ fontSize:fs(10), color:C.muted, margin:"8px 0 6px", paddingLeft:2, letterSpacing:1.4, textTransform:"uppercase" }}>상세 분석</div>
       <Accordion title="운영 데이터 더 보기 · 최근 추이 요약" defaultOpen={false}>
         <HistoryGraph history={hist} actionLog={actionLog} />
         <MetricsTrendCard history={hist} />
@@ -1644,7 +1689,12 @@ function Home() {
         <Btn small onClick={onGoReset} style={{ flex:1 }}>Reset 탭 열기</Btn>
       </div>
       <div style={{ marginTop:12, textAlign:"center" }}>
-        <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
+        <p style={{ fontSize:fs(9), color:C.muted, opacity:0.7, lineHeight:1.45, marginBottom:8 }}>현재 운영 기록은 이 기기에 저장됩니다. 브라우저 초기화 시 기록이 삭제될 수 있습니다.</p>
+        <div style={{ display:"flex", gap:12, justifyContent:"center", alignItems:"center" }}>
+          <button onClick={() => { try { const data = { state:JSON.parse(localStorage.getItem(STORAGE_KEY)), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY)), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY)), exportedAt:new Date().toISOString() }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download=`stato-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 백업 저장</button>
+          <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
+        </div>
+        <p style={{ fontSize:fs(8), color:C.muted, opacity:0.5, marginTop:4 }}>복원 기능은 추후 지원 예정</p>
       </div>
     </div>
   );
@@ -1779,13 +1829,13 @@ function ActionTab() {
           <span style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase" }}>다른 실행형 리셋</span>
           <span style={{ fontSize:fs(10), color:C.muted }}>실행 가능 {execFxForReset.length}개</span>
         </div>
-        {execFxForReset.map(f => (
+        {execFxForReset.map((f, fi) => (
           <Card key={f.ref} accent={`${C.accent}30`} style={{ background:`${C.accent}05` }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
               <span style={{ fontSize:fs(14), fontWeight:700, color:C.accent }}>{f.label}</span>
               <div style={{ display:"flex", gap:6, alignItems:"center" }}>
                 {wasExecuted(f.ref) && <Badge text="✓ 실행됨" color={C.green} />}
-                <Badge text="최우선" color={C.accent} />
+                <Badge text={fi === 0 ? "최우선" : "권장"} color={fi === 0 ? C.accent : `${C.muted}88`} />
               </div>
             </div>
             <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginBottom:16 }}>{f.desc}</p>
@@ -2033,8 +2083,20 @@ function LiveMetricsCard({ result }) {
 function Result({ result, onDone, isRc, onCp }) {
   const b = BAND[result.band];
   const hi = result.band === "low" || result.band === "overload";
+  const [showFirstNotice, setShowFirstNotice] = useState(() => {
+    try { if (localStorage.getItem("stato-first-scan-noticed")) return false; return true; } catch(e) { return false; }
+  });
+  useEffect(() => {
+    if (showFirstNotice && !isRc) { try { localStorage.setItem("stato-first-scan-noticed", "1"); } catch(e) {} const t = setTimeout(() => setShowFirstNotice(false), 4000); return () => clearTimeout(t); }
+  }, []);
   return (
     <div style={{ padding:"28px 16px 100px", maxWidth:500, margin:"0 auto" }}>
+      {showFirstNotice && !isRc && (
+        <div style={{ padding:"10px 14px", borderRadius:10, background:`${C.teal}08`, border:`1px solid ${C.teal}20`, marginBottom:14, textAlign:"center" }}>
+          <p style={{ fontSize:fs(11), color:C.teal, fontWeight:700, margin:0 }}>운영 기록이 저장되기 시작했습니다</p>
+          <p style={{ fontSize:fs(9.5), color:C.muted, margin:"4px 0 0" }}>이 기록은 현재 기기에 저장됩니다</p>
+        </div>
+      )}
       {/* Header */}
       <div style={{ textAlign:"center", marginBottom:22 }}>
         <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
