@@ -1017,6 +1017,11 @@ function DailyChecklistCard({ items, onAction }) {
           )}
         </div>
       ))}
+      {allDone && (
+        <div style={{ marginTop:10, padding:"8px 12px", borderRadius:8, background:`${C.teal}08`, border:`1px solid ${C.teal}20`, textAlign:"center" }}>
+          <span style={{ fontSize:fs(11), fontWeight:700, color:C.teal }}>오늘의 운영 루틴이 정리되었습니다</span>
+        </div>
+      )}
     </Card>
   );
 }
@@ -1508,7 +1513,7 @@ function Home() {
         return (
           <div style={{ padding:"8px 14px", borderRadius:8, background:C.card, border:`1px solid ${C.border}`, marginBottom:10 }}>
             <div style={{ fontSize:fs(10), color:C.muted, marginBottom:4 }}>현재 상태 해석</div>
-            {whys.map((w,i) => <p key={i} style={{ fontSize:fs(11.5), color:C.dim, lineHeight:1.55, margin:0, marginTop:i>0?3:0 }}>{w}</p>)}
+            {whys.map((w,i) => <p key={i} style={{ fontSize:fs(i===0?12:11), fontWeight:i===0?700:500, color:i===0?C.text:C.muted, lineHeight:1.55, margin:0, marginTop:i>0?3:0 }}>{w}</p>)}
           </div>
         );
       })()}
@@ -1606,7 +1611,7 @@ function Home() {
 
       {/* 7~8: 운영 데이터 더 보기 (2차 영역 — 접기) */}
       <div style={{ fontSize:fs(10), color:C.muted, margin:"8px 0 6px", paddingLeft:2, letterSpacing:1.4, textTransform:"uppercase" }}>analysis</div>
-      <Accordion title="운영 데이터 더 보기" defaultOpen={false}>
+      <Accordion title="운영 데이터 더 보기 · 최근 추이 요약" defaultOpen={false}>
         <HistoryGraph history={hist} actionLog={actionLog} />
         <MetricsTrendCard history={hist} />
         <Card>
