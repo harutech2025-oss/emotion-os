@@ -895,7 +895,7 @@ function BugSignalCard({ hs, onGoReset }) {
           <div style={{ fontSize:fs(18), fontWeight:800, color:C.text, lineHeight:1.25 }}>{d.userName}</div>
           <div style={{ fontSize:fs(11), color:C.dim, marginTop:3 }}>{d.subName ? `${d.subName} · ${d.bugId}` : d.bugId}</div>
         </div>
-        <div onClick={() => d.patchHref && window.open(d.patchHref, "_blank", "noopener,noreferrer")} style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap", cursor:d.patchHref?"pointer":"default" }}>{d.patchL}</div>
+        <button onClick={() => d.patchHref && window.open(d.patchHref, "_blank", "noopener,noreferrer")} style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap", cursor:"pointer", fontFamily:FF }}>{d.patchL}</button>
       </div>
       <div style={{ marginTop:12, fontSize:fs(13), color:C.text, lineHeight:1.6 }}>{d.oneLiner}</div>
       <div style={{ marginTop:8, fontSize:fs(11.5), color:C.dim, lineHeight:1.55 }}>이 상태가 계속되면 하루의 리듬이 더 흔들릴 수 있습니다.</div>
@@ -903,7 +903,7 @@ function BugSignalCard({ hs, onGoReset }) {
         <button onClick={() => d.bugHref && window.open(d.bugHref, "_blank", "noopener,noreferrer")} style={{ height:40, borderRadius:12, border:`1px solid ${C.border}`, background:C.cardH, color:C.text, fontWeight:700, fontSize:fs(12), fontFamily:FF, cursor:"pointer" }}>버그 카드 보기</button>
         <button onClick={onGoReset} style={{ height:40, borderRadius:12, border:"none", background:C.accent, color:"#fff", fontWeight:800, fontSize:fs(12), fontFamily:FF, cursor:"pointer" }}>리셋으로 이동</button>
       </div>
-      {d.patchHref && <div style={{ marginTop:10, fontSize:fs(10.5), color:C.muted }}>연결 패치: <a href={d.patchHref} target="_blank" rel="noopener noreferrer" style={{ color:C.accent, textDecoration:"none" }}>{d.patchL}</a></div>}
+      {d.patchHref && <a href={d.patchHref} target="_blank" rel="noopener noreferrer" style={{ display:"block", marginTop:10, padding:"8px 0", textDecoration:"none" }}><span style={{ fontSize:fs(10.5), color:C.muted }}>연결 패치: </span><span style={{ fontSize:fs(10.5), color:C.accent, fontWeight:600 }}>{d.patchL}</span></a>}
       <div style={{ marginTop:10, fontSize:fs(10.5), color:C.muted }}>실행 후에는 재점검으로 변화를 확인해보세요.</div>
     </Card>
   );
@@ -1107,10 +1107,10 @@ function BugDetailModal({ bugId, onClose }) {
         </div>
         {/* 연결 패치 */}
         <div style={{ fontSize:fs(11), color:C.muted, marginBottom:4 }}>연결 패치</div>
-        <div onClick={() => PLinks[meta.patch] && window.open(PLinks[meta.patch], "_blank", "noopener,noreferrer")} style={{ padding:"10px 14px", borderRadius:10, background:`${C.teal}06`, border:`1px solid ${C.teal}18`, marginBottom:14, cursor:"pointer" }}>
+        <button onClick={() => PLinks[meta.patch] && window.open(PLinks[meta.patch], "_blank", "noopener,noreferrer")} style={{ display:"block", width:"100%", padding:"10px 14px", borderRadius:10, background:`${C.teal}06`, border:`1px solid ${C.teal}18`, marginBottom:14, cursor:"pointer", fontFamily:FF, textAlign:"left" }}>
           <div style={{ fontSize:fs(14), fontWeight:700, color:C.teal }}>{meta.patchL}</div>
           <div style={{ fontSize:fs(10), color:C.dim, marginTop:2 }}>{meta.patch}</div>
-        </div>
+        </button>
         {/* 하단 버튼 */}
         <div style={{ display:"flex", gap:8 }}>
           {BLinks[bugId] && <a href={BLinks[bugId]} target="_blank" rel="noopener noreferrer" style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", height:40, borderRadius:12, border:`1px solid ${C.border}`, background:C.cardH, color:C.text, fontWeight:700, fontSize:fs(12), textDecoration:"none", fontFamily:FF }}>노션에서 자세히 보기</a>}
@@ -2250,11 +2250,11 @@ function Result({ result, onDone, isRc, onCp }) {
       {(() => { const bm = getBugAlias(result.bug, result.bugL); return (
       <Card>
         <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Bug</div>
-        <div onClick={() => (BLinks[result.bug]||NL.bug) && window.open(BLinks[result.bug]||NL.bug, "_blank", "noopener,noreferrer")} style={{ fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35, cursor:"pointer" }}>{bm.userName}</div>
+        <button onClick={() => (BLinks[result.bug]||NL.bug) && window.open(BLinks[result.bug]||NL.bug, "_blank", "noopener,noreferrer")} style={{ fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35, cursor:"pointer", background:"none", border:"none", padding:0, fontFamily:FF, textAlign:"left" }}>{bm.userName}</button>
         <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.bugL || ""} · {result.bug || ""}</div>
         <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:10, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>{bm.oneLiner}</span><span style={{ color:C.muted, fontSize:fs(11), marginLeft:8, flexShrink:0 }}>→</span></div></a>
         <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Patch</div>
-        <div onClick={() => (PLinks[result.patch]||NL.patch) && window.open(PLinks[result.patch]||NL.patch, "_blank", "noopener,noreferrer")} style={{ fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35, cursor:"pointer" }}>{result.patchL}</div>
+        <button onClick={() => (PLinks[result.patch]||NL.patch) && window.open(PLinks[result.patch]||NL.patch, "_blank", "noopener,noreferrer")} style={{ fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35, cursor:"pointer", background:"none", border:"none", padding:0, fontFamily:FF, textAlign:"left" }}>{result.patchL}</button>
         <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.patch}</div>
         <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>패치 카드 보기</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
         <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p>
@@ -2531,19 +2531,23 @@ function EmotionOSApp() {
     }
   }, []);
 
-  // ── 브라우저 뒤로가기 방어 (앱 내 네비게이션) ──
+  // ── 브라우저 뒤로가기 방어 (삼성 인터넷 대응 강화) ──
   const scrRef = useRef(scr);
   const tabRef = useRef(tab);
   scrRef.current = scr;
   tabRef.current = tab;
   useEffect(() => {
-    window.history.replaceState({ stato:true }, "");
-    window.history.pushState({ stato:true }, "");
-    const handlePop = () => {
+    // 히스토리 스택 2중 생성 — 삼성 인터넷에서 1단 pushState만으론 부족
+    window.history.replaceState({ stato:"base" }, "");
+    window.history.pushState({ stato:"app" }, "");
+    window.history.pushState({ stato:"app2" }, "");
+    const handlePop = (e) => {
+      // 앱 내 네비게이션: 홈이 아니면 홈으로 이동
       if (scrRef.current !== "tabs" || tabRef.current !== "home") {
         dispatch({ type:"NAV_HOME" });
       }
-      window.history.pushState({ stato:true }, "");
+      // 히스토리 재충전 — 앱이 절대 닫히지 않도록
+      window.history.pushState({ stato:"app" }, "");
     };
     window.addEventListener("popstate", handlePop);
     return () => window.removeEventListener("popstate", handlePop);
