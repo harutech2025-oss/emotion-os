@@ -99,25 +99,21 @@ const SCALE = [
 
 // ─── Hot Fix DB (exec: 실행형 여부) ───
 const HOTFIX_DB = [
-  { ref:"universal-reset", guideText:"아무것도 해결하려 하지 말고,\n호흡만 느끼세요.", label:"3분 리셋", desc:"모든 것을 멈추고 3분간 아무것도 하지 않습니다. 눈을 감고 호흡만 느끼세요.", cta:"지금 리셋하기", priority:0, bandMatch:["overload","low"], qMatch:null, exec:true, durationSec:180 },
-  { ref:"slow-down", guideText:"지금 하는 일의 속도를 의식적으로\n절반으로 늦춰보세요.", label:"속도 낮추기", desc:"지금 하고 있는 모든 일의 속도를 의식적으로 절반으로 줄입니다.", cta:"5분 감속 시작", priority:1, bandMatch:null, qMatch:["Q1"], exec:true, durationSec:300 },
-  { ref:"root-reset", guideText:"통제하려는 것 하나를 골라\n1분간 일부러 놓아봅니다.", label:"통제 내려놓기", desc:"지금 통제하려는 것 하나를 골라 1분간 일부러 놓아봅니다. 완벽하지 않아도 세상은 안 무너집니다.", cta:"1분 내려놓기", priority:1, bandMatch:null, qMatch:["Q7"], exec:true, durationSec:60 },
-  { ref:"sensory-reset", guideText:"알림을 끄고, 눈을 감거나 창을 닫아\n외부 자극을 차단합니다.", label:"자극 차단", desc:"소리, 빛, 알림 등 외부 입력을 5분간 최소화합니다.", cta:"5분 차단 시작", priority:1, bandMatch:null, qMatch:["Q2"], exec:true, durationSec:300 },
-  { ref:"stop-signal", guideText:"반응하고 싶은 충동을 내려두고\n속으로 10을 세어보세요.", label:"출력 멈춤", desc:"말하거나 반응하려는 충동을 10초간 멈추고 내부를 먼저 점검합니다.", cta:"10초 멈춤 시작", priority:1, bandMatch:null, qMatch:["Q4"], exec:true, durationSec:10 },
-  { ref:"baseline-reset", guideText:"가장 작은 움직임 하나—\n물 한 잔, 창문 열기, 자리에서 일어나기.", label:"기준선 복구", desc:"가장 작은 움직임 하나(물 한 잔, 창문 열기)로 시스템 재가동을 시도합니다.", cta:"1분 회복 시작", priority:1, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
-  { ref:"voice-activate", guideText:"지금 느끼는 감정에 한 단어로\n이름을 붙여봅니다.", label:"감정 이름 붙이기", desc:"지금 느끼는 것에 한 단어로 이름을 붙여봅니다. 정확하지 않아도 됩니다.", cta:"1분 감정 읽기", priority:2, bandMatch:null, qMatch:["Q3"], exec:true, durationSec:60 },
-  { ref:"permission-reset", guideText:"지금까지 한 것 하나를 떠올리고\n그것으로 충분하다고 허락합니다.", label:"허용 기준 복구", desc:"'지금까지 한 것'을 하나 떠올리고 그것으로 충분하다고 허락합니다.", cta:"1분 기준 복구", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:60 },
-  // ─── Reset 다양화 3종 (P1) ───
-  // 기록형: 감정 누수 순간 1줄 기록 (60초 집중)
-  { ref:"leak-note", guideText:"오늘 가장 에너지가 샌 순간을\n한 문장으로 써봅니다.", label:"누수 순간 기록", desc:"오늘 가장 많이 에너지가 샌 순간을 한 문장으로 적습니다. 정확하지 않아도 됩니다.", cta:"1분 기록 시작", priority:2, bandMatch:null, qMatch:["Q3","Q4","Q5"], exec:true, durationSec:60 },
-  // 움직임형: 1분 마이크로 무빙
-  { ref:"micro-move", guideText:"발을 바닥에 붙이고,\n팔을 한번 들고, 자리에서 일어섭니다.", label:"1분 마이크로 무빙", desc:"발을 바닥에 붙이고, 팔을 한번 들고, 자리에서 일어섭니다. 딱 이것만 합니다.", cta:"1분 움직임 시작", priority:2, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
-  // 환경정리형: 자극 차단 + 환경 조정 (300초)
-  { ref:"env-reset", guideText:"알림을 끄고, 조명을 낮추거나\n소음을 줄입니다.", label:"환경 정리", desc:"알림을 끄고, 조명을 낮추거나, 소음을 줄입니다. 5분간 외부 입력을 최소화합니다.", cta:"5분 환경 정리", priority:2, bandMatch:null, qMatch:["Q2","Q1"], exec:true, durationSec:300 },
-  { ref:"focus-anchor", guideText:"눈앞의 한 가지에만\n주의를 고정합니다.", label:"주의력 앵커", desc:"지금 눈앞의 한 가지(손, 물건, 소리)에만 3분간 주의를 고정합니다. 다른 생각이 와도 다시 돌아옵니다.", cta:"3분 앵커 시작", priority:2, bandMatch:null, qMatch:["Q1","Q7"], exec:true, durationSec:180 },
-  { ref:"compare-block", guideText:"SNS를 닫고,\n2분간 내 기준만 봅니다.", label:"비교 차단", desc:"SNS, 알림, 타인의 소식을 닫고 2분간 나만의 기준으로 오늘을 봅니다.", cta:"2분 차단 시작", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:120 },
-  { ref:"body-scan", guideText:"머리부터 발끝까지\n긴장을 천천히 훑어내립니다.", label:"바디 스캔", desc:"눈을 감고 머리 → 어깨 → 배 → 다리 → 발끝 순서로 긴장을 알아차리고 내려놓습니다.", cta:"3분 스캔 시작", priority:2, bandMatch:null, qMatch:["Q3","Q5"], exec:true, durationSec:180 },
-  { ref:"boundary-line", guideText:"지금 응하지 않아도 되는\n요청 하나를 정합니다.", label:"경계 한 줄", desc:"지금 당장 응하지 않아도 되는 요청이나 기대 하나를 정하고, 그것만 미뤄둡니다.", cta:"1분 경계 설정", priority:2, bandMatch:null, qMatch:["Q2","Q4"], exec:true, durationSec:60 },
+  { ref:"universal-reset", guideText:"1. 눈을 감으세요\n2. 코로 4초 들이마십니다\n3. 4초 멈춥니다\n4. 입으로 6초 내쉽니다\n5. 이 호흡만 반복하세요", label:"3분 리셋", desc:"모든 것을 멈추고 3분간 아무것도 하지 않습니다. 눈을 감고 호흡만 느끼세요.", cta:"지금 리셋하기", priority:0, bandMatch:["overload","low"], qMatch:null, exec:true, durationSec:180 },
+  { ref:"slow-down", guideText:"1. 지금 하던 일을 멈추세요\n2. 손 위에 손을 올리세요\n3. 숨을 한번 깊이 쉬세요\n4. 아까 속도의 절반으로\n   다시 시작하세요", label:"속도 낮추기", desc:"지금 하고 있는 모든 일의 속도를 의식적으로 절반으로 줄입니다.", cta:"5분 감속 시작", priority:1, bandMatch:null, qMatch:["Q1"], exec:true, durationSec:300 },
+  { ref:"root-reset", guideText:"1. 지금 통제하려는 것 하나를\n   머릿속에 떠올리세요\n2. '이건 안 해도 된다'고\n   소리 없이 말하세요\n3. 손을 펴고 힘을 빼세요", label:"통제 내려놓기", desc:"지금 통제하려는 것 하나를 골라 1분간 일부러 놓아봅니다. 완벽하지 않아도 세상은 안 무너집니다.", cta:"1분 내려놓기", priority:1, bandMatch:null, qMatch:["Q7"], exec:true, durationSec:60 },
+  { ref:"sensory-reset", guideText:"1. 핸드폰 알림을 끄세요\n2. 눈을 감으세요\n3. 코로 4초 들이마시고\n   6초 내쉬세요\n4. 소리가 들려도\n   따라가지 마세요", label:"자극 차단", desc:"소리, 빛, 알림 등 외부 입력을 5분간 최소화합니다.", cta:"5분 차단 시작", priority:1, bandMatch:null, qMatch:["Q2"], exec:true, durationSec:300 },
+  { ref:"stop-signal", guideText:"1. 지금 반응하지 마세요\n2. 속으로 10을 세세요\n3. 10 세는 동안\n   아무 말도 하지 마세요", label:"출력 멈춤", desc:"말하거나 반응하려는 충동을 10초간 멈추고 내부를 먼저 점검합니다.", cta:"10초 멈춤 시작", priority:1, bandMatch:null, qMatch:["Q4"], exec:true, durationSec:10 },
+  { ref:"baseline-reset", guideText:"1. 자리에서 일어나세요\n2. 물 한 잔을 따르세요\n3. 천천히 마시세요\n4. 창문을 열거나\n   바깥을 한번 보세요", label:"기준선 복구", desc:"가장 작은 움직임 하나(물 한 잔, 창문 열기)로 시스템 재가동을 시도합니다.", cta:"1분 회복 시작", priority:1, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
+  { ref:"voice-activate", guideText:"1. 눈을 감으세요\n2. '지금 나는 어떤 느낌이지?'\n   물어보세요\n3. 한 단어로 이름을 붙이세요\n4. 정확하지 않아도 됩니다", label:"감정 이름 붙이기", desc:"지금 느끼는 것에 한 단어로 이름을 붙여봅니다. 정확하지 않아도 됩니다.", cta:"1분 감정 읽기", priority:2, bandMatch:null, qMatch:["Q3"], exec:true, durationSec:60 },
+  { ref:"permission-reset", guideText:"1. 오늘 한 것 하나를 떠올리세요\n2. 아무리 작아도 됩니다\n3. '이것으로 충분하다'\n   소리 없이 말하세요\n4. 숨을 한번 깊이 내쉬세요", label:"허용 기준 복구", desc:"'지금까지 한 것'을 하나 떠올리고 그것으로 충분하다고 허락합니다.", cta:"1분 기준 복구", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:60 },
+  { ref:"leak-note", guideText:"1. 오늘 가장 에너지가 빠진\n   순간을 떠올리세요\n2. 그 장면을 한 문장으로\n   머릿속에 정리하세요\n3. 정확하지 않아도 됩니다", label:"누수 순간 기록", desc:"오늘 가장 많이 에너지가 샌 순간을 한 문장으로 적습니다. 정확하지 않아도 됩니다.", cta:"1분 기록 시작", priority:2, bandMatch:null, qMatch:["Q3","Q4","Q5"], exec:true, durationSec:60 },
+  { ref:"micro-move", guideText:"1. 발바닥을 바닥에 붙이세요\n2. 양팔을 한번 위로 드세요\n3. 천천히 내리세요\n4. 자리에서 일어나세요\n5. 딱 여기까지만 하세요", label:"1분 마이크로 무빙", desc:"발을 바닥에 붙이고, 팔을 한번 들고, 자리에서 일어섭니다. 딱 이것만 합니다.", cta:"1분 움직임 시작", priority:2, bandMatch:null, qMatch:["Q5"], exec:true, durationSec:60 },
+  { ref:"env-reset", guideText:"1. 핸드폰 알림을 끄세요\n2. 주변 소음을 줄이세요\n3. 조명이 밝으면 낮추세요\n4. 눈을 감고\n   코로 4초 들이마시고\n   6초 내쉬세요", label:"환경 정리", desc:"알림을 끄고, 조명을 낮추거나, 소음을 줄입니다. 5분간 외부 입력을 최소화합니다.", cta:"5분 환경 정리", priority:2, bandMatch:null, qMatch:["Q2","Q1"], exec:true, durationSec:300 },
+  { ref:"focus-anchor", guideText:"1. 눈앞의 물건 하나를 고르세요\n2. 그것의 색, 모양, 질감을\n   천천히 관찰하세요\n3. 다른 생각이 오면\n   다시 그 물건으로 돌아오세요\n4. 이것만 반복하세요", label:"주의력 앵커", desc:"지금 눈앞의 한 가지(손, 물건, 소리)에만 3분간 주의를 고정합니다. 다른 생각이 와도 다시 돌아옵니다.", cta:"3분 앵커 시작", priority:2, bandMatch:null, qMatch:["Q1","Q7"], exec:true, durationSec:180 },
+  { ref:"compare-block", guideText:"1. SNS 앱을 닫으세요\n2. 알림을 끄세요\n3. '오늘 내가 한 것 하나'를\n   떠올리세요\n4. 그것만으로 오늘은 충분합니다", label:"비교 차단", desc:"SNS, 알림, 타인의 소식을 닫고 2분간 나만의 기준으로 오늘을 봅니다.", cta:"2분 차단 시작", priority:2, bandMatch:null, qMatch:["Q6"], exec:true, durationSec:120 },
+  { ref:"body-scan", guideText:"1. 눈을 감으세요\n2. 머리 꼭대기에 주의를 두세요\n3. 천천히 아래로 내려가세요\n   이마 → 턱 → 어깨 → 팔\n   → 배 → 다리 → 발끝\n4. 긴장이 느껴지면\n   숨을 내쉬며 풀어주세요", label:"바디 스캔", desc:"눈을 감고 머리 → 어깨 → 배 → 다리 → 발끝 순서로 긴장을 알아차리고 내려놓습니다.", cta:"3분 스캔 시작", priority:2, bandMatch:null, qMatch:["Q3","Q5"], exec:true, durationSec:180 },
+  { ref:"boundary-line", guideText:"1. 지금 신경 쓰이는 요청이나\n   기대 하나를 떠올리세요\n2. '이건 지금 안 해도 된다'\n   소리 없이 말하세요\n3. 숨을 내쉬고 내려놓으세요", label:"경계 한 줄", desc:"지금 당장 응하지 않아도 되는 요청이나 기대 하나를 정하고, 그것만 미뤄둡니다.", cta:"1분 경계 설정", priority:2, bandMatch:null, qMatch:["Q2","Q4"], exec:true, durationSec:60 },
 ];
 
 // ─── Protocol DB (7, Q별 1개) ───
@@ -2334,7 +2330,7 @@ function Couple({ onBack }) {
 
 function TimerScreen({ timer, onComplete, onCancel }) {
   const safeLabel = timer?.label || "패치 실행";
-  const safeGuideText = typeof timer?.guideText === "string" && timer.guideText.length > 0 ? timer.guideText : "지금은 호흡만 느끼세요.";
+  const safeGuideText = typeof timer?.guideText === "string" && timer.guideText.length > 0 ? timer.guideText : "1. 눈을 감으세요\n2. 코로 4초 들이마십니다\n3. 입으로 6초 내쉽니다";
   const safeDuration = Number.isFinite(timer?.durationSec) && timer.durationSec > 0 ? timer.durationSec : 60;
   const [remaining, setRemaining] = useState(safeDuration);
   const [done, setDone] = useState(false);
@@ -2557,7 +2553,7 @@ function EmotionOSApp() {
     // 입구 정규화: TimerScreen 전에 safe 값 보장
     const label = (typeof hf.label === "string" && hf.label) ? hf.label : "패치 실행";
     const durationSec = (Number.isFinite(hf.durationSec) && hf.durationSec > 0) ? hf.durationSec : 60;
-    const guideText = (typeof hf.guideText === "string" && hf.guideText.length > 0) ? hf.guideText : "아무것도 해결하려 하지 말고,\n호흡만 느끼세요.";
+    const guideText = (typeof hf.guideText === "string" && hf.guideText.length > 0) ? hf.guideText : "1. 눈을 감으세요\n2. 코로 4초 들이마십니다\n3. 입으로 6초 내쉽니다";
     dispatch({ type:"OPEN_TIMER", timer:{
       ref, label, durationSec, guideText,
       startedAt:Date.now(), availAtStart:cr?.avail ?? null, resultType:cr?.type ?? null,
