@@ -866,6 +866,42 @@ function MetricsTrendCard({ history }) {
   );
 }
 
+// ─── D2: Trust Engine — Why Layer + Effect Layer ───
+const WHY_BY_PQ = {
+  Q1: "생각이 과속하면서 긴장이 풀리지 않는 흐름이 있습니다",
+  Q2: "외부 자극에 민감하게 반응하면서 에너지가 빠르게 빠지고 있습니다",
+  Q3: "감정을 안으로 눌러두면서 처리되지 않은 무게가 쌓이고 있습니다",
+  Q4: "반응이 예상보다 크게 나가면서 출력단에 부하가 걸리고 있습니다",
+  Q5: "기본 에너지 기준선이 낮아지면서 시동이 잘 걸리지 않고 있습니다",
+  Q6: "외부 기준과 비교하면서 자기 평가가 흔들리고 있습니다",
+  Q7: "통제를 놓지 못하면서 조절단이 경직되고 있습니다",
+};
+
+function deriveWhyLayer({ hs, history, actionLog }) {
+  const reasons = [];
+  // 1순위: Q유형 기반 현재 흐름
+  if (hs?.pq && WHY_BY_PQ[hs.pq]) reasons.push(WHY_BY_PQ[hs.pq]);
+  // 2순위: 근거 보강
+  const recent = (actionLog || []).filter(a => a.status === "completed").slice(-5);
+  const hasRecovery = recent.some(a => ["universal-reset","micro-move","baseline-reset","body-scan"].includes(a.ref));
+  if (!hasRecovery && recent.length > 0) reasons.push("최근 회복 루틴이 부족한 상태입니다");
+  if (!hasRecovery && recent.length === 0) reasons.push("아직 시스템을 가볍게 조정한 기록이 없습니다");
+  const recentHist = (history || []).slice(-5);
+  const overloadCount = recentHist.filter(h => h.band === "overload" || h.band === "low").length;
+  if (overloadCount >= 2) reasons.push("과부하 상태가 반복되고 있습니다");
+  return reasons.slice(0, 2);
+}
+
+function deriveEffectLayer({ history }) {
+  if (!history || history.length < 2) return null;
+  const last = history[history.length - 1].avail;
+  const prev = history[history.length - 2].avail;
+  const diff = last - prev;
+  if (diff > 3) return "최근 흐름이 좋아지고 있습니다";
+  if (diff < -3) return "최근 흐름이 흔들리고 있습니다";
+  return "현재 상태가 유지되고 있습니다";
+}
+
 // ─── SectionBrandHeader (탭 공통 브랜드 헤더) ───
 function SectionBrandHeader({ title, subtitle }) {
   return (
@@ -1326,6 +1362,18 @@ function Home() {
       {/* 3. PrincipleBanner */}
       <PrincipleBanner text={getPrincipleText(hs.band)} tone={hs.band === "stable" ? "teal" : "accent"} />
 
+      {/* 3.2 Why Layer — 왜 지금 이 상태인가 */}
+      {(() => {
+        const whys = deriveWhyLayer({ hs, history:hist, actionLog });
+        if (!whys.length) return null;
+        return (
+          <div style={{ padding:"8px 14px", borderRadius:8, background:C.card, border:`1px solid ${C.border}`, marginBottom:10 }}>
+            <div style={{ fontSize:fs(10), color:C.muted, marginBottom:4 }}>현재 상태 해석</div>
+            {whys.map((w,i) => <p key={i} style={{ fontSize:fs(11.5), color:C.dim, lineHeight:1.55, margin:0, marginTop:i>0?3:0 }}>{w}</p>)}
+          </div>
+        );
+      })()}
+
       {/* 3.5 지금 가동률이 떨어진 이유 */}
       <BugSignalCard hs={hs} onGoReset={onGoReset} />
 
@@ -1366,6 +1414,19 @@ function Home() {
           <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:200 }} onClick={() => onTimer && onTimer("universal-reset")}>지금 리셋하기</Btn></div>
         </Card>
       )}
+
+      {/* 4.5 Effect Layer — 최근 흐름 해석 */}
+      {(() => {
+        const effect = deriveEffectLayer({ history:hist });
+        if (!effect) return null;
+        const isUp = effect.includes("좋아지고");
+        const color = isUp ? C.teal : effect.includes("흔들리고") ? C.accent : C.dim;
+        return (
+          <div style={{ padding:"6px 14px", borderRadius:8, background:`${color}06`, border:`1px solid ${color}14`, marginBottom:10 }}>
+            <p style={{ fontSize:fs(10.5), color, fontWeight:600, lineHeight:1.45, margin:0 }}>{effect}</p>
+          </div>
+        );
+      })()}
 
       {/* 5. 실행 이력 */}
       {recentActions.length > 0 && (
