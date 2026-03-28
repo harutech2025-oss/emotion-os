@@ -598,6 +598,24 @@ function canRunD3Beta(ps) {
   const stats = Object.values(ps?.patchStats || {});
   return stats.filter(s => (s.recentEffects?.length || 0) >= 2 || (s.tries || 0) >= 3 || (s.skips || 0) >= 2).length >= 2;
 }
+function getPersonalizedCandidates(baseList, ps) {
+  return (baseList || []).map(item => {
+    const stat = ps?.patchStats?.[item.ref];
+    return { ...item, effectScore:getPatchEffectScore(stat), resistanceScore:getPatchResistanceScore(stat), confidenceScore:getPatchConfidence(stat), personalAdjustment:getPersonalAdjustment(stat), personalizedScore:item._score - getPersonalAdjustment(stat) };
+  }).sort((a, b) => a.personalizedScore - b.personalizedScore);
+}
+function summarizePersonalization(baseList, personalizedList) {
+  const bt = baseList?.[0], pt = personalizedList?.[0];
+  const changed = !!(bt && pt && bt.ref !== pt.ref);
+  return { baseTopRef:bt?.ref, baseTopLabel:bt?.label, personalTopRef:pt?.ref, personalTopLabel:pt?.label, changed, meaningfulChanged:changed && (pt?.confidenceScore || 0) >= 2 };
+}
+function debugPersonalization(baseList, personalizedList) {
+  const s = summarizePersonalization(baseList, personalizedList);
+  console.group("D3-beta personalization");
+  console.log("summary", { baseTop:s.baseTopRef, personalTop:s.personalTopRef, changed:s.changed, meaningfulChanged:s.meaningfulChanged });
+  console.table(personalizedList.map((x, i) => ({ rank:i+1, ref:x.ref, label:x.label, base:x._score, personalized:x.personalizedScore, effect:x.effectScore, resistance:x.resistanceScore, confidence:x.confidenceScore, adj:x.personalAdjustment })));
+  console.groupEnd();
+}
 
 // ─── 실행 이력 저장소 (v4, 정규화 + 상태-시간 정합성 검사) ───
 function saveActionLog(log) {
@@ -1419,14 +1437,8 @@ function Home() {
     if (hs.source === "empty") return;
     const ps = loadPersonalState();
     if (!canRunD3Beta(ps)) return;
-    const base = fx;
-    const personalized = base.map(item => {
-      const stat = ps.patchStats?.[item.ref];
-      return { ref:item.ref, label:item.label, base:item._score, effect:getPatchEffectScore(stat), resistance:getPatchResistanceScore(stat), confidence:getPatchConfidence(stat), adj:getPersonalAdjustment(stat) };
-    });
-    console.group("D3-beta personalization");
-    console.table(personalized);
-    console.groupEnd();
+    const personalized = getPersonalizedCandidates(fx, ps);
+    debugPersonalization(fx, personalized);
   }, [hs.avail]);
 
   return (
