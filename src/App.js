@@ -543,7 +543,10 @@ function migrateState(key) {
 function loadState() {
   try {
     const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (d && d.v >= 2) return d;
+    if (d && d.v >= 2) {
+      if (!Array.isArray(d.hist)) d.hist = [];
+      return d;
+    }
   } catch(e) {}
   return migrateState(STORAGE_KEY_V3) || migrateState(STORAGE_KEY_V2) || migrateState(STORAGE_KEY_V1) || null;
 }
@@ -554,7 +557,7 @@ function clearState() {
 
 // ─── D3-alpha: 개인화 데이터 수집 레이어 ───
 const INIT_PERSONAL = { patchStats:{}, lastCompletedPatchRef:null };
-function loadPersonalState() { try { return JSON.parse(localStorage.getItem(PERSONAL_KEY)) || INIT_PERSONAL; } catch(e) { return INIT_PERSONAL; } }
+function loadPersonalState() { try { const p = JSON.parse(localStorage.getItem(PERSONAL_KEY)); if (p && typeof p.patchStats === "object") return p; return INIT_PERSONAL; } catch(e) { return INIT_PERSONAL; } }
 function savePersonalState(ps) { try { localStorage.setItem(PERSONAL_KEY, JSON.stringify(ps)); } catch(e) {} }
 function updatePatchStat(ps, ref, completed) {
   const prev = ps.patchStats?.[ref] || { tries:0, completes:0, skips:0, recentEffects:[], lastUsedAt:null };
@@ -1474,7 +1477,8 @@ function Home() {
 
   const b = BAND[hs.band];
   const fx = getHotFixes(hs.qpr);
-  const execTop = fx.find(f => isExecutableHotFix(f.ref));
+  const patchExecTop = fx.find(f => isExecutableHotFix(f.ref) && f.ref !== "universal-reset");
+  const execTop = patchExecTop || fx.find(f => isExecutableHotFix(f.ref));
   const homeProto = PROTO_DB.find(p => p.qMatch.includes(hs.pq));
   const homePrac = PRAC_DB.find(p => p.qMatch.includes(hs.pq));
   const recentActions = getVisibleActions(actionLog, 3);
@@ -1542,7 +1546,7 @@ function Home() {
         const checklist = deriveDailyChecklist({ hist, actionLog });
         const handleAction = (id) => {
           if (id === "scan") onScan();
-          else if (id === "patch") { if (execTop) onTimer(execTop.ref); else onGoReset(); }
+          else if (id === "patch") { if (patchExecTop) onTimer(patchExecTop.ref); else onGoReset(); }
           else if (id === "reset") onTimer("universal-reset");
         };
         return <DailyChecklistCard items={checklist} onAction={handleAction} />;
@@ -2299,9 +2303,12 @@ function Couple({ onBack }) {
 // Timer Screen
 
 function TimerScreen({ timer, onComplete, onCancel }) {
-  const [remaining, setRemaining] = useState(timer.durationSec);
+  const safeLabel = timer?.label || "패치 실행";
+  const safeGuideText = typeof timer?.guideText === "string" && timer.guideText.length > 0 ? timer.guideText : "지금은 호흡만 느끼세요.";
+  const safeDuration = Number.isFinite(timer?.durationSec) && timer.durationSec > 0 ? timer.durationSec : 60;
+  const [remaining, setRemaining] = useState(safeDuration);
   const [done, setDone] = useState(false);
-  const endAt = useRef(timer.startedAt + timer.durationSec * 1000);
+  const endAt = useRef((timer?.startedAt || Date.now()) + safeDuration * 1000);
 
   useEffect(() => {
     const iv = setInterval(() => {
@@ -2314,15 +2321,15 @@ function TimerScreen({ timer, onComplete, onCancel }) {
 
   const mm = String(Math.floor(remaining/60)).padStart(2, "0");
   const ss = String(remaining%60).padStart(2, "0");
-  const pct = timer.durationSec > 0 ? ((timer.durationSec - remaining) / timer.durationSec) * 100 : 0;
+  const pct = safeDuration > 0 ? ((safeDuration - remaining) / safeDuration) * 100 : 0;
   const circR = 80, circC = 2 * Math.PI * circR;
 
   return (
     <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px", textAlign:"center" }}>
       <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, marginBottom:24, lineHeight:1.0 }}>Stato</div>
-      <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, marginBottom:8 }}>{timer.label}</h2>
+      <h2 style={{ fontSize:fs(22), fontWeight:800, color:C.text, marginBottom:8 }}>{safeLabel}</h2>
       <p style={{ fontSize:fs(13), color:C.dim, marginBottom:32, lineHeight:1.6, maxWidth:300 }}>
-        {(timer.guideText || "").split("\n").map((line, i, arr) => (
+        {safeGuideText.split("\n").map((line, i, arr) => (
           <React.Fragment key={i}>{line}{i < arr.length - 1 && <br/>}</React.Fragment>
         ))}
       </p>
@@ -2498,7 +2505,7 @@ function EmotionOSApp() {
 
   const onTimer = useCallback((ref) => {
     const hf = HOTFIX_DB.find(h => h.ref === ref);
-    if (!hf || !hf.exec) return;
+    if (!hf || !hf.exec) { console.error("Stato: unknown or non-exec hotfix ref:", ref); return; }
     dispatch({ type:"OPEN_TIMER", timer:{
       ref, label:hf.label, durationSec:hf.durationSec,
       guideText:hf.guideText ?? "아무것도 해결하려 하지 말고,\n호흡만 느끼세요.",
