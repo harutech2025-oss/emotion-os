@@ -545,6 +545,11 @@ function loadState() {
     const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (d && d.v >= 2) {
       if (!Array.isArray(d.hist)) d.hist = [];
+      // fs/lr shape 방어: 필수 필드 없으면 null 처리
+      if (d.fs && (typeof d.fs.avail !== "number" || !d.fs.pq)) d.fs = null;
+      if (d.lr && (typeof d.lr.avail !== "number" || !d.lr.pq)) d.lr = null;
+      // hist 내부 엔트리 shape 방어
+      d.hist = d.hist.filter(h => h && typeof h.avail === "number" && h.ts);
       return d;
     }
   } catch(e) {}
@@ -557,7 +562,22 @@ function clearState() {
 
 // ─── D3-alpha: 개인화 데이터 수집 레이어 ───
 const INIT_PERSONAL = { patchStats:{}, lastCompletedPatchRef:null };
-function loadPersonalState() { try { const p = JSON.parse(localStorage.getItem(PERSONAL_KEY)); if (p && typeof p.patchStats === "object") return p; return INIT_PERSONAL; } catch(e) { return INIT_PERSONAL; } }
+function loadPersonalState() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PERSONAL_KEY));
+    if (!p || typeof p.patchStats !== "object") return INIT_PERSONAL;
+    // patchStats 내부 shape 방어
+    for (const ref of Object.keys(p.patchStats)) {
+      const s = p.patchStats[ref];
+      if (!s || typeof s !== "object") { p.patchStats[ref] = { tries:0, completes:0, skips:0, recentEffects:[], lastUsedAt:null }; continue; }
+      if (!Array.isArray(s.recentEffects)) s.recentEffects = [];
+      if (typeof s.tries !== "number") s.tries = 0;
+      if (typeof s.completes !== "number") s.completes = 0;
+      if (typeof s.skips !== "number") s.skips = 0;
+    }
+    return p;
+  } catch(e) { return INIT_PERSONAL; }
+}
 function savePersonalState(ps) { try { localStorage.setItem(PERSONAL_KEY, JSON.stringify(ps)); } catch(e) {} }
 function updatePatchStat(ps, ref, completed) {
   const prev = ps.patchStats?.[ref] || { tries:0, completes:0, skips:0, recentEffects:[], lastUsedAt:null };
@@ -2506,9 +2526,12 @@ function EmotionOSApp() {
   const onTimer = useCallback((ref) => {
     const hf = HOTFIX_DB.find(h => h.ref === ref);
     if (!hf || !hf.exec) { console.error("Stato: unknown or non-exec hotfix ref:", ref); return; }
+    // 입구 정규화: TimerScreen 전에 safe 값 보장
+    const label = (typeof hf.label === "string" && hf.label) ? hf.label : "패치 실행";
+    const durationSec = (Number.isFinite(hf.durationSec) && hf.durationSec > 0) ? hf.durationSec : 60;
+    const guideText = (typeof hf.guideText === "string" && hf.guideText.length > 0) ? hf.guideText : "아무것도 해결하려 하지 말고,\n호흡만 느끼세요.";
     dispatch({ type:"OPEN_TIMER", timer:{
-      ref, label:hf.label, durationSec:hf.durationSec,
-      guideText:hf.guideText ?? "아무것도 해결하려 하지 말고,\n호흡만 느끼세요.",
+      ref, label, durationSec, guideText,
       startedAt:Date.now(), availAtStart:cr?.avail ?? null, resultType:cr?.type ?? null,
     }});
   }, [cr]);
