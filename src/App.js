@@ -303,11 +303,9 @@ function getRecheckQs(r) {
  * Recheck 진단 계산
  *
  * ── pq/sq 재산정 정책 (v4.9.2) ──
- * 재점검은 3~5문항 소표본이므로, 점수 순위만으로 pq/sq를 뒤집으면
- * 노이즈에 의한 잦은 패턴 전환이 발생해 UX가 불안정해진다.
- * 따라서 기본적으로 Full Scan의 pq/sq를 유지하되,
- * 재점검 결과 다른 유형이 기존 pq 점수를 **10%p 이상** 초과하면
- * 유의미한 변화로 판단해 pq/sq를 재산정한다.
+ * 재점검은 3~5문항 소표본이므로, 두 가지 안정화를 적용한다:
+ * 1) Q축 점수 블렌딩: 이전 50% + 재점검 50%로 급등락 댐핑
+ * 2) pq/sq 전환 방어: 재점검 결과가 기존 pq를 **10%p 이상** 초과해야 전환
  *
  * @param {number[]} a - 재점검 응답 배열
  * @param {Object[]} qs - 재점검 문항 배열
@@ -320,7 +318,13 @@ function calcRecheck(a, qs, prev) {
   Object.keys(prevNm).forEach(k => { s[k] = 0; m[k] = 0; });
   qs.forEach((q,i) => { const r = a[i] ?? 0; s[q.pq] += r*0.7; s[q.sq] += r*0.3; m[q.pq] += 3*0.7; m[q.sq] += 3*0.3; });
   const n = {...prevNm};
-  Object.keys(s).forEach(k => { if (m[k] > 0) n[k] = Math.round(s[k]/m[k]*1000)/10; });
+  // 블렌딩: 이전 50% + 재점검 50% — 소표본 급등락 댐핑
+  Object.keys(s).forEach(k => {
+    if (m[k] > 0) {
+      const rawNew = Math.round(s[k]/m[k]*1000)/10;
+      n[k] = Math.round((prevNm[k] * 0.5 + rawNew * 0.5) * 10) / 10;
+    }
+  });
   const st = Object.entries(n).sort((a,b) => b[1]-a[1]);
   const hi = st[0][1], mn = Math.round(Object.values(n).reduce((a,b) => a+b, 0) / 7 * 10) / 10;
   let bd = "stable";
@@ -1438,7 +1442,7 @@ function Onboarding({ onDone, onScan }) {
         <h2 style={{ fontSize:fs(20), fontWeight:800, color:C.text, lineHeight:1.3, marginBottom:12 }}>{p.title}</h2>
         <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.65, marginBottom:20, whiteSpace:"pre-line" }}>{p.body}</p>
         {p.cta && <Btn primary onClick={p.ctaAction} style={{ width:"100%", maxWidth:320, marginBottom:8 }}>{p.cta}</Btn>}
-        {p.footnote && <p style={{ fontSize:fs(9), color:C.muted, opacity:0.7, marginBottom:12 }}>{p.footnote}</p>}
+        {p.footnote && <p style={{ fontSize:fs(9.5), color:C.muted, opacity:0.88, fontWeight:600, marginBottom:12 }}>{p.footnote}</p>}
         <div style={{ display:"flex", justifyContent:"center", gap:6, marginBottom:16 }}>
           {pages.map((_, i) => <div key={i} style={{ width:i===page?20:6, height:6, borderRadius:3, background:i===page?C.accent:`${C.muted}40`, transition:"width 0.2s ease" }} />)}
         </div>
@@ -1768,6 +1772,12 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
           <div style={{ width:`${((idx+1)/qs.length)*100}%`, height:"100%", background:C.accent, borderRadius:2, transition:"width 0.4s" }} />
         </div>
         <div ref={ref}>
+          {idx === 0 && !isRc && (
+            <div style={{ padding:"10px 14px", borderRadius:10, background:`${C.teal}06`, border:`1px solid ${C.teal}18`, marginBottom:20 }}>
+              <p style={{ fontSize:fs(11.5), color:C.teal, fontWeight:700, margin:0, marginBottom:4 }}>성격 검사가 아닙니다</p>
+              <p style={{ fontSize:fs(10.5), color:C.dim, margin:0, lineHeight:1.5 }}>최근 2주간 반복된 패턴을 확인하는 점검입니다. 21문항을 진솔하게 답변할수록 진단 정확도가 높아집니다.</p>
+            </div>
+          )}
           <p style={{ fontSize:fs(15), color:C.text, lineHeight:1.75, marginBottom:26, minHeight:54 }}>{isRc ? (q.rcP || q.p) : q.p}</p>
           <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
             {SCALE.map(o => {
@@ -2002,6 +2012,19 @@ function LibTab() {
     <div style={{ padding:"20px 16px 100px" }}>
       <SectionBrandHeader title="Library" subtitle="버그, 패치, 운영 구조를 탐색하는 지식 레이어" />
 
+      {/* 처음이신가요? 진입 안내 */}
+      <a href="https://www.notion.so/v1-3-31f604b060a480a88245fb446ea1bb1a" target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}>
+        <div style={{ padding:"14px 16px", borderRadius:12, background:`${C.teal}06`, border:`1px solid ${C.teal}20`, marginBottom:18, cursor:"pointer" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <div>
+              <div style={{ fontSize:fs(12), fontWeight:700, color:C.teal, marginBottom:3 }}>처음이신가요?</div>
+              <div style={{ fontSize:fs(11), color:C.dim, lineHeight:1.45 }}>감정공학이란 무엇인지, 이 앱이 어떤 원리로 작동하는지 먼저 읽어보세요.</div>
+            </div>
+            <span style={{ fontSize:fs(16), color:C.teal, flexShrink:0, marginLeft:12 }}>→</span>
+          </div>
+        </div>
+      </a>
+
       {/* 대표 버그 카드 섹션 */}
       <div style={{ marginBottom:22 }}>
         <div style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>대표 버그 10종</div>
@@ -2140,6 +2163,13 @@ function Result({ result, onDone, isRc, onCp }) {
         {isRc && result.reranked && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}08`, border:`1px solid ${C.amber}25` }}><span style={{ fontSize:fs(11), fontWeight:700, color:C.amber }}>패턴 전환 감지</span><p style={{ fontSize:fs(10), color:C.dim, margin:"4px 0 0", lineHeight:1.5 }}>재점검 결과, 주 패턴이 {QL[result.pq]}으로 전환되었습니다. 가동률 변화와 함께 확인해보세요.</p></div>}
       </div>
 
+      {/* 결과 안내 (Full Scan만) */}
+      {!isRc && (
+        <div style={{ padding:"10px 14px", borderRadius:10, background:`${C.blue}06`, border:`1px solid ${C.blue}18`, marginBottom:14 }}>
+          <p style={{ fontSize:fs(10.5), color:C.dim, margin:0, lineHeight:1.55 }}>이 리포트는 감정을 운영 언어로 번역한 것입니다. 숫자가 낮다고 나쁜 것이 아니라, 지금 어디서 에너지가 새는지를 보여줍니다.</p>
+        </div>
+      )}
+
       {/* 1. 브랜드 고정 모토 (안 A: 설명 아래 · LiveSummary 위 · 가장 강한 각인 위치) */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"10px 16px", marginBottom:14, borderRadius:10, border:`1px solid ${C.accent}22`, background:`${C.accent}06` }}>
         <span style={{ fontSize:fs(12), color:C.accent, fontWeight:700, letterSpacing:0.3, textAlign:"center", lineHeight:1.55 }}>
@@ -2174,6 +2204,7 @@ function Result({ result, onDone, isRc, onCp }) {
         </div>
         <ANum value={result.avail} color={b.c} size={26} suffix="%" />
         <MiniBar pct={result.avail} color={b.c} h={6} />
+        <div style={{ marginTop:6, fontSize:fs(11), fontWeight:700, color:b.c }}>{result.avail >= 70 ? "정상 범위" : result.avail >= 40 ? "정비 필요" : "즉시 회복 필요"}</div>
         <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
         <p style={{ fontSize:fs(11), color:C.muted, marginTop:4, lineHeight:1.5 }}>{b.sub}</p>
         {result.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
