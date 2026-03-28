@@ -37,6 +37,7 @@ const STORAGE_KEY_V1 = "emotion-os-v1";
 const ALOG_KEY = "emotion-os-v4-actionlog";
 const ALOG_KEY_V3 = "emotion-os-v3-actionlog";
 const ALOG_KEY_OLD = "emotion-os-actionlog";
+const PERSONAL_KEY = "stato-personal-v1";
 const FONT_CDN = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css";
 
 
@@ -548,6 +549,23 @@ function loadState() {
 
 function clearState() {
   try { [STORAGE_KEY, STORAGE_KEY_V3, STORAGE_KEY_V2, STORAGE_KEY_V1].forEach(k => localStorage.removeItem(k)); } catch(e) {}
+}
+
+// ─── D3-alpha: 개인화 데이터 수집 레이어 ───
+const INIT_PERSONAL = { patchStats:{}, lastCompletedPatchRef:null };
+function loadPersonalState() { try { return JSON.parse(localStorage.getItem(PERSONAL_KEY)) || INIT_PERSONAL; } catch(e) { return INIT_PERSONAL; } }
+function savePersonalState(ps) { try { localStorage.setItem(PERSONAL_KEY, JSON.stringify(ps)); } catch(e) {} }
+function updatePatchStat(ps, ref, completed) {
+  const prev = ps.patchStats?.[ref] || { tries:0, completes:0, skips:0, recentEffects:[], lastUsedAt:null };
+  const next = completed
+    ? { ...prev, tries:prev.tries+1, completes:prev.completes+1, lastUsedAt:Date.now() }
+    : { ...prev, skips:prev.skips+1 };
+  return { ...ps, patchStats:{ ...ps.patchStats, [ref]:next }, lastCompletedPatchRef:completed?ref:ps.lastCompletedPatchRef };
+}
+function attachPatchEffect(ps, ref, availDiff) {
+  if (!ref || !ps.patchStats?.[ref]) return ps;
+  const prev = ps.patchStats[ref];
+  return { ...ps, patchStats:{ ...ps.patchStats, [ref]:{ ...prev, recentEffects:[...(prev.recentEffects||[]), availDiff].slice(-3) } }, lastCompletedPatchRef:null };
 }
 
 // ─── 실행 이력 저장소 (v4, 정규화 + 상태-시간 정합성 검사) ───
@@ -2309,6 +2327,9 @@ function EmotionOSApp() {
     };
     dispatch({ type:"LOG_ACTION", entry });
     saveActionLog([entry, ...actionLog].slice(0, MAX_ALOG));
+    // D3-alpha: 개인화 데이터 수집
+    const ps = updatePatchStat(loadPersonalState(), activeTimer.ref, true);
+    savePersonalState(ps);
     dispatch({ type:"CLOSE_TIMER" });
   }, [activeTimer, actionLog]);
 
@@ -2322,6 +2343,9 @@ function EmotionOSApp() {
       };
       dispatch({ type:"LOG_ACTION", entry });
       saveActionLog([entry, ...actionLog].slice(0, MAX_ALOG));
+      // D3-alpha: skip 기록
+      const ps = updatePatchStat(loadPersonalState(), activeTimer.ref, false);
+      savePersonalState(ps);
     }
     dispatch({ type:"CLOSE_TIMER" });
   }, [activeTimer, actionLog]);
@@ -2366,6 +2390,11 @@ function EmotionOSApp() {
           const r = calcRecheck(a, q, b);
           const entry = { avail:r.avail, band:r.band, pq:r.pq, type:r.type, ts:r.ts };
           dispatch({ type:"RECHECK_DONE", result:r, entry });
+          // D3-alpha: 마지막 실행 패치에 avail 변화 연결
+          const ps = loadPersonalState();
+          if (ps.lastCompletedPatchRef && r.delta !== undefined) {
+            savePersonalState(attachPatchEffect(ps, ps.lastCompletedPatchRef, r.delta));
+          }
         }, 1500);
       }} isRc rcQs={rcQs} />}
 
