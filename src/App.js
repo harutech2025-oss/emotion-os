@@ -48,27 +48,27 @@ const FONT_CDN = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist
 
 // ─── 21문항 (Q1~Q7 × 3) ───
 const QS = [
-  { id:"I01", p:"최근 2주간, 쉬고 있을 때조차 다음에 해야 할 일이 자동으로 떠올라 머리가 쉬지 못했다.", pq:"Q1", sq:"Q6", r1:"R2", leak:"조절단", bug:"MND-OVERCLOCK-01", bugL:"과속 실행 버그", patch:"Slow-Down Patch", patchL:"속도 강제 저하 패치", mode:"슬로모드", modeD:"속도를 낮추고 긴장을 풀어 조절단 과열을 식히는 운영 자세" },
-  { id:"I02", p:"최근 2주간, 빨리 끝내려다 실수하거나 중요한 단계를 건너뛴 적이 있었다.", pq:"Q1", sq:"Q4", r1:"R2", leak:"조절단", bug:"MND-OVERCLOCK-01", bugL:"과속 실행 버그", patch:"Slow-Down Patch", patchL:"속도 강제 저하 패치", mode:"슬로모드", modeD:"속도를 낮추고 긴장을 풀어 조절단 과열을 식히는 운영 자세" },
-  { id:"I03", p:"최근 2주간, 진행이 느려지거나 멈추면 몸이 먼저 긴장되고 불안감이 올라왔다.", pq:"Q1", sq:"Q4", r1:"R2", leak:"조절단", bug:"MND-OVERCLOCK-01", bugL:"과속 실행 버그", patch:"Slow-Down Patch", patchL:"속도 강제 저하 패치", mode:"슬로모드", modeD:"속도를 낮추고 긴장을 풀어 조절단 과열을 식히는 운영 자세" },
-  { id:"I04", p:"최근 2주간, 상대의 사소한 말투나 미세한 표정 변화에 신경이 날카롭게 반응했다.", pq:"Q2", sq:"Q4", r1:"R1", leak:"입력단", bug:"MND-INPUTFLOOD-01", bugL:"자극 과부하 버그", patch:"Sensory Reset", patchL:"감각 리셋 루틴", mode:"무심 모드", modeD:"외부 자극과 해석 과부하를 줄여 입력단 부담을 낮추는 운영 자세" },
-  { id:"I05", p:"최근 2주간, 사람이 많거나 소음이 큰 공간에 있으면 평소보다 빠르게 에너지가 빠졌다.", pq:"Q2", sq:"Q5", r1:"R1", leak:"입력단", bug:"MND-INPUTFLOOD-01", bugL:"자극 과부하 버그", patch:"Sensory Reset", patchL:"감각 리셋 루틴", mode:"무심 모드", modeD:"외부 자극과 해석 과부하를 줄여 입력단 부담을 낮추는 운영 자세" },
-  { id:"I06", p:"최근 2주간, 특별히 힘든 일이 없었는데도 하루가 끝나면 감각이 과부하된 느낌이 들었다.", pq:"Q2", sq:"Q3", r1:"R1", leak:"입력단", bug:"MND-INPUTFLOOD-01", bugL:"자극 과부하 버그", patch:"Sensory Reset", patchL:"감각 리셋 루틴", mode:"무심 모드", modeD:"외부 자극과 해석 과부하를 줄여 입력단 부담을 낮추는 운영 자세" },
-  { id:"I07", p:"최근 2주간, 마음이 불편한데 그게 정확히 어떤 감정인지 이름을 붙이기 어려운 순간이 많았다.", pq:"Q3", sq:"Q2", r1:"R1", leak:"처리단", bug:"MND-EMOSUPPRESS-01", bugL:"감정 억압 버그", patch:"Voice Activation", patchL:"표현 활성화 패치", mode:"감정읽기 모드", modeD:"회피된 감정을 이름 붙여 처리단 정체를 풀어 주는 운영 자세" },
-  { id:"I08", p:"최근 2주간, 속으로는 서운하거나 화가 났지만 겉으로는 아무렇지 않은 듯 넘긴 적이 많았다.", pq:"Q3", sq:"Q7", r1:"R1", leak:"처리단", bug:"MND-EMOSUPPRESS-01", bugL:"감정 억압 버그", patch:"Voice Activation", patchL:"표현 활성화 패치", mode:"감정읽기 모드", modeD:"회피된 감정을 이름 붙여 처리단 정체를 풀어 주는 운영 자세" },
-  { id:"I09", p:"최근 2주간, 이미 끝난 일인데도 설명하기 어려운 무거움이 마음에 계속 남아 있었다.", pq:"Q3", sq:"Q5", r1:"R1", leak:"처리단", bug:"MND-EMOSUPPRESS-01", bugL:"감정 억압 버그", patch:"Voice Activation", patchL:"표현 활성화 패치", mode:"감정읽기 모드", modeD:"회피된 감정을 이름 붙여 처리단 정체를 풀어 주는 운영 자세" },
-  { id:"I10", p:"최근 2주간, 감정을 누르고 있다가 어느 순간 예상보다 크게 한꺼번에 터져나온 적이 있었다.", pq:"Q4", sq:"Q1", r1:"R3", leak:"출력단", bug:"MND-OUTPUTHEAT-01", bugL:"출력 과열 버그", patch:"Stop Signal", patchL:"출력 차단 신호 패치", mode:"평정 모드", modeD:"폭발 직전의 출력단을 진정시키고 반응 속도를 늦추는 운영 자세" },
-  { id:"I11", p:"최근 2주간, 흥분하거나 화가 나면 말이 빨라지고 세져서 끝나고 나서 후회한 적이 있었다.", pq:"Q4", sq:"Q1", r1:"R3", leak:"출력단", bug:"MND-OUTPUTHEAT-01", bugL:"출력 과열 버그", patch:"Stop Signal", patchL:"출력 차단 신호 패치", mode:"평정 모드", modeD:"폭발 직전의 출력단을 진정시키고 반응 속도를 늦추는 운영 자세" },
-  { id:"I12", p:"최근 2주간, 감정을 표현하고 나면 해소되기보다 오히려 더 깊은 피로나 수치심이 남았다.", pq:"Q4", sq:"Q6", r1:"R3", leak:"출력단", bug:"MND-OUTPUTHEAT-01", bugL:"출력 과열 버그", patch:"Stop Signal", patchL:"출력 차단 신호 패치", mode:"평정 모드", modeD:"폭발 직전의 출력단을 진정시키고 반응 속도를 늦추는 운영 자세" },
-  { id:"I13", p:"최근 2주간, 해야 할 일이 눈앞에 있는데도 몸에 시동이 걸리지 않는 느낌이 반복됐다.", pq:"Q5", sq:"Q3", r1:"R4", leak:"회복단", bug:"BDY-BOOTFAIL-01", bugL:"시동 실패 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
-  { id:"I14", p:"최근 2주간, 많이 하지 않았는데도 하루 끝에 바닥까지 방전된 것 같은 피로가 있었다.", pq:"Q5", sq:"Q2", r1:"R4", leak:"회복단", bug:"BDY-LOWPOWERLOCK-01", bugL:"저출력 고착 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
-  { id:"I15", p:"최근 2주간, 누워 있는 시간이 길어질수록 오히려 더 움직이기 힘들어지는 악순환이 있었다.", pq:"Q5", sq:"Q6", r1:"R4", leak:"회복단", bug:"BDY-BEDLOCK-01", bugL:"침대 고착 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
-  { id:"I16", p:"최근 2주간, 누가 잘되는 걸 봤을 때 축하보다 내 처지가 먼저 초라하게 느껴졌다.", pq:"Q6", sq:"Q5", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
-  { id:"I17", p:"최근 2주간, 남의 성과를 본 직후 내 계획이나 속도가 갑자기 하찮게 느껴졌다.", pq:"Q6", sq:"Q1", r1:"R1", leak:"처리단", bug:"MND-FALSEPATCH-01", bugL:"가짜 패치 버그", patch:"Benchmark Filter", patchL:"기준 필터 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
-  { id:"I18", p:"최근 2주간, SNS를 보고 나서 내 하루를 다시 평가하거나 손보고 싶어진 적이 잦았다.", pq:"Q6", sq:"Q7", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
-  { id:"I19", p:"최근 2주간, 일이 예상대로 정리되지 않으면 몸 전체가 경직되고 마음이 과하게 조여왔다.", pq:"Q7", sq:"Q3", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
-  { id:"I20", p:"최근 2주간, 작은 실수나 사소한 허술함을 쉽게 흘려보내지 못하고 계속 붙들었다.", pq:"Q7", sq:"Q4", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
-  { id:"I21", p:"최근 2주간, 쉬는 시간에도 무언가를 정리하거나 통제하려는 상태에서 완전히 벗어나지 못했다.", pq:"Q7", sq:"Q5", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
+  { id:"I01", p:"최근 2주간, 머릿속 엔진이 꺼지지 않아 쉬는 시간에도 할 일이 계속 맴돌았나요?", rcP:"지금 머릿속 RPM이 높아서 쉽게 가라앉지 않는 느낌인가요?", pq:"Q1", sq:"Q6", r1:"R2", leak:"조절단", bug:"MND-OVERCLOCK-01", bugL:"과속 실행 버그", patch:"Slow-Down Patch", patchL:"속도 강제 저하 패치", mode:"슬로모드", modeD:"속도를 낮추고 긴장을 풀어 조절단 과열을 식히는 운영 자세" },
+  { id:"I02", p:"최근 2주간, 빨리 끝내려다 중요한 걸 놓치거나 실수한 적이 있었나요?", rcP:"지금 머릿속 RPM이 높아서 쉽게 가라앉지 않는 느낌인가요?", pq:"Q1", sq:"Q4", r1:"R2", leak:"조절단", bug:"MND-OVERCLOCK-01", bugL:"과속 실행 버그", patch:"Slow-Down Patch", patchL:"속도 강제 저하 패치", mode:"슬로모드", modeD:"속도를 낮추고 긴장을 풀어 조절단 과열을 식히는 운영 자세" },
+  { id:"I03", p:"최근 2주간, 일이 조금만 지연돼도 몸이 먼저 긴장되거나 조급해졌나요?", rcP:"지금 머릿속 RPM이 높아서 쉽게 가라앉지 않는 느낌인가요?", pq:"Q1", sq:"Q4", r1:"R2", leak:"조절단", bug:"MND-OVERCLOCK-01", bugL:"과속 실행 버그", patch:"Slow-Down Patch", patchL:"속도 강제 저하 패치", mode:"슬로모드", modeD:"속도를 낮추고 긴장을 풀어 조절단 과열을 식히는 운영 자세" },
+  { id:"I04", p:"최근 2주간, 주변 소음이나 사람들의 말투가 평소보다 더 거슬렸나요?", rcP:"지금 주변 자극이 필터 없이 바로 들어오는 느낌인가요?", pq:"Q2", sq:"Q4", r1:"R1", leak:"입력단", bug:"MND-INPUTFLOOD-01", bugL:"자극 과부하 버그", patch:"Sensory Reset", patchL:"감각 리셋 루틴", mode:"무심 모드", modeD:"외부 자극과 해석 과부하를 줄여 입력단 부담을 낮추는 운영 자세" },
+  { id:"I05", p:"최근 2주간, 사람이 많은 곳에 다녀오면 유독 쉽게 지쳤나요?", rcP:"지금 주변 자극이 필터 없이 바로 들어오는 느낌인가요?", pq:"Q2", sq:"Q5", r1:"R1", leak:"입력단", bug:"MND-INPUTFLOOD-01", bugL:"자극 과부하 버그", patch:"Sensory Reset", patchL:"감각 리셋 루틴", mode:"무심 모드", modeD:"외부 자극과 해석 과부하를 줄여 입력단 부담을 낮추는 운영 자세" },
+  { id:"I06", p:"최근 2주간, 특별히 힘든 일은 없었는데도 하루 끝에 감각이 막힌 느낌이 들었나요?", rcP:"지금 주변 자극이 필터 없이 바로 들어오는 느낌인가요?", pq:"Q2", sq:"Q3", r1:"R1", leak:"입력단", bug:"MND-INPUTFLOOD-01", bugL:"자극 과부하 버그", patch:"Sensory Reset", patchL:"감각 리셋 루틴", mode:"무심 모드", modeD:"외부 자극과 해석 과부하를 줄여 입력단 부담을 낮추는 운영 자세" },
+  { id:"I07", p:"최근 2주간, 마음이 답답한데도 이유를 딱 집어 설명하기 어려운 날이 많았나요?", rcP:"지금 내 마음 상태가 흐릿해서 정확히 읽기 어려운가요?", pq:"Q3", sq:"Q2", r1:"R1", leak:"처리단", bug:"MND-EMOSUPPRESS-01", bugL:"감정 억압 버그", patch:"Voice Activation", patchL:"표현 활성화 패치", mode:"감정읽기 모드", modeD:"회피된 감정을 이름 붙여 처리단 정체를 풀어 주는 운영 자세" },
+  { id:"I08", p:"최근 2주간, 속상한 일이 있어도 '별일 아니야'라며 넘긴 적이 많았나요?", rcP:"지금 내 마음 상태가 흐릿해서 정확히 읽기 어려운가요?", pq:"Q3", sq:"Q7", r1:"R1", leak:"처리단", bug:"MND-EMOSUPPRESS-01", bugL:"감정 억압 버그", patch:"Voice Activation", patchL:"표현 활성화 패치", mode:"감정읽기 모드", modeD:"회피된 감정을 이름 붙여 처리단 정체를 풀어 주는 운영 자세" },
+  { id:"I09", p:"최근 2주간, 이미 끝난 일인데도 마음 한쪽에 묘하게 남아 있는 느낌이 있었나요?", rcP:"지금 내 마음 상태가 흐릿해서 정확히 읽기 어려운가요?", pq:"Q3", sq:"Q5", r1:"R1", leak:"처리단", bug:"MND-EMOSUPPRESS-01", bugL:"감정 억압 버그", patch:"Voice Activation", patchL:"표현 활성화 패치", mode:"감정읽기 모드", modeD:"회피된 감정을 이름 붙여 처리단 정체를 풀어 주는 운영 자세" },
+  { id:"I10", p:"최근 2주간, 참았던 짜증이나 화가 어느 순간 갑자기 터진 적이 있었나요?", rcP:"지금 감정이 안에서 계속 쌓여 넘칠 듯한 느낌인가요?", pq:"Q4", sq:"Q1", r1:"R3", leak:"출력단", bug:"MND-OUTPUTHEAT-01", bugL:"출력 과열 버그", patch:"Stop Signal", patchL:"출력 차단 신호 패치", mode:"평정 모드", modeD:"폭발 직전의 출력단을 진정시키고 반응 속도를 늦추는 운영 자세" },
+  { id:"I11", p:"최근 2주간, 감정이 올라오면 말이 빨라지거나 거칠어졌나요?", rcP:"지금 감정이 안에서 계속 쌓여 넘칠 듯한 느낌인가요?", pq:"Q4", sq:"Q1", r1:"R3", leak:"출력단", bug:"MND-OUTPUTHEAT-01", bugL:"출력 과열 버그", patch:"Stop Signal", patchL:"출력 차단 신호 패치", mode:"평정 모드", modeD:"폭발 직전의 출력단을 진정시키고 반응 속도를 늦추는 운영 자세" },
+  { id:"I12", p:"최근 2주간, 감정을 표현한 뒤에도 개운함보다 피로감이 더 남았나요?", rcP:"지금 감정이 안에서 계속 쌓여 넘칠 듯한 느낌인가요?", pq:"Q4", sq:"Q6", r1:"R3", leak:"출력단", bug:"MND-OUTPUTHEAT-01", bugL:"출력 과열 버그", patch:"Stop Signal", patchL:"출력 차단 신호 패치", mode:"평정 모드", modeD:"폭발 직전의 출력단을 진정시키고 반응 속도를 늦추는 운영 자세" },
+  { id:"I13", p:"최근 2주간, 몸이 무겁게 느껴져 시작 자체가 잘 안 되는 날이 있었나요?", rcP:"지금 배터리가 거의 바닥이라 움직이기 버거운 상태인가요?", pq:"Q5", sq:"Q3", r1:"R4", leak:"회복단", bug:"BDY-BOOTFAIL-01", bugL:"시동 실패 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
+  { id:"I14", p:"최근 2주간, 별로 한 일이 없는데도 저녁이면 기운이 거의 빠진 느낌이었나요?", rcP:"지금 배터리가 거의 바닥이라 움직이기 버거운 상태인가요?", pq:"Q5", sq:"Q2", r1:"R4", leak:"회복단", bug:"BDY-LOWPOWERLOCK-01", bugL:"저출력 고착 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
+  { id:"I15", p:"최근 2주간, 쉬고 나서 다시 움직이기가 오히려 더 어렵게 느껴졌나요?", rcP:"지금 배터리가 거의 바닥이라 움직이기 버거운 상태인가요?", pq:"Q5", sq:"Q6", r1:"R4", leak:"회복단", bug:"BDY-BEDLOCK-01", bugL:"침대 고착 버그", patch:"Baseline Reset", patchL:"기준선 복구 패치", mode:"무빙 모드", modeD:"최소 움직임으로 정지된 시스템의 재가동을 돕는 운영 자세" },
+  { id:"I16", p:"최근 2주간, SNS나 타인의 소식을 보고 내 상태가 갑자기 작아 보였나요?", rcP:"지금 다른 사람과 나를 비교하며 마음이 흔들리고 있나요?", pq:"Q6", sq:"Q5", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
+  { id:"I17", p:"최근 2주간, 남들과 비교하며 내 속도나 방향이 흔들린 적이 있었나요?", rcP:"지금 다른 사람과 나를 비교하며 마음이 흔들리고 있나요?", pq:"Q6", sq:"Q1", r1:"R1", leak:"처리단", bug:"MND-FALSEPATCH-01", bugL:"가짜 패치 버그", patch:"Benchmark Filter", patchL:"기준 필터 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
+  { id:"I18", p:"최근 2주간, 다른 기준에 맞춰 내 하루를 다시 바꾸고 싶은 충동이 들었나요?", rcP:"지금 다른 사람과 나를 비교하며 마음이 흔들리고 있나요?", pq:"Q6", sq:"Q7", r1:"R1", leak:"처리단", bug:"MND-SELFDEVALUE-01", bugL:"자기비하 증폭 버그", patch:"Permission Reset", patchL:"허용 기준 복구 패치", mode:"최선 모드", modeD:"타인 기준이 아닌 과정 기준으로 비교 오염을 줄이는 운영 자세" },
+  { id:"I19", p:"최근 2주간, 예상과 다르게 흘러가면 다시 통제하지 않으면 불안했나요?", rcP:"지금 너무 많은 걸 통제하려 해서 마음이 계속 긴장된 상태인가요?", pq:"Q7", sq:"Q3", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
+  { id:"I20", p:"최근 2주간, 작은 실수나 흐트러짐을 그냥 넘기기 어려웠나요?", rcP:"지금 너무 많은 걸 통제하려 해서 마음이 계속 긴장된 상태인가요?", pq:"Q7", sq:"Q4", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
+  { id:"I21", p:"최근 2주간, 쉬는 시간에도 계속 정리하거나 맞추려는 생각이 멈추지 않았나요?", rcP:"지금 너무 많은 걸 통제하려 해서 마음이 계속 긴장된 상태인가요?", pq:"Q7", sq:"Q5", r1:"R2", leak:"조절단", bug:"MND-OVERCONTROL-01", bugL:"과통제 버그", patch:"Root Reset", patchL:"근원 재설정 패치", mode:"설렁설렁 모드", modeD:"과도한 통제와 완벽주의를 낮춰 조절단 경직을 푸는 운영 자세" },
 ];
 
 // ─── 라벨 사전 ───
@@ -1772,7 +1772,7 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
           <div style={{ width:`${((idx+1)/qs.length)*100}%`, height:"100%", background:C.accent, borderRadius:2, transition:"width 0.4s" }} />
         </div>
         <div ref={ref}>
-          <p style={{ fontSize:fs(15), color:C.text, lineHeight:1.75, marginBottom:26, minHeight:54 }}>{q.p}</p>
+          <p style={{ fontSize:fs(15), color:C.text, lineHeight:1.75, marginBottom:26, minHeight:54 }}>{isRc ? (q.rcP || q.p) : q.p}</p>
           <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
             {SCALE.map(o => {
               const sel = ans[idx] === o.v;
@@ -1787,7 +1787,7 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
         </div>
         <div style={{ display:"flex", justifyContent:"space-between", marginTop:18 }}>
           <button onClick={() => idx > 0 && setIdx(idx-1)} disabled={idx===0} style={{ padding:"6px 12px", borderRadius:6, border:`1px solid ${C.border}`, background:"transparent", color:idx===0?C.border:C.dim, fontSize:fs(11), cursor:idx===0?"default":"pointer", fontFamily:FF }}>이전</button>
-          <span style={{ fontSize:fs(10), color:C.muted }}>최근 2주 기준</span>
+          <span style={{ fontSize:fs(10), color:C.muted }}>{isRc ? "지금 이 순간 기준" : "최근 2주 기준"}</span>
         </div>
       </div>
     </div>
