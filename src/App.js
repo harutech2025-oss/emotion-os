@@ -1508,8 +1508,12 @@ function Home() {
 
   const b = BAND[hs.band];
   // fx는 이미 조기 반환 전에 계산됨
+  // 체크리스트용: universal-reset 제외 1순위
   const patchExecTop = fx.find(f => isExecutableHotFix(f.ref) && f.ref !== "universal-reset");
-  const execTop = patchExecTop; // Quick Patch는 patchExecTop만 사용, universal-reset은 맨 마지막 fallback으로
+  // Quick Patch용: 체크리스트 1순위도 제외한 다른 실행형 패치 (중복 방지)
+  const execTop = patchExecTop
+    ? fx.find(f => isExecutableHotFix(f.ref) && f.ref !== "universal-reset" && f.ref !== patchExecTop.ref)
+    : null;
   const homeProto = PROTO_DB.find(p => p.qMatch.includes(hs.pq));
   const homePrac = PRAC_DB.find(p => p.qMatch.includes(hs.pq));
   const recentActions = getVisibleActions(actionLog, 3);
