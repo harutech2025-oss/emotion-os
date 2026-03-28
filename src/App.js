@@ -320,9 +320,10 @@ function getRecheckQs(r) {
  */
 function calcRecheck(a, qs, prev) {
   const s = {}, m = {};
-  Object.keys(prev.nm).forEach(k => { s[k] = 0; m[k] = 0; });
+  const prevNm = (prev && typeof prev.nm === "object" && prev.nm) ? prev.nm : { Q1:0, Q2:0, Q3:0, Q4:0, Q5:0, Q6:0, Q7:0 };
+  Object.keys(prevNm).forEach(k => { s[k] = 0; m[k] = 0; });
   qs.forEach((q,i) => { const r = a[i] ?? 0; s[q.pq] += r*0.7; s[q.sq] += r*0.3; m[q.pq] += 3*0.7; m[q.sq] += 3*0.3; });
-  const n = {...prev.nm};
+  const n = {...prevNm};
   Object.keys(s).forEach(k => { if (m[k] > 0) n[k] = Math.round(s[k]/m[k]*1000)/10; });
   const st = Object.entries(n).sort((a,b) => b[1]-a[1]);
   const hi = st[0][1], mn = Math.round(Object.values(n).reduce((a,b) => a+b, 0) / 7 * 10) / 10;
@@ -548,6 +549,9 @@ function loadState() {
       // fs/lr shape 방어: 필수 필드 없으면 null 처리
       if (d.fs && (typeof d.fs.avail !== "number" || !d.fs.pq)) d.fs = null;
       if (d.lr && (typeof d.lr.avail !== "number" || !d.lr.pq)) d.lr = null;
+      // nm shape 방어: 없거나 객체 아니면 기본값 주입
+      if (d.fs && (!d.fs.nm || typeof d.fs.nm !== "object")) d.fs.nm = { Q1:0, Q2:0, Q3:0, Q4:0, Q5:0, Q6:0, Q7:0 };
+      if (d.lr && (!d.lr.nm || typeof d.lr.nm !== "object")) d.lr.nm = { Q1:0, Q2:0, Q3:0, Q4:0, Q5:0, Q6:0, Q7:0 };
       // hist 내부 엔트리 shape 방어
       d.hist = d.hist.filter(h => h && typeof h.avail === "number" && h.ts);
       return d;
@@ -2189,7 +2193,7 @@ function Result({ result, onDone, isRc, onCp }) {
 
       {/* 5. Q점수 분포 */}
       <Accordion title="Q유형 점수 분포" defaultOpen={false}>
-        {Object.entries(result.nm).sort((a,b) => b[1]-a[1]).map(([k,v]) => (
+        {Object.entries(result.nm || {}).sort((a,b) => b[1]-a[1]).map(([k,v]) => (
           <div key={k} style={{ marginBottom:6 }}>
             <div style={{ display:"flex", justifyContent:"space-between", fontSize:fs(11), color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div>
             <MiniBar pct={v} color={k===result.pq?C.accent:k===result.sq?C.blue:C.borderL} h={4} />
@@ -2208,8 +2212,8 @@ function Result({ result, onDone, isRc, onCp }) {
       {/* 7. 추천 운영 모드 */}
       <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
         <div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 모드</div>
-        <div style={{ fontSize:fs(18), fontWeight:800, color:C.teal, marginBottom:6 }}>{result.mode}</div>
-        <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.55, marginBottom:8 }}>{result.modeD}</p>
+        <div style={{ fontSize:fs(18), fontWeight:800, color:C.teal, marginBottom:6 }}>{result.mode || "운영 모드"}</div>
+        <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.55, marginBottom:8 }}>{result.modeD || ""}</p>
         <div style={{ padding:"8px 12px", borderRadius:8, background:C.bg, border:`1px solid ${C.border}` }}>
           <p style={{ fontSize:fs(10.5), color:C.muted, lineHeight:1.5, margin:0 }}>성격을 바꾸라는 뜻이 아닙니다. 지금 시스템 상태에서 가동률을 덜 잃는 임시 운영 자세입니다.</p>
         </div>
@@ -2220,7 +2224,7 @@ function Result({ result, onDone, isRc, onCp }) {
       <Card>
         <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Bug</div>
         <div style={{ fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35 }}>{bm.userName}</div>
-        <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.bugL} · {result.bug}</div>
+        <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.bugL || ""} · {result.bug || ""}</div>
         <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:10, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>{bm.oneLiner}</span><span style={{ color:C.muted, fontSize:fs(11), marginLeft:8, flexShrink:0 }}>→</span></div></a>
         <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Patch</div>
         <div style={{ fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35 }}>{result.patchL}</div>
