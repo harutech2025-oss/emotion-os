@@ -895,7 +895,7 @@ function BugSignalCard({ hs, onGoReset }) {
           <div style={{ fontSize:fs(18), fontWeight:800, color:C.text, lineHeight:1.25 }}>{d.userName}</div>
           <div style={{ fontSize:fs(11), color:C.dim, marginTop:3 }}>{d.subName ? `${d.subName} · ${d.bugId}` : d.bugId}</div>
         </div>
-        <div style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap" }}>{d.patchL}</div>
+        <div onClick={() => d.patchHref && window.open(d.patchHref, "_blank", "noopener,noreferrer")} style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap", cursor:d.patchHref?"pointer":"default" }}>{d.patchL}</div>
       </div>
       <div style={{ marginTop:12, fontSize:fs(13), color:C.text, lineHeight:1.6 }}>{d.oneLiner}</div>
       <div style={{ marginTop:8, fontSize:fs(11.5), color:C.dim, lineHeight:1.55 }}>이 상태가 계속되면 하루의 리듬이 더 흔들릴 수 있습니다.</div>
@@ -1425,7 +1425,7 @@ const HistoryGraph = memo(HistoryGraphInner);
 function Onboarding({ onDone, onScan }) {
   const [page, setPage] = useState(0);
   const pages = [
-    { title:"감정도 운영이 됩니다", body:"Stato는 오늘의 감정 상태를 읽고, 에너지가 새는 지점을 찾아, 하루를 다시 운영하게 만드는 앱입니다.\n\n2분 점검으로 지금 가동률을 확인해보세요." },
+    { title:"감정도 운영이 됩니다", body:"Stato는 오늘의 감정 상태를 읽고,\n에너지가 새는 지점을 찾아\n하루를 다시 운영하게 돕는 앱입니다.\n\n2분 점검으로 지금 상태를 확인해보세요." },
     { title:"점검 → 해석 → 실행", body:"21문항 스캔으로 현재 상태를 읽고,\n켜진 버그와 맞춤 패치를 확인하고,\n타이머 기반으로 바로 실행합니다.\n\n지금 바로 시작할 수 있습니다.", cta:"지금 스캔 시작하기", ctaAction:() => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} onScan(); }, footnote:"기록은 현재 기기에 저장됩니다" },
     { title:"기록은 이 기기에 저장됩니다", body:"운영 기록은 현재 이 기기의 브라우저에 저장됩니다.\n브라우저 초기화 또는 기기 변경 시 기록이 삭제될 수 있습니다.\n\n서버 연동은 추후 업데이트에서 지원할 예정입니다." },
   ];
@@ -2502,6 +2502,24 @@ function EmotionOSApp() {
       l.href = FONT_CDN;
       document.head.appendChild(l);
     }
+  }, []);
+
+  // ── 브라우저 뒤로가기 방어 (앱 내 네비게이션) ──
+  const scrRef = useRef(scr);
+  const tabRef = useRef(tab);
+  scrRef.current = scr;
+  tabRef.current = tab;
+  useEffect(() => {
+    window.history.replaceState({ stato:true }, "");
+    window.history.pushState({ stato:true }, "");
+    const handlePop = () => {
+      if (scrRef.current !== "tabs" || tabRef.current !== "home") {
+        dispatch({ type:"NAV_HOME" });
+      }
+      window.history.pushState({ stato:true }, "");
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
   }, []);
 
   // ── localStorage → reducer 복원 ──
