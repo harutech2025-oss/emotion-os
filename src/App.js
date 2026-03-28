@@ -1751,6 +1751,10 @@ function ActionTab() {
   const extra = PRAC_DB.filter(p => p !== prac && (p.qMatch.includes(result.pq) || p.qMatch.includes(result.sq))).slice(0, 2);
   const execFx = fx.filter(f => isExecutableHotFix(f.ref));
   const pendFx = fx.filter(f => !isExecutableHotFix(f.ref));
+  // Today 1순위와 Reset 상단 중복 제거
+  const topExecRef = execFx[0]?.ref || null;
+  const execFxAlt = topExecRef ? execFx.filter(f => f.ref !== topExecRef) : execFx;
+  const execFxForReset = execFxAlt.length > 0 ? execFxAlt : execFx;
   const recentActs = getVisibleActions(actionLog, 3);
   const wasExecuted = (ref) => {
     const latest = getLatestActionByRef(actionLog, ref);
@@ -1764,13 +1768,13 @@ function ActionTab() {
       {/* 운영 기준 문장 */}
       <PrincipleBanner text="지금은 해결보다 누수 차단이 우선입니다." tone="accent" />
 
-      {/* 실행 가능 Hot Fix */}
-      {execFx.length > 0 && <>
+      {/* 실행 가능 Hot Fix (Today 1순위 제외) */}
+      {execFxForReset.length > 0 && <>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-          <span style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase" }}>Hot Fix</span>
-          <span style={{ fontSize:fs(10), color:C.muted }}>실행 가능 {execFx.length}개</span>
+          <span style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase" }}>다른 실행형 리셋</span>
+          <span style={{ fontSize:fs(10), color:C.muted }}>실행 가능 {execFxForReset.length}개</span>
         </div>
-        {execFx.map(f => (
+        {execFxForReset.map(f => (
           <Card key={f.ref} accent={`${C.accent}30`} style={{ background:`${C.accent}05` }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
               <span style={{ fontSize:fs(14), fontWeight:700, color:C.accent }}>{f.label}</span>
