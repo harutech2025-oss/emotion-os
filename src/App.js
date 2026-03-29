@@ -2380,7 +2380,25 @@ function TimerScreen({ timer, onComplete, onCancel }) {
     const iv = setInterval(() => {
       const left = Math.max(0, Math.ceil((endAt.current - Date.now()) / 1000));
       setRemaining(left);
-      if (left <= 0) { setDone(true); clearInterval(iv); }
+      if (left <= 0) {
+        setDone(true); clearInterval(iv);
+        // 진동 (모바일)
+        try { if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]); } catch(e) {}
+        // 완료 알림음 (Web Audio API — 부드러운 벨)
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          [0, 0.25, 0.5].forEach(delay => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = "sine"; osc.frequency.value = 880;
+            gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delay + 0.3);
+            osc.start(ctx.currentTime + delay);
+            osc.stop(ctx.currentTime + delay + 0.3);
+          });
+        } catch(e) {}
+      }
     }, 250);
     return () => clearInterval(iv);
   }, []);
