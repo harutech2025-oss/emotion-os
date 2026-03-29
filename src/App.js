@@ -1067,7 +1067,7 @@ function SectionBrandHeader({ title, subtitle }) {
   return (
     <div style={{ marginBottom:20 }}>
       <div style={{ fontSize:fs(12.6), letterSpacing:1.1, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0, marginBottom:4 }}>Stato</div>
-      <div style={{ fontSize:fs(5.8), letterSpacing:0.7, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, opacity:0.82, marginBottom:10 }}>Powered by Emotion OS</div>
+      <div style={{ fontSize:fs(5.8), letterSpacing:0.6, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, opacity:0.82, marginBottom:10 }}>Powered by Emotion OS</div>
       <div style={{ fontSize:fs(24), fontWeight:850, color:C.text, lineHeight:1.08, marginBottom:subtitle?6:0 }}>{title}</div>
       {!!subtitle && <div style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.5, maxWidth:520 }}>{subtitle}</div>}
     </div>
@@ -1434,7 +1434,7 @@ function Onboarding({ onDone, onScan }) {
   const [page, setPage] = useState(0);
   const pages = [
     { title:"감정도 운영이 됩니다", body:"Stato는 오늘의 감정 상태를 읽고,\n에너지가 새는 지점을 찾아\n하루를 다시 운영하게 돕는 앱입니다.\n\n2분 점검으로 지금 상태를 확인해보세요." },
-    { title:"점검 → 해석 → 실행", body:"21문항 스캔으로 현재 상태를 읽고,\n켜진 버그와 맞춤 패치를 확인하고,\n타이머 기반으로 바로 실행합니다.\n\n지금 바로 시작할 수 있습니다.", cta:"지금 스캔 시작하기", ctaAction:() => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} onScan(); }, footnote:"기록은 현재 기기에 저장됩니다" },
+    { title:"점검 → 해석 → 실행", body:"이건 문제를 한 번에 해결하는 앱이 아닙니다.\n\n지금 무너지는 상태를 짧게 조정하고,\n재점검으로 변화를 확인하는 앱입니다.\n\n지금 바로 시작할 수 있습니다.", cta:"지금 스캔 시작하기", ctaAction:() => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} onScan(); }, footnote:"기록은 현재 기기에 저장됩니다" },
     { title:"기록은 이 기기에 저장됩니다", body:"운영 기록은 현재 이 기기의 브라우저에 저장됩니다.\n브라우저 초기화 또는 기기 변경 시 기록이 삭제될 수 있습니다.\n\n서버 연동은 추후 업데이트에서 지원할 예정입니다." },
   ];
   const p = pages[page];
@@ -1448,7 +1448,7 @@ function Onboarding({ onDone, onScan }) {
           <div style={{ fontSize:fs(16.5), letterSpacing:1.0, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0 }}>Stato</div>
         </div>
         <h2 style={{ fontSize:fs(20), fontWeight:800, color:C.text, lineHeight:1.3, marginBottom:12 }}>{p.title}</h2>
-        <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.65, marginBottom:20, whiteSpace:"pre-line" }}>{p.body}</p>
+        <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.72, marginBottom:20, whiteSpace:"pre-line" }}>{p.body}</p>
         {p.cta && <Btn primary onClick={p.ctaAction} style={{ width:"100%", maxWidth:320, marginBottom:8 }}>{p.cta}</Btn>}
         {p.footnote && <p style={{ fontSize:fs(9.5), color:C.muted, opacity:0.88, fontWeight:600, marginBottom:12 }}>{p.footnote}</p>}
         <div style={{ display:"flex", justifyContent:"center", gap:6, marginBottom:16 }}>
@@ -1502,7 +1502,7 @@ function Home() {
             </svg>
           </div>
           <div style={{ fontSize:fs(16.5), letterSpacing:1.0, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0 }}>Stato</div>
-          <div style={{ fontSize:fs(6.2), letterSpacing:0.7, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, marginTop:5, opacity:0.82 }}>Powered by Emotion OS</div>
+          <div style={{ fontSize:fs(6.2), letterSpacing:0.6, color:C.dim, textTransform:"uppercase", fontWeight:700, lineHeight:1.15, marginTop:5, opacity:0.82 }}>Powered by Emotion OS</div>
         </div>
         {/* Hook */}
         <h2 style={{ fontSize:fs(18.8), fontWeight:800, color:C.text, lineHeight:1.28, marginBottom:8 }}>요즘 감정 날씨는 어떤가요?</h2>
@@ -1510,10 +1510,10 @@ function Home() {
         {/* Empty info card */}
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:18, padding:"13px 16px 12px", marginBottom:18 }}>
           <div style={{ fontSize:fs(12.9), fontWeight:720, color:C.text, marginBottom:4 }}>아직 시스템 데이터가 없습니다</div>
-          <p style={{ fontSize:fs(11.2), color:C.dim, lineHeight:1.5, margin:0 }}>먼저 2분 스캔으로 현재 감정 운영 상태를 확인하세요.</p>
+          <p style={{ fontSize:fs(11.2), color:`${C.text}cc`, fontWeight:500, lineHeight:1.58, margin:0 }}>먼저 2분 스캔으로 현재 감정 운영 상태를 확인하세요.</p>
         </div>
-        <Btn primary onClick={onScan} style={{ width:"100%", maxWidth:320, marginBottom:12 }}>지금 스캔 시작하기</Btn>
-        <div style={{ fontSize:fs(8.6), color:C.muted, opacity:0.92, lineHeight:1.45, marginTop:2 }}>by HaruTech Lab · Emotional Engineering Institute</div>
+        <Btn primary onClick={onScan} style={{ width:"100%", maxWidth:320, marginBottom:18 }}>지금 스캔 시작하기</Btn>
+        <div style={{ fontSize:fs(9.2), color:C.muted, opacity:0.96, lineHeight:1.45, marginTop:2 }}>by HaruTech Lab · Emotional Engineering Institute</div>
       </div>
     </div>
   );
@@ -1539,7 +1539,7 @@ function Home() {
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
         <div>
           <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
-          <div style={{ fontSize:fs(7.4), letterSpacing:0.9, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
+          <div style={{ fontSize:fs(7.4), letterSpacing:0.78, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
           <div style={{ fontSize:fs(18), fontWeight:700, color:C.text, marginTop:6 }}>Today</div>
         </div>
         {hs.isRc && hs.delta != null && <DBadge delta={hs.delta} />}
@@ -1623,7 +1623,7 @@ function Home() {
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
           <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{execTop.label}</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>이 패치 하나로 오늘 흐름이 달라질 수 있습니다.</p>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>작은 조정부터 시작합니다.</p>
           <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:220 }} onClick={() => onTimer && onTimer(execTop.ref)}>{execTop.cta}</Btn></div>
         </Card>
       ) : homeProto ? (
@@ -1911,6 +1911,7 @@ function ActionTab() {
           <Btn primary onClick={() => onTimer && onTimer(heroRef)} style={{ width:"100%", maxWidth:300, padding:"16px 0", fontSize:fs(15), marginBottom:14 }}>{heroCta}</Btn>
           <div style={{ fontSize:fs(16), fontWeight:800, color:C.teal, lineHeight:1.2, marginBottom:4 }}>{heroHf.label}</div>
           <p style={{ fontSize:fs(11.5), color:C.dim, lineHeight:1.5, maxWidth:280, margin:"0 auto" }}>{heroEffect}</p>
+          <p style={{ fontSize:fs(9.5), color:C.muted, marginTop:10, maxWidth:260, margin:"10px auto 0", lineHeight:1.45, textAlign:"center" }}>문제를 끝내는 버튼이 아니라, 지금 상태를 식히는 작은 조정입니다.</p>
         </Card>
       )}
 
@@ -2160,7 +2161,7 @@ function Result({ result, onDone, isRc, onCp }) {
       {/* Header */}
       <div style={{ textAlign:"center", marginBottom:22 }}>
         <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
-        <div style={{ fontSize:fs(7.4), letterSpacing:0.9, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
+        <div style={{ fontSize:fs(7.4), letterSpacing:0.78, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
         <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
         <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>{isRc ? "직전 스캔 기준 · 3~5문항 소표본 재점검" : "최근 2주 반복 패턴 기준"}</p>
         <p style={{ fontSize:fs(11), color:C.muted, marginTop:6, lineHeight:1.65 }}>
@@ -2411,8 +2412,11 @@ function TimerScreen({ timer, onComplete, onCancel }) {
       {!done && <Btn small onClick={onCancel} style={{ maxWidth:200, marginBottom:8 }}>중단하기</Btn>}
       {done && (
         <>
-          <p style={{ fontSize:fs(13), color:C.green, marginBottom:18, lineHeight:1.7, maxWidth:280, textAlign:"center", fontStyle:"italic" }}>
+          <p style={{ fontSize:fs(13), color:C.green, marginBottom:12, lineHeight:1.7, maxWidth:280, textAlign:"center", fontStyle:"italic" }}>
             과열이 낮아졌습니다.<br />지금 가벼운 일 하나를 처리하기 좋은 상태입니다.
+          </p>
+          <p style={{ fontSize:fs(10), color:C.muted, marginBottom:18, lineHeight:1.5, maxWidth:260, textAlign:"center" }}>
+            처음엔 작게 느껴집니다. 3일 반복하면 차이가 보이기 시작합니다.
           </p>
           <Btn primary onClick={onComplete} style={{ maxWidth:260 }}>완료 · 돌아가기</Btn>
         </>
