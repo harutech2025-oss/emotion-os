@@ -1619,8 +1619,7 @@ function Home() {
           {todayCount > 0 && <p style={{ fontSize:fs(10), color:C.teal, fontWeight:600, margin:"6px 0 0" }}>오늘 {todayCount}회 회복 완료</p>}
           <div style={{ marginTop:10 }}><Btn small style={{ maxWidth:220 }} onClick={onRc}>재점검으로 변화 확인</Btn></div>
         </Card>);
-      })()
-      ) : showExecTop ? (
+      })() : showExecTop ? (
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
           <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{execTop.label}</div>
