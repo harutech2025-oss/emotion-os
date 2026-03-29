@@ -72,8 +72,8 @@ const QS = [
 ];
 
 // ─── 라벨 사전 ───
-const QL  = { Q1:"Q1 조급형", Q2:"Q2 과민형", Q3:"Q3 회피형", Q4:"Q4 분출형", Q5:"Q5 우울형", Q6:"Q6 비교형", Q7:"Q7 통제형" };
-const QSH = { Q1:"조급", Q2:"과민", Q3:"회피", Q4:"분출", Q5:"우울", Q6:"비교", Q7:"통제" };
+const QL  = { Q1:"Q1 조급형", Q2:"Q2 과민형", Q3:"Q3 회피형", Q4:"Q4 분출형", Q5:"Q5 저전력형", Q6:"Q6 비교형", Q7:"Q7 통제형" };
+const QSH = { Q1:"조급", Q2:"과민", Q3:"회피", Q4:"분출", Q5:"저전력", Q6:"비교", Q7:"통제" };
 const RL  = { R1:"R1 인지", R2:"R2 조절", R3:"R3 공명", R4:"R4 회복", R5:"R5 갱신" };
 const RD  = {
   R1:"감정을 읽고 구분하는 기능에 부담이 높습니다.",
@@ -1453,7 +1453,7 @@ function Onboarding({ onDone, onScan }) {
   const pages = [
     { title:"감정도 운영이 됩니다", body:"Stato는 오늘의 감정 상태를 읽고,\n에너지가 새는 지점을 찾아\n하루를 다시 운영하게 돕는 앱입니다.\n\n2분 점검으로 지금 상태를 확인해보세요." },
     { title:"점검 → 해석 → 실행", body:"이건 문제를 한 번에 해결하는 앱이 아닙니다.\n\n지금 무너지는 상태를 짧게 조정하고,\n재점검으로 변화를 확인하는 앱입니다.\n\n지금 바로 시작할 수 있습니다.", cta:"지금 스캔 시작하기", ctaAction:() => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} onScan(); }, footnote:"기록은 현재 기기에 저장됩니다" },
-    { title:"기록은 이 기기에 저장됩니다", body:"운영 기록은 현재 이 기기의 브라우저에 저장됩니다.\n브라우저 초기화 또는 기기 변경 시 기록이 삭제될 수 있습니다.\n\n서버 연동은 추후 업데이트에서 지원할 예정입니다." },
+    { title:"기록은 이 기기에 저장됩니다", body:"운영 기록은 현재 이 기기의 브라우저에 저장됩니다.\n브라우저 초기화 또는 기기 변경 시 기록이 삭제될 수 있습니다.\n\nToday 하단에서 백업 저장과 복원이 가능합니다." },
   ];
   const p = pages[page];
   return (
@@ -1753,11 +1753,11 @@ function Home() {
       </div>
       <div style={{ marginTop:12, textAlign:"center" }}>
         <p style={{ fontSize:fs(9), color:C.muted, opacity:0.7, lineHeight:1.45, marginBottom:8 }}>현재 운영 기록은 이 기기에 저장됩니다. 브라우저 초기화 시 기록이 삭제될 수 있습니다.</p>
-        <div style={{ display:"flex", gap:12, justifyContent:"center", alignItems:"center" }}>
-          <button onClick={() => { try { const data = { state:JSON.parse(localStorage.getItem(STORAGE_KEY)), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY)), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY)), exportedAt:new Date().toISOString() }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download=`stato-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 백업 저장</button>
+        <div style={{ display:"flex", gap:12, justifyContent:"center", alignItems:"center", flexWrap:"wrap" }}>
+          <button onClick={() => { try { const data = { state:JSON.parse(localStorage.getItem(STORAGE_KEY)), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY)), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY)), exportedAt:new Date().toISOString(), version:"v4.9.2" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download=`stato-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 백업 저장</button>
+          <button onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".json"; input.onchange = (e) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if (!data.state && !data.actionLog) { alert("유효하지 않은 백업 파일입니다."); return; } if (!window.confirm("현재 기록을 백업 파일로 덮어씁니다.\n계속하시겠습니까?")) return; if (data.state) localStorage.setItem(STORAGE_KEY, JSON.stringify(data.state)); if (data.actionLog) localStorage.setItem(ALOG_KEY, JSON.stringify(data.actionLog)); if (data.personal) localStorage.setItem(PERSONAL_KEY, JSON.stringify(data.personal)); alert("복원이 완료되었습니다. 페이지를 새로고침합니다."); window.location.reload(); } catch(err) { alert("파일을 읽을 수 없습니다: " + err.message); } }; reader.readAsText(file); }; input.click(); }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.teal, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 복원</button>
           <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
         </div>
-        <p style={{ fontSize:fs(8), color:C.muted, opacity:0.5, marginTop:4 }}>복원 기능은 추후 지원 예정</p>
       </div>
     </div>
   );
@@ -1832,7 +1832,7 @@ function ScanTab() {
   const { cr:result, onScan, onRc, onCp } = useApp();
   return (
     <div style={{ padding:"20px 16px 100px" }}>
-      <SectionBrandHeader title="Scan" subtitle="새 스캔, 재점검, Couple 연결을 관리하는 도구 탭" />
+      <SectionBrandHeader title="Scan" subtitle="새 스캔과 재점검을 관리하는 도구 탭" />
       <Card onClick={onScan} style={{ cursor:"pointer" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.accentD, display:"flex", alignItems:"center", justifyContent:"center" }}><IS a /></div>
@@ -1843,12 +1843,6 @@ function ScanTab() {
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:40, height:40, borderRadius:10, background:C.tealD, display:"flex", alignItems:"center", justifyContent:"center" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.teal} strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>
           <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>가동률 재점검</div><div style={{ fontSize:fs(12), color:C.dim }}>{result ? "3~5문항 · 현재 가동률 오버레이" : "Full Scan을 먼저 진행하세요"}</div></div>
-        </div>
-      </Card>
-      <Card onClick={onCp} style={{ cursor:"pointer" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <div style={{ width:40, height:40, borderRadius:10, background:C.blueD, display:"flex", alignItems:"center", justifyContent:"center" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-          <div><div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>Couple Sync <span style={{ fontSize:fs(11), color:C.amber, fontWeight:600 }}>(Beta)</span></div><div style={{ fontSize:fs(12), color:C.dim }}>미리보기 모드 · 연결 엔진 준비 중</div></div>
         </div>
       </Card>
       <div style={{ textAlign:"center", padding:"16px 0 0", fontSize:fs(9), color:C.muted }}>by HaruTech Lab · Emotional Engineering Institute</div>
@@ -2289,9 +2283,6 @@ function Result({ result, onDone, isRc, onCp }) {
 
       {/* ── 하단 ── */}
       <ShareBtn result={result} />
-      <div style={{ textAlign:"center", padding:"10px 0" }}>
-        <button onClick={onCp} style={{ fontSize:fs(10), color:C.muted, border:`1px solid ${C.border}`, borderRadius:999, padding:"6px 16px", background:"none", cursor:"pointer", fontFamily:FF }}>파트너와 공유하기 (준비 중) →</button>
-      </div>
 
       {/* 모토 (하단 이동) */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"10px 16px", marginBottom:14, borderRadius:10, border:`1px solid ${C.accent}22`, background:`${C.accent}06` }}>
