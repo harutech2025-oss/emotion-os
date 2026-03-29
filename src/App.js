@@ -2181,20 +2181,10 @@ function Result({ result, onDone, isRc, onCp }) {
         <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
         <div style={{ fontSize:fs(7.4), letterSpacing:0.78, color:C.dim, textTransform:"uppercase", marginTop:2, lineHeight:1.15, opacity:0.88, fontWeight:700 }}>Powered by Emotion OS</div>
         <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:6 }}>{isRc ? "가동률 재점검 리포트" : "운영 상태 리포트"}</h1>
-        <p style={{ fontSize:fs(12), color:C.muted, marginTop:4 }}>{isRc ? "직전 스캔 기준 · 3~5문항 소표본 재점검" : "최근 2주 반복 패턴 기준"}</p>
-        <p style={{ fontSize:fs(11), color:C.muted, marginTop:6, lineHeight:1.65 }}>
-          {isRc ? "이 리포트는 직전 스캔 결과를 기준축으로, 현재 가동률 변화만 다시 확인한 결과입니다." : "이 리포트는 최근 2주의 반복 패턴을 기준으로, 오늘의 운영 상태를 해석한 결과입니다."}
-        </p>
+        <p style={{ fontSize:fs(11), color:C.muted, marginTop:6 }}>{isRc ? "직전 스캔 기준 · 가동률 변화 확인" : "최근 2주 반복 패턴 기준 · 지금 어디서 에너지가 새는지를 보여줍니다"}</p>
         {isRc && result.delta != null && <div style={{ marginTop:10 }}><DBadge delta={result.delta} big /><p style={{ fontSize:fs(10), color:C.muted, marginTop:4 }}>{result.baselineType === "recheck" ? "직전 재점검 대비" : "풀 스캔 대비"}</p></div>}
         {isRc && result.reranked && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}08`, border:`1px solid ${C.amber}25` }}><span style={{ fontSize:fs(11), fontWeight:700, color:C.amber }}>패턴 전환 감지</span><p style={{ fontSize:fs(10), color:C.dim, margin:"4px 0 0", lineHeight:1.5 }}>재점검 결과, 주 패턴이 {QL[result.pq]}으로 전환되었습니다. 가동률 변화와 함께 확인해보세요.</p></div>}
       </div>
-
-      {/* 결과 안내 (Full Scan만) */}
-      {!isRc && (
-        <div style={{ padding:"10px 14px", borderRadius:10, background:`${C.blue}06`, border:`1px solid ${C.blue}18`, marginBottom:14 }}>
-          <p style={{ fontSize:fs(10.5), color:C.dim, margin:0, lineHeight:1.55 }}>이 리포트는 감정을 운영 언어로 번역한 것입니다. 숫자가 낮다고 나쁜 것이 아니라, 지금 어디서 에너지가 새는지를 보여줍니다.</p>
-        </div>
-      )}
 
       {/* ── TIER 1: 기본 노출 (4개) ── */}
 
@@ -2264,16 +2254,6 @@ function Result({ result, onDone, isRc, onCp }) {
         </Card>
         ); })()}
 
-        {/* 안내 + 참고 링크 */}
-        <Card>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.7 }}>{hi ? b.act : "반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p>
-          <p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p>
-          <div style={{ display:"flex", gap:6, marginTop:12, flexWrap:"wrap" }}>
-            <a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a>
-            <a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>
-            {hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}
-          </div>
-        </Card>
       </Accordion>
 
       {/* ── TIER 3: 상세 분석 보기 ── */}
@@ -2289,13 +2269,22 @@ function Result({ result, onDone, isRc, onCp }) {
           ))}
         </div>
         {/* 병목 분석 */}
-        <div>
+        <div style={{ marginBottom:14 }}>
           <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:8 }}>병목 분석</div>
           <div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div>
           <R5Radar pr={result.r1} result={result} />
           <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p>
           <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p>
         </div>
+        {/* 안내 + 참고 링크 */}
+        <Card>
+          <p style={{ fontSize:fs(11), color:C.muted }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p>
+          <div style={{ display:"flex", gap:6, marginTop:10, flexWrap:"wrap" }}>
+            <a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a>
+            <a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>
+            {hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}
+          </div>
+        </Card>
       </Accordion>
 
       {/* ── 하단 ── */}
