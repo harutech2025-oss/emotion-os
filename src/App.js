@@ -2538,40 +2538,30 @@ function EmotionOSApp() {
     }
   }, []);
 
-  // ── 브라우저 뒤로가기 방어 (hash 기반 — 삼성 인터넷 대응) ──
+  // ── 브라우저 뒤로가기 방어 (hash + pushState 이중 방어) ──
   const scrRef = useRef(scr);
   const tabRef = useRef(tab);
   scrRef.current = scr;
   tabRef.current = tab;
   useEffect(() => {
-    // hash 앵커 설정
-    if (!window.location.hash || window.location.hash !== "#stato") {
-      window.location.hash = "#stato";
-    }
-    const handleHash = () => {
-      // hash가 사라졌다 = 뒤로가기 눌림
-      if (window.location.hash !== "#stato") {
-        if (scrRef.current !== "tabs" || tabRef.current !== "home") {
-          dispatch({ type:"NAV_HOME" });
-        }
-        // hash 복구 — 앱이 절대 닫히지 않도록
-        setTimeout(() => { window.location.hash = "#stato"; }, 50);
-      }
-    };
-    window.addEventListener("hashchange", handleHash);
-    // popstate도 같이 방어 (일부 브라우저는 hash 변경 시 popstate도 발생)
-    const handlePop = () => {
+    // 초기 hash 설정 + pushState 버퍼 3중
+    window.location.hash = "stato";
+    window.history.pushState(null, "", "#stato");
+    window.history.pushState(null, "", "#stato");
+    const handleBack = () => {
+      // 어떤 화면이든 뒤로가기 → 홈으로 이동 (이미 홈이면 유지)
       if (scrRef.current !== "tabs" || tabRef.current !== "home") {
         dispatch({ type:"NAV_HOME" });
       }
-      if (window.location.hash !== "#stato") {
-        setTimeout(() => { window.location.hash = "#stato"; }, 50);
-      }
+      // 즉시 hash + pushState 복구 (setTimeout 없이)
+      window.location.hash = "stato";
+      window.history.pushState(null, "", "#stato");
     };
-    window.addEventListener("popstate", handlePop);
+    window.addEventListener("popstate", handleBack);
+    window.addEventListener("hashchange", handleBack);
     return () => {
-      window.removeEventListener("hashchange", handleHash);
-      window.removeEventListener("popstate", handlePop);
+      window.removeEventListener("popstate", handleBack);
+      window.removeEventListener("hashchange", handleBack);
     };
   }, []);
 
