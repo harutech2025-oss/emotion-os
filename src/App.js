@@ -1623,7 +1623,7 @@ function Home() {
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
           <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{execTop.label}</div>
-          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>작은 조정부터 시작합니다.</p>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>큰 해결보다 지금 상태를 먼저 조정합니다.</p>
           <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:220 }} onClick={() => onTimer && onTimer(execTop.ref)}>{execTop.cta}</Btn></div>
         </Card>
       ) : homeProto ? (
@@ -1886,9 +1886,9 @@ function ActionTab() {
     : `지금 시작 (${Math.floor((heroHf?.durationSec||180)/60)}분)`;
 
   // Hero 효과 문구
-  const heroEffect = result.band === "overload" ? "90초 안에 과열을 낮춥니다"
+  const heroEffect = result.band === "overload" ? "90초 안에 안정화를 시작합니다"
     : result.band === "low" ? "가장 작은 움직임으로 시스템을 재가동합니다"
-    : result.band === "caution" ? "지금 상태에서 가장 빠르게 안정되는 방법입니다"
+    : result.band === "caution" ? "가장 먼저 시도할 작은 조정입니다"
     : "현재 리듬을 더 단단하게 만듭니다";
 
   return (
