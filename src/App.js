@@ -2538,31 +2538,25 @@ function EmotionOSApp() {
     }
   }, []);
 
-  // ── 브라우저 뒤로가기 방어 (hash + pushState 이중 방어) ──
+  // ── 브라우저 뒤로가기 방어 (pushState only — hash 미사용) ──
   const scrRef = useRef(scr);
   const tabRef = useRef(tab);
   scrRef.current = scr;
   tabRef.current = tab;
   useEffect(() => {
-    // 초기 hash 설정 + pushState 버퍼 3중
-    window.location.hash = "stato";
-    window.history.pushState(null, "", "#stato");
-    window.history.pushState(null, "", "#stato");
-    const handleBack = () => {
-      // 어떤 화면이든 뒤로가기 → 홈으로 이동 (이미 홈이면 유지)
+    const url = window.location.pathname + window.location.search;
+    window.history.replaceState({p:0}, "", url);
+    window.history.pushState({p:1}, "", url);
+    window.history.pushState({p:2}, "", url);
+    window.history.pushState({p:3}, "", url);
+    const handlePop = () => {
       if (scrRef.current !== "tabs" || tabRef.current !== "home") {
         dispatch({ type:"NAV_HOME" });
       }
-      // 즉시 hash + pushState 복구 (setTimeout 없이)
-      window.location.hash = "stato";
-      window.history.pushState(null, "", "#stato");
+      window.history.pushState({p:Date.now()}, "", url);
     };
-    window.addEventListener("popstate", handleBack);
-    window.addEventListener("hashchange", handleBack);
-    return () => {
-      window.removeEventListener("popstate", handleBack);
-      window.removeEventListener("hashchange", handleBack);
-    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
   }, []);
 
   // ── localStorage → reducer 복원 ──
