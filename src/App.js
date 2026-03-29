@@ -292,11 +292,29 @@ function calcFull(a) {
 }
 
 function getRecheckQs(r) {
-  const p = QS.filter(q => q.pq === r.pq);
-  const s = QS.filter(q => q.pq === r.sq);
-  const c = [...p];
-  s.forEach(q => { if (!c.find(x => x.id === q.id)) c.push(q); });
-  return c.slice(0, 5);
+  // Recheck에서 rcP는 Q유형별로 동일하므로, 유형당 1문항만 선택
+  // 1순위: pq, 2순위: sq, 3순위: nm 점수 높은 순서
+  const picked = new Set();
+  const result = [];
+  const pickOne = (qType) => {
+    if (picked.has(qType)) return;
+    const q = QS.find(x => x.pq === qType);
+    if (q) { result.push(q); picked.add(qType); }
+  };
+  // pq, sq 우선
+  pickOne(r.pq);
+  pickOne(r.sq);
+  // 나머지: nm 점수 높은 Q유형 순서로 채우기
+  if (r.nm && result.length < 5) {
+    const ranked = Object.entries(r.nm)
+      .filter(([k]) => !picked.has(k))
+      .sort((a, b) => b[1] - a[1]);
+    for (const [qType] of ranked) {
+      if (result.length >= 5) break;
+      pickOne(qType);
+    }
+  }
+  return result.slice(0, 5);
 }
 
 /**
@@ -2178,34 +2196,13 @@ function Result({ result, onDone, isRc, onCp }) {
         </div>
       )}
 
-      {/* 1. 브랜드 고정 모토 (안 A: 설명 아래 · LiveSummary 위 · 가장 강한 각인 위치) */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"10px 16px", marginBottom:14, borderRadius:10, border:`1px solid ${C.accent}22`, background:`${C.accent}06` }}>
-        <span style={{ fontSize:fs(12), color:C.accent, fontWeight:700, letterSpacing:0.3, textAlign:"center", lineHeight:1.55 }}>
-          감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.
-        </span>
-      </div>
+      {/* ── TIER 1: 기본 노출 (4개) ── */}
 
-      {/* 2. 체감 요약 (사용자 언어 먼저) */}
+      {/* 1. 체감 요약 */}
       <LiveSummaryCard result={result} />
 
-      {/* 2. 체감 척도 3종 */}
-      <LiveMetricsCard result={result} />
-
-      {/* 운영 기준 — 변주형 (고정 원문보다 한 단계 얇게) */}
-      {(() => {
-        const bColor = result.band === "stable" ? C.teal : C.accent;
-        return (
-          <div style={{ padding:"7px 12px", borderRadius:8, border:`1px solid ${bColor}12`, background:`${bColor}04`, marginBottom:12 }}>
-            <p style={{ fontSize:fs(10), fontWeight:500, color:`${bColor}cc`, lineHeight:1.55, margin:0 }}>
-              오늘은 완벽한 회복보다 10% 감소가 더 중요합니다.
-            </p>
-          </div>
-        );
-      })()}
-
-      {/* 3. 기술 지표: 가동률 */}
+      {/* 2. 가동률 */}
       <Card accent={`${b.c}30`} style={{ background:b.bg }}>
-        <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:8 }}>기술 지표</div>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
           <span style={{ fontSize:fs(12), color:C.dim }}>현재 가동률</span>
           <Badge text={b.l} color={b.c} />
@@ -2213,89 +2210,113 @@ function Result({ result, onDone, isRc, onCp }) {
         <ANum value={result.avail} color={b.c} size={26} suffix="%" />
         <MiniBar pct={result.avail} color={b.c} h={6} />
         <div style={{ marginTop:6, fontSize:fs(11), fontWeight:700, color:b.c }}>{result.avail >= 70 ? "정상 범위" : result.avail >= 40 ? "정비 필요" : "즉시 회복 필요"}</div>
-        <p style={{ fontSize:fs(12), color:C.dim, marginTop:8, lineHeight:1.5 }}>{b.d}</p>
-        <p style={{ fontSize:fs(11), color:C.muted, marginTop:4, lineHeight:1.5 }}>{b.sub}</p>
+        <p style={{ fontSize:fs(11), color:C.dim, marginTop:6, lineHeight:1.5 }}>{b.d}</p>
         {result.spread && <div style={{ marginTop:8, padding:"8px 12px", borderRadius:8, background:`${C.amber}06`, border:`1px solid ${C.amber}20` }}><span style={{ fontSize:fs(11), fontWeight:600, color:C.amber }}>복수 영역 동시 부하 감지</span></div>}
       </Card>
 
-      {/* 4. 핵심 패턴 */}
+      {/* 3. 핵심 패턴 1줄 */}
       <Card>
-        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:8 }}>핵심 패턴</div>
-        <p style={{ fontSize:fs(14), color:C.text, lineHeight:1.6 }}>현재 시스템에는 <a href={QLinks[result.pq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.accent, fontWeight:700, textDecoration:"none" }}>{QL[result.pq]} 누수 패턴</a>이 가장 강하게 활성화되어 있습니다.</p>
-        <p style={{ fontSize:fs(13), color:C.dim, marginTop:4 }}>보조: <a href={QLinks[result.sq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.blue, textDecoration:"none" }}>{QL[result.sq]}</a></p>
-        <p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>성격 판정이 아니라, 현재 에너지가 어떤 방식으로 새고 있는지 보여 주는 운영 상태입니다. 탭하면 상세 페이지로 이동합니다.</p>
+        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>핵심 패턴</div>
+        <p style={{ fontSize:fs(14), color:C.text, lineHeight:1.6 }}>현재 <a href={QLinks[result.pq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.accent, fontWeight:700, textDecoration:"none" }}>{QL[result.pq]}</a> 누수가 가장 강하게 활성화되어 있습니다.</p>
+        <p style={{ fontSize:fs(11), color:C.muted, marginTop:4 }}>보조: <a href={QLinks[result.sq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.blue, textDecoration:"none" }}>{QL[result.sq]}</a></p>
       </Card>
 
-      {/* 5. Q점수 분포 */}
-      <Accordion title="Q유형 점수 분포" defaultOpen={false}>
-        {Object.entries(result.nm || {}).sort((a,b) => b[1]-a[1]).map(([k,v]) => (
-          <div key={k} style={{ marginBottom:6 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", fontSize:fs(11), color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div>
-            <MiniBar pct={v} color={k===result.pq?C.accent:k===result.sq?C.blue:C.borderL} h={4} />
+      {/* 4. 지금 가장 먼저 할 것 */}
+      {(() => {
+        const topFx = getHotFixes(result)[0];
+        if (!topFx || !isExecutableHotFix(topFx.ref)) return null;
+        return (
+          <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
+            <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
+            <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{topFx.label}</div>
+            <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>큰 해결보다 지금 상태를 먼저 조정합니다.</p>
+            <div style={{ marginTop:10 }}><Btn primary small onClick={onDone} style={{ maxWidth:240 }}>Today에서 실행하기</Btn></div>
+          </Card>
+        );
+      })()}
+
+      {/* ── TIER 2: 왜 이런 결과가 나왔는지 보기 ── */}
+      <Accordion title="왜 이런 결과가 나왔는지 보기" defaultOpen={false}>
+        {/* 체감 척도 3종 */}
+        <LiveMetricsCard result={result} />
+
+        {/* 추천 운영 모드 */}
+        <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
+          <div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 모드</div>
+          <div style={{ fontSize:fs(16), fontWeight:800, color:C.teal, marginBottom:6 }}>{result.mode || "운영 모드"}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.55 }}>{result.modeD || ""}</p>
+          <div style={{ marginTop:8, padding:"6px 10px", borderRadius:8, background:C.bg, border:`1px solid ${C.border}` }}>
+            <p style={{ fontSize:fs(10), color:C.muted, lineHeight:1.5, margin:0 }}>성격을 바꾸라는 뜻이 아닙니다. 지금 상태에서 가동률을 덜 잃는 임시 운영 자세입니다.</p>
           </div>
-        ))}
+        </Card>
+
+        {/* Bug / Patch */}
+        {(() => { const bm = getBugAlias(result.bug, result.bugL); return (
+        <Card>
+          <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Bug</div>
+          <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ display:"block", fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35, textDecoration:"none" }}>{bm.userName}</a>
+          <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.bugL || ""} · {result.bug || ""}</div>
+          <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:10, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>{bm.oneLiner}</span><span style={{ color:C.muted, fontSize:fs(11), marginLeft:8, flexShrink:0 }}>→</span></div></a>
+          <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Patch</div>
+          <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ display:"block", fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35, textDecoration:"none" }}>{result.patchL}</a>
+          <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.patch}</div>
+          <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>패치 카드 보기</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
+        </Card>
+        ); })()}
+
+        {/* 안내 + 참고 링크 */}
+        <Card>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.7 }}>{hi ? b.act : "반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p>
+          <p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p>
+          <div style={{ display:"flex", gap:6, marginTop:12, flexWrap:"wrap" }}>
+            <a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a>
+            <a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>
+            {hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}
+          </div>
+        </Card>
       </Accordion>
 
-      {/* 6. 병목 분석 (접이식) */}
-      <Accordion title="병목 분석" defaultOpen={false}>
-        <div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div>
-        <R5Radar pr={result.r1} result={result} />
-        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p>
-        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p>
+      {/* ── TIER 3: 상세 분석 보기 ── */}
+      <Accordion title="상세 분석 보기" defaultOpen={false}>
+        {/* Q유형 점수 분포 */}
+        <div style={{ marginBottom:14 }}>
+          <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:8 }}>Q유형 점수 분포</div>
+          {Object.entries(result.nm || {}).sort((a,b) => b[1]-a[1]).map(([k,v]) => (
+            <div key={k} style={{ marginBottom:6 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:fs(11), color:k===result.pq?C.accent:C.dim, marginBottom:2 }}><span>{QSH[k]}</span><span>{v}%</span></div>
+              <MiniBar pct={v} color={k===result.pq?C.accent:k===result.sq?C.blue:C.borderL} h={4} />
+            </div>
+          ))}
+        </div>
+        {/* 병목 분석 */}
+        <div>
+          <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:8 }}>병목 분석</div>
+          <div style={{ display:"flex", gap:6, marginBottom:4, flexWrap:"wrap" }}><Badge text={`누수: ${result.leak}`} color={C.accent} /><Badge text={RL[result.r1]} color={C.purple} /></div>
+          <R5Radar pr={result.r1} result={result} />
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>{LD[result.leak]}</p>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5, marginTop:4 }}>{RD[result.r1]}</p>
+        </div>
       </Accordion>
 
-      {/* 7. 추천 운영 모드 */}
-      <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
-        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:6 }}>추천 운영 모드</div>
-        <div style={{ fontSize:fs(18), fontWeight:800, color:C.teal, marginBottom:6 }}>{result.mode || "운영 모드"}</div>
-        <p style={{ fontSize:fs(12.5), color:C.dim, lineHeight:1.55, marginBottom:8 }}>{result.modeD || ""}</p>
-        <div style={{ padding:"8px 12px", borderRadius:8, background:C.bg, border:`1px solid ${C.border}` }}>
-          <p style={{ fontSize:fs(10.5), color:C.muted, lineHeight:1.5, margin:0 }}>성격을 바꾸라는 뜻이 아닙니다. 지금 시스템 상태에서 가동률을 덜 잃는 임시 운영 자세입니다.</p>
-        </div>
-      </Card>
-
-      {/* 8. Bug / Patch */}
-      {(() => { const bm = getBugAlias(result.bug, result.bugL); return (
-      <Card>
-        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Bug</div>
-        <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ display:"block", fontSize:fs(15), color:C.text, fontWeight:800, lineHeight:1.35, textDecoration:"none" }}>{bm.userName}</a>
-        <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.bugL || ""} · {result.bug || ""}</div>
-        <a href={BLinks[result.bug]||NL.bug} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, marginBottom:10, fontSize:fs(12), color:C.text, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>{bm.oneLiner}</span><span style={{ color:C.muted, fontSize:fs(11), marginLeft:8, flexShrink:0 }}>→</span></div></a>
-        <div style={{ fontSize:fs(12), color:C.muted, marginBottom:4 }}>연결 Patch</div>
-        <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ display:"block", fontSize:fs(15), color:C.teal, fontWeight:800, lineHeight:1.35, textDecoration:"none" }}>{result.patchL}</a>
-        <div style={{ fontSize:fs(11), color:C.muted, marginTop:3, marginBottom:10 }}>{result.patch}</div>
-        <a href={PLinks[result.patch]||NL.patch} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}><div style={{ padding:"10px 14px", borderRadius:8, background:C.bg, fontSize:fs(12), color:C.teal, display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer" }}><span>패치 카드 보기</span><span style={{ color:C.muted, fontSize:fs(11) }}>→</span></div></a>
-        <p style={{ fontSize:fs(10), color:C.muted, marginTop:8 }}>탭하면 해당 카드의 노션 페이지로 이동합니다</p>
-      </Card>
-      ); })()}
-
-      {/* 9. 안내 + 참고 링크 */}
-      <Card>
-        <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.7 }}>{hi ? b.act : "반복되는 패턴을 이해하면 다음 과열을 더 빨리 막을 수 있습니다."}</p>
-        <p style={{ fontSize:fs(11), color:C.muted, marginTop:8 }}>이 결과는 의료적 진단이 아니라, 반복되는 감정 누수 패턴을 운영 언어로 읽기 위한 안내입니다.</p>
-        <div style={{ display:"flex", gap:6, marginTop:12, flexWrap:"wrap" }}>
-          <a href={NL.q} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="Q유형 총론" color={C.blue} /></a>
-          <a href={NL.r5} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="5R 구조" color={C.purple} /></a>
-          {hi && <a href={NL.rec} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}><Badge text="리커버리 프로토콜" color={C.teal} /></a>}
-        </div>
-      </Card>
-
-      {/* 10. 공유 */}
+      {/* ── 하단 ── */}
       <ShareBtn result={result} />
-
-      {/* 10b. Couple 예고 CTA */}
       <div style={{ textAlign:"center", padding:"10px 0" }}>
         <button onClick={onCp} style={{ fontSize:fs(10), color:C.muted, border:`1px solid ${C.border}`, borderRadius:999, padding:"6px 16px", background:"none", cursor:"pointer", fontFamily:FF }}>파트너와 공유하기 (준비 중) →</button>
       </div>
 
-      {/* 11. 브랜드 */}
+      {/* 모토 (하단 이동) */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"10px 16px", marginBottom:14, borderRadius:10, border:`1px solid ${C.accent}22`, background:`${C.accent}06` }}>
+        <span style={{ fontSize:fs(11), color:C.accent, fontWeight:700, letterSpacing:0.3, textAlign:"center", lineHeight:1.55 }}>
+          감정 누수를 10%만 줄여도, 하루의 질은 달라집니다.
+        </span>
+      </div>
+
       <Card style={{ textAlign:"center", background:C.cardH, border:`1px solid ${C.border}` }}>
         <div style={{ fontSize:fs(11), fontWeight:700, color:C.text, marginBottom:4 }}>Stato</div>
         <div style={{ fontSize:fs(9), color:C.dim, marginBottom:4 }}>Powered by Emotion OS</div>
         <div style={{ fontSize:fs(10), color:C.dim, lineHeight:1.6 }}>HaruTech Lab<br />Emotional Engineering Institute</div>
       </Card>
 
-      {/* 12. 재점검 안내 */}
       {isRc && <Card style={{ background:`${C.teal}05`, border:`1px solid ${C.teal}15` }}><p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.7, margin:0 }}>재점검은 핵심 패턴을 다시 분류하지 않습니다. 최근 Full Scan을 기준축으로 유지한 채, 현재 가동률 변화만 다시 확인합니다.</p></Card>}
 
       <Btn primary onClick={onDone}>Today로 돌아가기</Btn>
