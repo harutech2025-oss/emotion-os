@@ -2058,6 +2058,19 @@ function LibTab() {
         </div>
       </a>
 
+      {/* Q유형 판정 정확도 */}
+      <a href="https://www.notion.so/Q-Stato-1-333604b060a480e1b833f5b41b681268" target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}>
+        <div style={{ padding:"14px 16px", borderRadius:12, background:`${C.purple}06`, border:`1px solid ${C.purple}20`, marginBottom:18, cursor:"pointer" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <div>
+              <div style={{ fontSize:fs(12), fontWeight:700, color:C.purple, marginBottom:3 }}>Q유형 판정은 얼마나 정확할까?</div>
+              <div style={{ fontSize:fs(11), color:C.dim, lineHeight:1.45 }}>진단이 아니라 정비. Stato 판정 기술의 핵심을 읽어보세요.</div>
+            </div>
+            <span style={{ fontSize:fs(16), color:C.purple, flexShrink:0, marginLeft:12 }}>→</span>
+          </div>
+        </div>
+      </a>
+
       {/* 대표 버그 카드 섹션 */}
       <div style={{ marginBottom:22 }}>
         <div style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>대표 버그 10종</div>
