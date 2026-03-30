@@ -2045,6 +2045,19 @@ function LibTab() {
         </div>
       </a>
 
+      {/* 짧은 패치의 과학적 이유 */}
+      <a href="https://www.notion.so/3-333604b060a48002b300fd8e655e93c6" target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}>
+        <div style={{ padding:"14px 16px", borderRadius:12, background:`${C.blue}06`, border:`1px solid ${C.blue}20`, marginBottom:18, cursor:"pointer" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <div>
+              <div style={{ fontSize:fs(12), fontWeight:700, color:C.blue, marginBottom:3 }}>왜 짧은 패치가 효과 있을까?</div>
+              <div style={{ fontSize:fs(11), color:C.dim, lineHeight:1.45 }}>1분·3분·5분 패치가 강력한 3가지 과학적 이유를 읽어보세요.</div>
+            </div>
+            <span style={{ fontSize:fs(16), color:C.blue, flexShrink:0, marginLeft:12 }}>→</span>
+          </div>
+        </div>
+      </a>
+
       {/* 대표 버그 카드 섹션 */}
       <div style={{ marginBottom:22 }}>
         <div style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>대표 버그 10종</div>
