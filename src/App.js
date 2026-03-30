@@ -2475,7 +2475,7 @@ function appReducer(s, a) {
     // ── 네비게이션 ──
     case "SET_TAB":    return { ...s, tab: a.tab };
     case "SET_SCR":    return { ...s, scr: a.scr };
-    case "NAV_HOME":   return { ...s, scr: "tabs", tab: "home" };
+    case "NAV_HOME":   return { ...s, scr: "tabs", tab: "home", activeTimer: null };
 
     // ── 진단 데이터 ──
     case "LOAD_SAVED":
@@ -2561,22 +2561,70 @@ function EmotionOSApp() {
     }
   }, []);
 
-  // ── 브라우저 뒤로가기 방어 (pushState only — hash 미사용) ──
+  // ── 브라우저 뒤로가기 방어 (A안: 히스토리 동기화 + B안: 홈 더블백) ──
   const scrRef = useRef(scr);
   const tabRef = useRef(tab);
+  const backTimerRef = useRef(0);
+  const [showBackToast, setShowBackToast] = useState(false);
   scrRef.current = scr;
   tabRef.current = tab;
+
+  // A안: scr/tab 변경 시 히스토리에 push
+  const isFirstMount = useRef(true);
   useEffect(() => {
     const url = window.location.pathname + window.location.search;
-    window.history.replaceState({p:0}, "", url);
-    window.history.pushState({p:1}, "", url);
-    window.history.pushState({p:2}, "", url);
-    window.history.pushState({p:3}, "", url);
-    const handlePop = () => {
-      if (scrRef.current !== "tabs" || tabRef.current !== "home") {
-        dispatch({ type:"NAV_HOME" });
+    const st = { app:true, scr, tab };
+    if (isFirstMount.current) {
+      window.history.replaceState(st, "", url);
+      isFirstMount.current = false;
+    } else {
+      window.history.pushState(st, "", url);
+    }
+  }, [scr, tab]);
+
+  // popstate 핸들러 (마운트 시 1회)
+  const cancelTimerRef = useRef(null);
+  useEffect(() => {
+    const handlePop = (e) => {
+      const s = e.state;
+
+      // Timer 화면에서 뒤로가기 → 정식 cancel 절차
+      if (scrRef.current === "timer") {
+        if (cancelTimerRef.current) cancelTimerRef.current();
+        else dispatch({ type:"CLOSE_TIMER" });
+        const url = window.location.pathname + window.location.search;
+        window.history.pushState({ app:true, scr:"tabs", tab:"home" }, "", url);
+        return;
       }
-      window.history.pushState({p:Date.now()}, "", url);
+
+      // A안: state가 있으면 복원
+      if (s && s.app) {
+        if (s.scr === "tabs") {
+          dispatch({ type:"SET_TAB", tab: s.tab || "home" });
+          if (scrRef.current !== "tabs") dispatch({ type:"SET_SCR", scr:"tabs" });
+        } else if (s.scr !== "timer") {
+          dispatch({ type:"SET_SCR", scr: s.scr });
+        } else {
+          dispatch({ type:"NAV_HOME" });
+        }
+        return;
+      }
+      // state가 없음 = 히스토리 바닥 (앱 진입 전 페이지)
+      const atHome = scrRef.current === "tabs" && tabRef.current === "home";
+      if (!atHome) {
+        dispatch({ type:"NAV_HOME" });
+        return;
+      }
+      // B안: 홈에서 뒤로가기
+      const now = Date.now();
+      if (now - backTimerRef.current < 2000) {
+        return;
+      }
+      backTimerRef.current = now;
+      setShowBackToast(true);
+      setTimeout(() => setShowBackToast(false), 2000);
+      const url = window.location.pathname + window.location.search;
+      window.history.pushState({ app:true, scr:"tabs", tab:"home" }, "", url);
     };
     window.addEventListener("popstate", handlePop);
     return () => window.removeEventListener("popstate", handlePop);
@@ -2656,6 +2704,7 @@ function EmotionOSApp() {
     }
     dispatch({ type:"CLOSE_TIMER" });
   }, [activeTimer, actionLog]);
+  cancelTimerRef.current = cancelTimer;
 
   const executeClear = useCallback(() => {
     clearState(); clearActionLog();
@@ -2717,6 +2766,11 @@ function EmotionOSApp() {
         onConfirm={executeClear}
         onCancel={() => dispatch({ type:"SET_CONFIRM", open:false })}
       />
+      {showBackToast && (
+        <div style={{ position:"fixed", bottom:80, left:"50%", transform:"translateX(-50%)", padding:"10px 20px", borderRadius:10, background:"rgba(0,0,0,0.85)", color:"#fff", fontSize:fs(12), fontWeight:600, fontFamily:FF, zIndex:9999, whiteSpace:"nowrap", animation:"dF 0.25s" }}>
+          한 번 더 누르면 앱을 종료합니다
+        </div>
+      )}
     </div>
     </AppContext.Provider>
   );
