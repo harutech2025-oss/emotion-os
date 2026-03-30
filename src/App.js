@@ -2071,6 +2071,19 @@ function LibTab() {
         </div>
       </a>
 
+      {/* 실사용 사례 */}
+      <a href="https://www.notion.so/333604b060a48067bcbfc22f3d3d74e3" target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none", display:"block" }}>
+        <div style={{ padding:"14px 16px", borderRadius:12, background:`${C.green}06`, border:`1px solid ${C.green}20`, marginBottom:18, cursor:"pointer" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <div>
+              <div style={{ fontSize:fs(12), fontWeight:700, color:C.green, marginBottom:3 }}>"스타토 한번 해봐" — 실제 사용 사례</div>
+              <div style={{ fontSize:fs(11), color:C.dim, lineHeight:1.45 }}>가족과 팀에서 실제로 쓰인 이야기를 읽어보세요.</div>
+            </div>
+            <span style={{ fontSize:fs(16), color:C.green, flexShrink:0, marginLeft:12 }}>→</span>
+          </div>
+        </div>
+      </a>
+
       {/* 대표 버그 카드 섹션 */}
       <div style={{ marginBottom:22 }}>
         <div style={{ fontSize:fs(11), fontWeight:700, color:C.accent, letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>대표 버그 10종</div>
