@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useReducer, useContext, createContext, useCallback, useMemo, memo } from "react";
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 /* ═══════════════════════════════════════════════════════════════════
    Stato v4.9.2 — Powered by Emotion OS — Standalone (Auto-generated)
@@ -2810,6 +2811,7 @@ function EmotionOSApp() {
           한 번 더 누르면 앱을 종료합니다
         </div>
       )}
+      <SpeedInsights />
     </div>
     </AppContext.Provider>
   );
