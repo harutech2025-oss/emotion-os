@@ -2130,6 +2130,7 @@ function LibTab() {
         );
       })}
       <div style={{ textAlign:"center", padding:"16px 0 0", fontSize:fs(9), color:C.muted }}>by HaruTech Lab · Emotional Engineering Institute</div>
+      <div style={{ textAlign:"center", padding:"8px 0 12px" }}><a href="mailto:harutechlab@naver.com" style={{ fontSize:fs(9), color:C.dim, textDecoration:"none" }}>의견 · 문의: harutechlab@naver.com</a></div>
       <BugDetailModal bugId={detailBugId} onClose={() => setDetailBugId(null)} />
     </div>
   );
