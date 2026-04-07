@@ -2819,8 +2819,8 @@ const INIT_APP = {
   activeTimer:  null,
   actionLog:    [],
   confirmOpen:  false,
+  drillPq:      null, 
 };
-drillPq:      null,
 
 /**
  * 앱 리듀서 — 모든 상태 전환을 한 곳에서 관리
