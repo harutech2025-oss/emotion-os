@@ -1798,7 +1798,7 @@ function DrillCenter({ pq, onClose, onTimer }) {
 // Today Screen (formerly Home)
 
 function Home() {
-  const { hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog, cr } = useApp();
+ const { hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog, cr, dispatch } = useApp();
   const [onboardDone, setOnboardDone] = useState(() => { try { return !!localStorage.getItem(ONBOARD_KEY); } catch(e) { return false; } });
   const finishOnboard = () => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} setOnboardDone(true); };
 
