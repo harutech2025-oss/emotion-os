@@ -1486,6 +1486,314 @@ function Onboarding({ onDone, onScan }) {
   );
 }
 
+// ─── DRILL DATA ─────────────────────────────────────────────────
+const DRILL_MODULES = [
+  {
+    id:"drill_q1_slowdown", pq:"Q1", name:"Q1 조급형 - 속도 냉각 드릴",
+    entryIntro:"지금 당신에게 필요한 것은 더 빠른 실행이 아니라, 더 느린 운영입니다.",
+    resultRules:{ "3":{ tier:"tier3", primaryR:"MAINTAIN", secondaryR:"R4", patchId:"slow_mode_3m" }, "2":{ tier:"tier2", primaryR:"R4", secondaryR:"R2", patchId:"slow_mode_3m" }, "0_1":{ tier:"tier01", primaryR:"R2", secondaryR:"R4", patchId:"slow_mode_3m" } },
+    questions:[
+      { id:"Q1_1", prompt:"업무가 밀려 있는데 메신저 알림이 계속 올 때 가장 좋은 대응은?", choices:["지금 가장 중요한 일 1개를 남기고 나머지 자극을 잠시 닫는다","들어오는 알림부터 순서대로 확인한다","속도를 올려서 여러 일을 동시에 처리한다"], answerIndex:0, rationale:"조급형에게는 속도를 높이는 것보다 자극량을 줄이고 처리 단위를 줄이는 것이 우선입니다." },
+      { id:"Q1_2", prompt:"급해질수록 말이 빨라지고 실수가 늘어난다. 이때 가장 먼저 해야 할 것은?", choices:["급한 건 급한 대로 밀고 가고 나중에 다시 확인한다","실수만 줄이자고 마음속으로 다짐한다","호흡과 말의 속도를 의식적으로 낮추고 처리 단위를 줄인다"], answerIndex:2, rationale:"조급형은 속도를 낮추는 것 자체가 패치입니다." },
+      { id:"Q1_3", prompt:"오늘 할 일이 너무 많아 압박감이 심할 때 올바른 시작은?", choices:["전체 계획을 다시 세우느라 시작을 늦춘다","오늘 반드시 끝낼 1개만 고르고 속도를 늦춰 착수한다","가장 눈앞에 보이는 일부터 손대며 속도로 밀어붙인다"], answerIndex:1, rationale:"과부하 상태에서는 우선순위를 하나로 좁히는 것이 가장 효율적입니다." },
+    ],
+  },
+  {
+    id:"drill_q2_input_filter", pq:"Q2", name:"Q2 과민형 - 감정 전염 차단 드릴",
+    entryIntro:"지금 필요한 것은 더 많이 느끼는 것이 아니라, 무엇이 내 신호인지 구분하는 것입니다.",
+    resultRules:{ "3":{ tier:"tier3", primaryR:"MAINTAIN", secondaryR:"R2", patchId:"noise_reset_5m" }, "2":{ tier:"tier2", primaryR:"R2", secondaryR:"R1", patchId:"noise_reset_5m" }, "0_1":{ tier:"tier01", primaryR:"R1", secondaryR:"R2", patchId:"noise_reset_5m" } },
+    questions:[
+      { id:"Q2_1", prompt:"주변 사람의 짜증이 옮겨와 이유 없이 불편해졌다. 가장 먼저 해야 할 일은?", choices:["분위기를 바꾸려고 내가 먼저 맞춰준다","내가 왜 이렇게 예민한지 자책한다","이 불편함이 내 감정인지, 외부 자극의 잔향인지 구분한다"], answerIndex:2, rationale:"과민형은 먼저 내 신호와 외부 신호를 분리해야 합니다." },
+      { id:"Q2_2", prompt:"시끄러운 공간에서 집중이 무너질 때 가장 좋은 대응은?", choices:["자극량을 줄일 수 있는 환경 변경부터 한다","이어폰이나 버티기로 끝까지 앉아 있는다","집중이 깨진 건 내가 약해서라고 생각한다"], answerIndex:0, rationale:"감각 자극은 의지로 버티기보다 환경 조정으로 줄이는 편이 효과적입니다." },
+      { id:"Q2_3", prompt:"타인의 표정 변화 하나에 마음이 크게 흔들릴 때 적절한 해석은?", choices:["표정이 바뀌었으니 분명 내가 뭔가 잘못한 것이다","상대의 상태와 내 가치를 분리해서 본다","분위기를 수습하려고 내가 먼저 설명하거나 달랜다"], answerIndex:1, rationale:"과민형에게 가장 중요한 기술은 타인의 상태와 내 가치의 분리입니다." },
+    ],
+  },
+  {
+    id:"drill_q3_expression", pq:"Q3", name:"Q3 회피형 - 감정 읽기·표현 드릴",
+    entryIntro:"지금 필요한 것은 참는 힘이 아니라, 내가 느낀 것을 읽고 말하는 힘입니다.",
+    resultRules:{ "3":{ tier:"tier3", primaryR:"MAINTAIN", secondaryR:"R3", patchId:"emotion_note_1m" }, "2":{ tier:"tier2", primaryR:"R3", secondaryR:"R1", patchId:"emotion_note_1m" }, "0_1":{ tier:"tier01", primaryR:"R1", secondaryR:"R3", patchId:"emotion_note_1m" } },
+    questions:[
+      { id:"Q3_1", prompt:"서운한 일이 있었지만 그냥 넘기고 싶다. 가장 좋은 첫 반응은?", choices:["별일 아닌 척 넘긴다","내가 정확히 무엇 때문에 불편했는지 한 문장으로 적어본다","상대가 먼저 알아차리길 기다린다"], answerIndex:1, rationale:"회피형은 감정의 내용을 먼저 읽어야 표현이 가능합니다." },
+      { id:"Q3_2", prompt:"감정이 쌓여 있는데 표현이 어렵다. 가장 현실적인 시작은?", choices:["참고 넘어가는 것도 성숙이라고 생각한다","나중에 한 번에 말하려고 더 쌓아둔다","글쓰기나 혼잣말로 먼저 내 감정을 바깥으로 꺼낸다"], answerIndex:2, rationale:"표현은 반드시 대면 대화로 시작할 필요가 없습니다." },
+      { id:"Q3_3", prompt:"불편한 부탁을 받았을 때 회피형에게 가장 필요한 태도는?", choices:["부담된다는 사실을 짧게라도 표현한다","일단 수락하고 나중에 피한다","상대가 눈치채길 기대한다"], answerIndex:0, rationale:"짧은 표현도 회피형에게는 중요한 경계 훈련입니다." },
+    ],
+  },
+  {
+    id:"drill_q4_cooldown", pq:"Q4", name:"Q4 분출형 - 폭발 직전 멈춤 드릴",
+    entryIntro:"지금 필요한 것은 해명이나 승리가 아니라, 시스템 파괴를 막는 일단 멈춤입니다.",
+    resultRules:{ "3":{ tier:"tier3", primaryR:"MAINTAIN", secondaryR:"R4", patchId:"cooldown_3m" }, "2":{ tier:"tier2", primaryR:"R4", secondaryR:"R2", patchId:"cooldown_3m" }, "0_1":{ tier:"tier01", primaryR:"R2", secondaryR:"R4", patchId:"cooldown_3m" } },
+    questions:[
+      { id:"Q4_1", prompt:"화가 치밀어 올라 바로 말을 쏟아내고 싶을 때 가장 우선할 일은?", choices:["일단 차분한 척하며 대화를 계속 이어간다","먼저 자리를 잠시 벗어나 신체 과열부터 낮춘다","내 감정을 정확히 전달해야 한다며 말의 수위를 높인다"], answerIndex:1, rationale:"분출형에게 가장 중요한 것은 말하기보다 물리적 이탈입니다." },
+      { id:"Q4_2", prompt:"감정이 이미 많이 올라온 상태에서 가장 위험한 행동은?", choices:["상대와 계속 대화를 이어간다","잠시 대화를 멈추고 거리를 둔다","찬물이나 호흡으로 몸을 식힌다"], answerIndex:0, rationale:"전두엽이 과열된 상태에서는 논리가 아니라 물리적 거리로 해결해야 합니다." },
+      { id:"Q4_3", prompt:"폭발 후 후회를 줄이기 위한 가장 좋은 사전 장치는?", choices:["다시는 화내지 않겠다고 강하게 다짐한다","상대가 자극하지 않기만 기다린다","임계 신호가 오면 바로 멈출 문장과 이탈 루트를 정해둔다"], answerIndex:2, rationale:"분출형은 사후 반성보다 사전 이탈 프로토콜이 중요합니다." },
+    ],
+  },
+  {
+    id:"drill_q5_minimum_boot", pq:"Q5", name:"Q5 우울형 - 미니멈 가동 드릴",
+    entryIntro:"지금 필요한 것은 의욕 회복이 아니라, 시스템을 1% 다시 켜는 것입니다.",
+    resultRules:{ "3":{ tier:"tier3", primaryR:"MAINTAIN", secondaryR:"R5", patchId:"minimum_boot_1m" }, "2":{ tier:"tier2", primaryR:"R5", secondaryR:"R4", patchId:"minimum_boot_1m" }, "0_1":{ tier:"tier01", primaryR:"R4", secondaryR:"R5", patchId:"minimum_boot_1m" } },
+    questions:[
+      { id:"Q5_1", prompt:"아무것도 하기 싫고 몸이 무거울 때 가장 적절한 시작은?", choices:["하루 계획 전체를 다시 세운다","의욕이 생길 때까지 기다린다","에너지가 가장 적게 드는 감각 행동 1개만 한다"], answerIndex:2, rationale:"우울형은 1% 가동부터 시작해야 회복이 가능합니다." },
+      { id:"Q5_2", prompt:"무기력할수록 더 위험한 생각은?", choices:["오늘은 1개만 해도 된다","완전히 회복될 때까지 나는 아무것도 못 한다","작은 것부터 해보자"], answerIndex:1, rationale:"올 오어 낫싱 사고는 미니멈 가동을 방해합니다." },
+      { id:"Q5_3", prompt:"우울형에게 R5 패턴 갱신이 뜻하는 것은?", choices:["움직임이 가능한 최소 루틴을 새로 깔아두는 것","기분이 좋아질 때까지 계속 쉬는 것","더 강한 정신력 훈련"], answerIndex:0, rationale:"우울형의 갱신은 의지 강화보다 루틴 재설치에 가깝습니다." },
+    ],
+  },
+  {
+    id:"drill_q6_benchmark_reset", pq:"Q6", name:"Q6 비교형 - 기준 재설정 드릴",
+    entryIntro:"지금 필요한 것은 남보다 앞서는 것이 아니라, 비교 엔진을 끄고 내 기준을 복구하는 것입니다.",
+    resultRules:{ "3":{ tier:"tier3", primaryR:"MAINTAIN", secondaryR:"R5", patchId:"reset_benchmark_3m" }, "2":{ tier:"tier2", primaryR:"R5", secondaryR:"R1", patchId:"reset_benchmark_3m" }, "0_1":{ tier:"tier01", primaryR:"R1", secondaryR:"R5", patchId:"reset_benchmark_3m" } },
+    questions:[
+      { id:"Q6_1", prompt:"타인의 성과를 보고 갑자기 내 가치가 작아진 것 같을 때 가장 먼저 해야 할 일은?", choices:["내가 뒤처진 증거를 더 찾는다","지금 비교 버그가 실행됐음을 인식한다","상대의 단점을 찾아 균형을 맞춘다"], answerIndex:1, rationale:"비교형은 비교를 사실이 아니라 버그 실행으로 먼저 인식해야 합니다." },
+      { id:"Q6_2", prompt:"비교형에게 가장 좋은 기준 재설정 방식은?", choices:["비교는 성장의 원동력이니 멈추지 않는다","최고 성과자와 계속 비교한다","어제의 나와 오늘의 나를 비교한다"], answerIndex:2, rationale:"벤치마크 기준을 외부에서 내부로 옮기는 것이 핵심입니다." },
+      { id:"Q6_3", prompt:"SNS를 보고 계속 흔들릴 때 가장 현실적인 대처는?", choices:["비교를 유발하는 자극원을 잠시 차단한다","멘탈이 강해질 때까지 계속 본다","더 열심히 살겠다고 다짐만 한다"], answerIndex:0, rationale:"비교형은 자극을 이겨내려 하기보다 자극량을 줄이는 것이 먼저입니다." },
+    ],
+  },
+  {
+    id:"drill_q7_loosen_control", pq:"Q7", name:"Q7 통제형 - 힘 빼기 드릴",
+    entryIntro:"지금 필요한 것은 더 완벽한 통제가 아니라, 일부를 놓아도 시스템이 무너지지 않는다는 학습입니다.",
+    resultRules:{ "3":{ tier:"tier3", primaryR:"MAINTAIN", secondaryR:"R5", patchId:"loosen_control_10m" }, "2":{ tier:"tier2", primaryR:"R5", secondaryR:"R2", patchId:"loosen_control_10m" }, "0_1":{ tier:"tier01", primaryR:"R2", secondaryR:"R5", patchId:"loosen_control_10m" } },
+    questions:[
+      { id:"Q7_1", prompt:"계획이 조금만 틀어져도 불안하고 짜증이 난다. 가장 필요한 반응은?", choices:["틀어진 상황을 일부 허용하고 조정 가능한 것만 잡는다","원래 계획으로 어떻게든 되돌리려 한다","계획을 망친 사람이나 변수부터 통제하려 든다"], answerIndex:0, rationale:"통제형은 모든 것을 되돌리려는 충동을 낮추는 훈련이 필요합니다." },
+      { id:"Q7_2", prompt:"통제형에게 회복이란 무엇인가?", choices:["더 완벽한 기준을 세우는 것","흔들리지 않도록 더 꽉 잡는 것","의도적으로 힘을 빼고 허술함을 견뎌보는 것"], answerIndex:2, rationale:"통제형의 회복은 긴장을 더 조이는 것이 아니라 일부 허용을 견디는 것입니다." },
+      { id:"Q7_3", prompt:"완벽주의로 상태 부하가 심할 때 가장 좋은 갱신은?", choices:["실수를 막기 위해 기준을 더 높인다","지금 기준이 과도한지 점검하고 현실 기준으로 다시 맞춘다","통제 욕구를 티 내지 않도록 더 숨긴다"], answerIndex:1, rationale:"통제형은 기준을 높이는 대신 기준 자체를 업데이트해야 합니다." },
+    ],
+  },
+];
+
+const DRILL_TIERS = {
+  tier3:{ headline:"운영 주권 확보 완료", body:"운영 로직을 잘 이해하고 있습니다. 이제 남은 것은 더 빠르게 실행하는 훈련입니다.", badge:"시스템 안정도 향상" },
+  tier2:{ headline:"기본 로직 확보", body:"이해는 되어 있습니다. 실제 상황에서는 3초 더 빨리 멈추는 연습이 필요합니다.", badge:"보완 훈련 필요" },
+  tier01:{ headline:"운영 근육 재설정 필요", body:"감정이 먼저 실행되고 운영 로직이 뒤늦게 따라오는 상태입니다. 설명보다 패치가 우선입니다.", badge:"즉시 개입 권장" },
+};
+
+const DRILL_R_DIAG = {
+  R1:{ title:"R1 인식 근육 보완 필요", body:"신호를 읽지 못하고 바로 반응으로 넘어갑니다. 3초간 멈춰서 '지금 무슨 일이 일어났지?'라고 묻는 연습이 필요합니다." },
+  R2:{ title:"R2 경계 근육 보완 필요", body:"외부 데이터가 내 시스템을 너무 쉽게 장악합니다. 방화벽 설정이 시급합니다." },
+  R3:{ title:"R3 공명 근육 보완 필요", body:"표현은 시도하지만, 연결 과정에서 내 경계를 유지하는 기술이 아직 불안정합니다. 표현과 거리 조절을 함께 훈련해야 합니다." },
+  R4:{ title:"R4 회복 근육 보완 필요", body:"배터리가 방전되었는데 계속 가동하려 합니다. 강제 충전 모드가 필요합니다." },
+  R5:{ title:"R5 갱신 근육 보완 필요", body:"반응은 했지만, 다음을 위한 코드 수정이 부족합니다. 트리거와 대응 로직을 재설계해야 합니다." },
+  MAINTAIN:{ title:"운영 근육 유지 훈련", body:"현재 운영 근육은 안정적입니다. 다음에는 더 빠르게 실행하는 연습만 이어가면 됩니다." },
+};
+
+const DRILL_PATCHES = {
+  slow_mode_3m:{ title:"슬로모드 3분", eta:3, hotfixRef:"slow-down" },
+  noise_reset_5m:{ title:"감각 리셋 5분", eta:5, hotfixRef:"sensory-reset" },
+  emotion_note_1m:{ title:"감정 한 줄 기록", eta:1, hotfixRef:"voice-activate" },
+  cooldown_3m:{ title:"강제 냉각 3분", eta:3, hotfixRef:"stop-signal" },
+  minimum_boot_1m:{ title:"미니멈 가동 1분", eta:1, hotfixRef:"baseline-reset" },
+  reset_benchmark_3m:{ title:"기준 재설정 3분", eta:3, hotfixRef:"permission-reset" },
+  loosen_control_10m:{ title:"힘 빼기 10분", eta:10, hotfixRef:"root-reset" },
+};
+
+const DRILL_OVERRIDES = {
+  Q4:{ primaryR_R2:"외부 자극에 반응하기 전, 시스템을 즉시 분리하는 방벽이 약해져 있습니다.", secondaryR_R4:"과열된 신체를 식히는 강제 냉각 프로세스가 원활하지 않습니다." },
+  Q5:{ primaryR_R4:"시스템이 거의 정지했는데도 풀가동 복귀만 기대하고 있습니다. 1% 가동부터 다시 켜야 합니다.", secondaryR_R5:"최소 루틴 재설치가 부족합니다. 의욕보다 구조를 먼저 깔아야 합니다." },
+  Q6:{ primaryR_R1:"비교 버그를 사실로 오인하고 있습니다. 먼저 '지금 비교가 실행됐다'고 인식해야 합니다.", secondaryR_R5:"당신의 벤치마크 대상이 '남'으로 하드코딩되어 있습니다. '나'로 경로를 수정하세요." },
+  Q2:{ primaryR_R1:"내 신호와 외부 자극의 잔향이 섞여 있습니다. 먼저 분리 인식이 필요합니다.", secondaryR_R2:"감정 전염을 막는 경계 설정이 약합니다. 자극량을 줄이는 조치가 먼저입니다." },
+};
+
+const DRILL_SAFETY = "반복적 폭발, 자해 충동, 폭력, 극심한 무기력이 이어진다면 자가 훈련만으로 해결하려 하지 마세요. 필요 시 전문가 도움 요청은 중요한 운영 주권입니다.";
+
+function getDrillModule(pq) { return DRILL_MODULES.find(m => m.pq === pq) || null; }
+
+function getDrillResult(mod, score) {
+  const key = score <= 1 ? "0_1" : String(score);
+  const rule = mod.resultRules[key] || mod.resultRules["0_1"];
+  const tierKey = rule.tier; // "tier3" | "tier2" | "tier01"
+  const tier = DRILL_TIERS[tierKey];
+  const patch = DRILL_PATCHES[rule.patchId];
+  const pqOverrides = DRILL_OVERRIDES[mod.pq] || {};
+  const primaryDiag = pqOverrides[`primaryR_${rule.primaryR}`] || DRILL_R_DIAG[rule.primaryR]?.body || "";
+  const secondaryDiag = pqOverrides[`secondaryR_${rule.secondaryR}`] || DRILL_R_DIAG[rule.secondaryR]?.body || "";
+  const showSafety = (mod.pq === "Q4" || mod.pq === "Q5") && score <= 1;
+  return { ...rule, tierKey, tier, patch, primaryDiag, secondaryDiag, showSafety, pq: mod.pq };
+}
+
+
+// ─── DRILL CENTER COMPONENT ─────────────────────────────────────
+// 이 컴포넌트를 M7-a (Home) 뒤에 삽입
+
+function DrillCenter({ pq, onClose, onTimer }) {
+  const mod = getDrillModule(pq);
+  const [phase, setPhase] = useState("intro"); // intro | quiz | result
+  const [qIdx, setQIdx] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [score, setScore] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+
+  if (!mod) return null;
+
+  const startQuiz = () => { setPhase("quiz"); setQIdx(0); setAnswers([]); };
+
+  const pickAnswer = (choiceIdx) => {
+    const isCorrect = choiceIdx === mod.questions[qIdx].answerIndex;
+    const newAnswers = [...answers, { choiceIdx, isCorrect }];
+    setAnswers(newAnswers);
+
+    // 마지막 문항이면 결과로 전환 (버튼 없이 자동)
+    if (qIdx >= mod.questions.length - 1) {
+      const finalScore = newAnswers.filter(a => a.isCorrect).length;
+      setScore(finalScore);
+      setTimeout(() => setPhase("result"), 800);
+    }
+    // 중간 문항은 "다음 문항" 버튼으로만 이동 (자동이동 없음)
+  };
+
+  const goNext = () => {
+    if (transitioning) return;
+    setTransitioning(true);
+    setTimeout(() => {
+      setQIdx(qIdx + 1);
+      setTransitioning(false);
+    }, 300);
+  };
+
+  const retry = () => { setPhase("intro"); setQIdx(0); setAnswers([]); setScore(0); };
+
+  // ── INTRO ──
+  if (phase === "intro") return (
+    <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 20px 100px", textAlign:"center" }}>
+      <div style={{ maxWidth:400, width:"100%" }}>
+        <Badge text="실전 시뮬레이션" color={C.accent} />
+        <h2 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:16, marginBottom:8 }}>오늘의 3문항 훈련</h2>
+        <p style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>상태 진단 결과 기반 추천 훈련</p>
+        <div style={{ padding:"14px 16px", borderRadius:12, background:C.card, border:`1px solid ${C.border}`, marginBottom:16 }}>
+          <div style={{ fontSize:fs(14), fontWeight:700, color:C.accent, marginBottom:6 }}>{mod.name}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>{mod.entryIntro}</p>
+        </div>
+        <p style={{ fontSize:fs(11), color:C.dim, lineHeight:1.6, marginBottom:20 }}>이 훈련은 정답을 맞히는 시험이 아니라, 운영 근육을 깨우는 실전 시뮬레이션입니다.</p>
+        <Btn primary onClick={startQuiz}>운영 로직 검증 시작</Btn>
+        <button onClick={onClose} style={{ marginTop:12, background:"none", border:"none", fontSize:fs(11), color:C.muted, cursor:"pointer", fontFamily:FF }}>닫기</button>
+      </div>
+    </div>
+  );
+
+  // ── QUIZ ──
+  if (phase === "quiz") {
+    if (transitioning) return (
+      <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 20px 100px" }}>
+        <p style={{ fontSize:fs(12), color:C.accent, fontWeight:600, animation:"esPulse 0.6s ease infinite" }}>근육 스캔 중...</p>
+      </div>
+    );
+    const q = mod.questions[qIdx];
+    const answered = answers[qIdx];
+    const isLastQ = qIdx >= mod.questions.length - 1;
+    return (
+      <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 20px 100px" }}>
+        <div style={{ maxWidth:460, width:"100%" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+            <Badge text="시뮬레이션 가동 중" color={C.accent} />
+            <span style={{ fontSize:fs(12), color:C.muted }}>{qIdx + 1} / {mod.questions.length}</span>
+          </div>
+          <div style={{ width:"100%", height:3, background:C.border, borderRadius:2, overflow:"hidden", marginBottom:26 }}>
+            <div style={{ width:`${((qIdx + 1) / mod.questions.length) * 100}%`, height:"100%", background:C.accent, borderRadius:2, transition:"width 0.4s" }} />
+          </div>
+          <p style={{ fontSize:fs(15), color:C.text, lineHeight:1.75, marginBottom:26, minHeight:54 }}>{q.prompt}</p>
+          <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
+            {q.choices.map((choice, ci) => {
+              const isSelected = answered && answered.choiceIdx === ci;
+              const showCorrect = answered && ci === q.answerIndex;
+              const showWrong = answered && isSelected && !answered.isCorrect;
+              const borderColor = showCorrect ? C.green : showWrong ? C.red : isSelected ? C.accent : C.border;
+              const bgColor = showCorrect ? `${C.green}12` : showWrong ? `${C.red}08` : isSelected ? C.accentD : C.card;
+              return (
+                <button key={ci} onClick={() => !answered && pickAnswer(ci)} disabled={!!answered} style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 16px", borderRadius:11, border:`1px solid ${borderColor}`, background:bgColor, color:isSelected || showCorrect ? C.text : C.dim, fontSize:fs(14), fontFamily:FF, cursor:answered ? "default" : "pointer", textAlign:"left", opacity:answered && !isSelected && !showCorrect ? 0.5 : 1 }}>
+                  {choice}
+                  {showCorrect && <span style={{ marginLeft:"auto", fontSize:fs(11), color:C.green, fontWeight:700 }}>✓</span>}
+                  {showWrong && <span style={{ marginLeft:"auto", fontSize:fs(11), color:C.red, fontWeight:700 }}>✗</span>}
+                </button>
+              );
+            })}
+          </div>
+          {answered && (
+            <div style={{ marginTop:14, padding:"10px 14px", borderRadius:10, background:`${answered.isCorrect ? C.green : C.amber}08`, border:`1px solid ${answered.isCorrect ? C.green : C.amber}20` }}>
+              <p style={{ fontSize:fs(11.5), color:answered.isCorrect ? C.green : C.amber, fontWeight:600, lineHeight:1.55, margin:0 }}>{q.rationale}</p>
+            </div>
+          )}
+          {answered && !isLastQ && (
+            <div style={{ marginTop:14 }}>
+              <Btn small onClick={goNext} disabled={transitioning}>다음 문항</Btn>
+            </div>
+          )}
+          {answered && isLastQ && (
+            <div style={{ marginTop:14, textAlign:"center" }}>
+              <p style={{ fontSize:fs(11), color:C.accent, fontWeight:600, animation:"esPulse 0.8s ease infinite" }}>결과 분석 중...</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── RESULT ──
+  if (phase === "result") {
+    const dr = getDrillResult(mod, score);
+    const tierColor = dr.tierKey === "tier3" ? C.green : dr.tierKey === "tier2" ? C.amber : C.red;
+    const isQ3Tier3 = dr.pq === "Q3" && dr.tierKey === "tier3";
+    return (
+      <div style={{ padding:"28px 16px 100px", maxWidth:500, margin:"0 auto" }}>
+        <div style={{ textAlign:"center", marginBottom:22 }}>
+          <div style={{ fontSize:fs(15.5), letterSpacing:1.4, color:C.accent, textTransform:"uppercase", fontWeight:800, lineHeight:1.0 }}>Stato</div>
+          <h1 style={{ fontSize:fs(20), fontWeight:800, color:C.text, marginTop:8 }}>운영 근육 점검 결과</h1>
+        </div>
+
+        {/* 점수 배지 */}
+        <div style={{ textAlign:"center", marginBottom:20 }}>
+          <Badge text={dr.tier.badge} color={tierColor} />
+        </div>
+
+        {/* 헤드라인 */}
+        <Card accent={`${tierColor}30`} style={{ background:`${tierColor}05`, textAlign:"center", marginBottom:22 }}>
+          <div style={{ fontSize:fs(18), fontWeight:800, color:tierColor, marginBottom:8 }}>{dr.tier.headline}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.6 }}>{dr.tier.body}</p>
+          {isQ3Tier3 && (
+            <p style={{ fontSize:fs(12), color:C.teal, fontWeight:700, marginTop:10, lineHeight:1.55 }}>당신은 이제 자신의 감정 데이터를 바깥으로 출력(Output)할 준비가 되었습니다.</p>
+          )}
+        </Card>
+
+        {/* R 진단 */}
+        <Card style={{ marginBottom:22 }}>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:8 }}>주 운영 근육</div>
+          <div style={{ fontSize:fs(16), fontWeight:800, color:C.text, marginBottom:6 }}>{DRILL_R_DIAG[dr.primaryR]?.title || dr.primaryR}</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.55, marginBottom:16 }}>{dr.primaryDiag}</p>
+
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:8, paddingTop:12, borderTop:`1px solid ${C.border}` }}>보조 점검 근육</div>
+          <div style={{ fontSize:fs(13), fontWeight:600, color:C.text, marginBottom:4 }}>{DRILL_R_DIAG[dr.secondaryR]?.title || dr.secondaryR}</div>
+          <p style={{ fontSize:fs(11.5), color:C.dim, lineHeight:1.55 }}>{dr.secondaryDiag}</p>
+        </Card>
+
+        {/* 추천 패치 */}
+        {dr.patch && (
+          <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05`, marginBottom:22 }}>
+            <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>추천 패치</div>
+            <div style={{ fontSize:fs(16), fontWeight:800, color:C.teal, marginBottom:4 }}>{dr.patch.title}</div>
+            <p style={{ fontSize:fs(11), color:C.dim, marginBottom:12 }}>예상 소요 {dr.patch.eta}분</p>
+            <Btn primary onClick={() => { if (dr.patch.hotfixRef && onTimer) onTimer(dr.patch.hotfixRef); }}>
+              지금 실행하기
+            </Btn>
+          </Card>
+        )}
+
+        {/* 안전 가이드 (Q4/Q5 score ≤ 1) */}
+        {dr.showSafety && (
+          <Card accent={`${C.red}30`} style={{ background:`${C.red}05`, marginBottom:22 }}>
+            <div style={{ fontSize:fs(12), fontWeight:700, color:C.red, marginBottom:6 }}>안전 가이드</div>
+            <p style={{ fontSize:fs(11.5), color:C.dim, lineHeight:1.6 }}>{DRILL_SAFETY}</p>
+          </Card>
+        )}
+
+        {/* 하단 버튼 */}
+        <div style={{ display:"flex", gap:8, marginTop:4 }}>
+          <Btn small onClick={retry} style={{ flex:1 }}>다시 훈련하기</Btn>
+          <Btn small onClick={onClose} style={{ flex:1 }}>닫기</Btn>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+             
 // ═══ M7-a: HOME ══════════════════════════════════════════════════
 // Today Screen (formerly Home)
 
@@ -1625,7 +1933,15 @@ function Home() {
 
       {/* 3.5 지금 가동률이 떨어진 이유 */}
       <BugSignalCard hs={hs} onGoReset={onGoReset} />
-
+{/* 3.6 오늘의 3문항 훈련 */}
+      {hs.source !== "empty" && getDrillModule(hs.pq) && (
+        <Card accent={`${C.purple}20`} style={{ background:`${C.purple}04` }}>
+          <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>상태 진단 결과 기반 추천 훈련</div>
+          <div style={{ fontSize:fs(15), fontWeight:700, color:C.purple, marginBottom:4 }}>오늘의 3문항 훈련</div>
+          <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>운영 근육을 깨우는 실전 시뮬레이션입니다.</p>
+          <div style={{ marginTop:10 }}><Btn small onClick={() => dispatch({ type:"OPEN_DRILL", pq:hs.pq })} style={{ maxWidth:220, background:`${C.purple}12`, border:`1px solid ${C.purple}33`, color:C.purple }}>운영 로직 검증 시작</Btn></div>
+        </Card>
+      )}
       {/* 4. Quick Patch 1순위 (지금 가장 먼저 할 것) */}
       {justCompleted ? (() => {
         const todayCount = (actionLog || []).filter(a => { const t = a.completedAt; return t && new Date(t).toDateString() === new Date().toDateString() && a.status === "completed"; }).length;
@@ -2504,6 +2820,7 @@ const INIT_APP = {
   actionLog:    [],
   confirmOpen:  false,
 };
+drillPq:      null,
 
 /**
  * 앱 리듀서 — 모든 상태 전환을 한 곳에서 관리
@@ -2545,6 +2862,9 @@ function appReducer(s, a) {
     case "SET_CONFIRM": return { ...s, confirmOpen: a.open };
 
     // ── 초기화 ──
+    // ── 드릴 센터 ──
+    case "OPEN_DRILL":  return { ...s, drillPq: a.pq, scr: "drill" };
+    case "CLOSE_DRILL": return { ...s, drillPq: null, scr: "tabs" };    
     case "FULL_RESET":
       return { ...INIT_APP, actionLog: [] };
 
@@ -2798,7 +3118,8 @@ function EmotionOSApp() {
       {scr === "res" && cr && <Result result={cr} onDone={() => dispatch({ type:"NAV_HOME" })} onCp={onCp} />}
       {scr === "rcRes" && cr && <Result result={cr} onDone={() => dispatch({ type:"NAV_HOME" })} isRc onCp={onCp} />}
       {scr === "cp" && <Couple onBack={() => dispatch({ type:"NAV_HOME" })} />}
-      {scr === "timer" && activeTimer && <TimerScreen timer={activeTimer} onComplete={completeTimer} onCancel={cancelTimer} />}
+      {scr === "drill" && state.drillPq && <DrillCenter pq={state.drillPq} onClose={() => dispatch({ type:"CLOSE_DRILL" })} onTimer={onTimer} />}
+       {scr === "timer" && activeTimer && <TimerScreen timer={activeTimer} onComplete={completeTimer} onCancel={cancelTimer} />}
 
       <ConfirmModal
         open={confirmOpen}
