@@ -3082,13 +3082,13 @@ function EmotionOSApp() {
     <AppContext.Provider value={ctxValue}>
     <div style={{ fontFamily:FF, background:C.bg, color:C.text, minHeight:"100vh", WebkitFontSmoothing:"antialiased" }}>
 
-      {scr === "tabs" && <>
+      {scr === "tabs" && <div style={{ maxWidth:520, margin:"0 auto" }}>
         {tab === "home" && <Home />}
         {tab === "scan" && <ScanTab />}
         {tab === "action" && <ActionTab />}
         {tab === "library" && <LibTab />}
         <BNav tab={tab} setTab={t => dispatch({ type:"SET_TAB", tab:t })} />
-      </>}
+     </div>}
 
       {scr === "scan" && <ScanFlow onComplete={a => {
         dispatch({ type:"SET_SCR", scr:"ld" });
