@@ -288,13 +288,11 @@ function calcFull(a) {
   const av = Math.round(100 - hi);
   const sp = Object.values(n).filter(v => v >= 30).length >= 5;
   const d = QS.find(q => q.pq === pq);
-  // 전 문항 0점 엣지 케이스: 유의미한 패턴 없음
+
+// 전 문항 0점 엣지 케이스: 유의미한 패턴 없음
   if (hi === 0) {
-    const d = QS.find(q => q.pq === "Q1");
-    return { nm:n, pq:"Q1", sq:"Q2", hi:0, mean:0, band:"stable", avail:100, spread:false, leak:d?.leak, r1:d?.r1, bug:d?.bug, bugL:d?.bugL, patch:d?.patch, patchL:d?.patchL, mode:"안정 모드", modeD:"현재 유의미한 누수 패턴이 감지되지 않았습니다. 좋은 상태를 유지하세요.", ts:Date.now(), type:"full", noSignificantPattern:true };
-  } 
-  return { nm:n, pq, sq, hi, mean:mn, band:bd, avail:av, spread:sp, leak:d?.leak, r1:d?.r1, bug:d?.bug, bugL:d?.bugL, patch:d?.patch, patchL:d?.patchL, mode:d?.mode, modeD:d?.modeD, ts:Date.now(), type:"full" };
-}
+    return { nm:n, pq:"Q1", sq:"Q2", hi:0, mean:0, band:"stable", avail:100, spread:false, leak:null, r1:null, bug:null, bugL:null, patch:null, patchL:null, mode:"안정 모드", modeD:"현재 유의미한 누수 패턴이 감지되지 않았습니다. 좋은 상태를 유지하세요.", ts:Date.now(), type:"full", noSignificantPattern:true };
+  }
 
 function getRecheckQs(r) {
   // Recheck에서 rcP는 Q유형별로 동일하므로, 유형당 1문항만 선택
@@ -1926,6 +1924,7 @@ function Home() {
 
       {/* 3.2 Why Layer — 왜 지금 이 상태인가 */}
       {(() => {
+         if (hs.qpr?.noSignificantPattern) return null;
         const whys = deriveWhyLayer({ hs, history:hist, actionLog });
         if (!whys.length) return null;
         return (
@@ -2566,8 +2565,7 @@ function Result({ result, onDone, isRc, onCp }) {
           ? <p style={{ fontSize:fs(14), color:C.teal, lineHeight:1.6 }}>현재 유의미한 누수 패턴이 감지되지 않았습니다. 좋은 컨디션입니다.</p>
           : <p style={{ fontSize:fs(14), color:C.text, lineHeight:1.6 }}>현재 <a href={QLinks[result.pq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.accent, fontWeight:700, textDecoration:"none" }}>{QL[result.pq]}</a> 누수가 가장 강하게 활성화되어 있습니다.</p>
         }
-        <p style={{ fontSize:fs(11), color:C.muted, marginTop:4 }}>보조: <a href={QLinks[result.sq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.blue, textDecoration:"none" }}>{QL[result.sq]}</a></p>
-      </Card>
+       {!result.noSignificantPattern && <p style={{ fontSize:fs(11), color:C.muted, marginTop:4 }}>보조: <a href={QLinks[result.sq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.blue, textDecoration:"none" }}>{QL[result.sq]}</a></p>}
    
 
       {/* 4. 지금 가장 먼저 할 것 */}
