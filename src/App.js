@@ -416,7 +416,7 @@ function scoreHotFix(h, r) {
 }
 
 function getHotFixes(r) {
-  if (!r) return [];
+  if (!r || r.noSignificantPattern) return [];
   const candidates = HOTFIX_DB.filter(h => {
     if (h.bandMatch && h.bandMatch.includes(r.band)) return true;
     if (h.qMatch && (h.qMatch.includes(r.pq) || h.qMatch.includes(r.sq))) return true;
@@ -447,6 +447,7 @@ function deriveHS(fullScan, lastResult) {
     avail:l.avail, band:l.band, spread:l.spread, nm:l.nm,
     pq:s.pq, sq:s.sq, leak:s.leak, r1:s.r1, mode:s.mode, modeD:s.modeD,
     bug:s.bug, bugL:s.bugL, patch:s.patch, patchL:s.patchL, qpr:l,
+    noSignificantPattern: !!(l.noSignificantPattern || s.noSignificantPattern), 
     delta: l.type === "recheck" ? l.delta : undefined,
     baselineType: l.baselineType || null,
     isRc: l.type === "recheck",
@@ -1924,7 +1925,7 @@ function Home() {
 
       {/* 3.2 Why Layer — 왜 지금 이 상태인가 */}
       {(() => {
-         if (hs.qpr?.noSignificantPattern) return null;
+         if (hs.noSignificantPattern) return null;
         const whys = deriveWhyLayer({ hs, history:hist, actionLog });
         if (!whys.length) return null;
         return (
