@@ -293,6 +293,8 @@ function calcFull(a) {
   if (hi === 0) {
     return { nm:n, pq:"Q1", sq:"Q2", hi:0, mean:0, band:"stable", avail:100, spread:false, leak:null, r1:null, bug:null, bugL:null, patch:null, patchL:null, mode:"안정 모드", modeD:"현재 유의미한 누수 패턴이 감지되지 않았습니다. 좋은 상태를 유지하세요.", ts:Date.now(), type:"full", noSignificantPattern:true };
   }
+  return { nm:n, pq, sq, hi, mean:mn, band:bd, avail:av, spread:sp, leak:d?.leak, r1:d?.r1, bug:d?.bug, bugL:d?.bugL, patch:d?.patch, patchL:d?.patchL, mode:d?.mode, modeD:d?.modeD, ts:Date.now(), type:"full" };
+}
 
 function getRecheckQs(r) {
   // Recheck에서 rcP는 Q유형별로 동일하므로, 유형당 1문항만 선택
