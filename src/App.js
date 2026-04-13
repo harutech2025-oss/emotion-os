@@ -2567,7 +2567,7 @@ function Result({ result, onDone, isRc, onCp }) {
           : <p style={{ fontSize:fs(14), color:C.text, lineHeight:1.6 }}>현재 <a href={QLinks[result.pq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.accent, fontWeight:700, textDecoration:"none" }}>{QL[result.pq]}</a> 누수가 가장 강하게 활성화되어 있습니다.</p>
         }
        {!result.noSignificantPattern && <p style={{ fontSize:fs(11), color:C.muted, marginTop:4 }}>보조: <a href={QLinks[result.sq]||NL.q} target="_blank" rel="noopener noreferrer" style={{ color:C.blue, textDecoration:"none" }}>{QL[result.sq]}</a></p>}
-   
+   </Card>
 
       {/* 4. 지금 가장 먼저 할 것 */}
       {(() => {
