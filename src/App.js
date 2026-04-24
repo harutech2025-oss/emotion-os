@@ -607,6 +607,7 @@ function loadPersonalState() {
   } catch(e) { return INIT_PERSONAL; }
 }
 function savePersonalState(ps) { try { localStorage.setItem(PERSONAL_KEY, JSON.stringify(ps)); } catch(e) {} }
+function clearPersonalState() { try { localStorage.removeItem(PERSONAL_KEY); } catch(e) {} }
 function updatePatchStat(ps, ref, completed) {
   const prev = ps.patchStats?.[ref] || { tries:0, completes:0, skips:0, recentEffects:[], lastUsedAt:null };
   const next = completed
@@ -3077,7 +3078,7 @@ function EmotionOSApp() {
   cancelTimerRef.current = cancelTimer;
 
   const executeClear = useCallback(() => {
-    clearState(); clearActionLog();
+    clearState(); clearActionLog(); clearPersonalState();
     dispatch({ type:"FULL_RESET" });
   }, []);
 
@@ -3158,7 +3159,7 @@ class ErrorBoundary extends React.Component {
         <div style={{ fontSize:fs(28), marginBottom:16 }}>⚠️</div>
         <h2 style={{ fontSize:fs(18), fontWeight:700, color:"#e8ecf4", marginBottom:8 }}>시스템 오류가 발생했습니다</h2>
         <p style={{ fontSize:fs(13), color:"#8b95a8", lineHeight:1.6, marginBottom:24, maxWidth:280 }}>저장 데이터에 문제가 있을 수 있습니다.<br/>초기화하면 정상 작동합니다.</p>
-        <button onClick={() => { try { ["emotion-os-v4","emotion-os-v3","emotion-os-v2","emotion-os-v1","emotion-os-v4-actionlog","emotion-os-v3-actionlog","emotion-os-actionlog"].forEach(k => localStorage.removeItem(k)); } catch(e) {} window.location.reload(); }} style={{ padding:"12px 28px", borderRadius:12, border:"none", background:"linear-gradient(135deg,#e8654a,#d4523a)", color:"#fff", fontSize:fs(14), fontWeight:700, cursor:"pointer" }}>
+        <button onClick={() => { try { ["emotion-os-v4","emotion-os-v3","emotion-os-v2","emotion-os-v1","emotion-os-v4-actionlog","emotion-os-v3-actionlog","emotion-os-actionlog","stato-personal-v1"].forEach(k => localStorage.removeItem(k)); } catch(e) {} window.location.reload(); }} style={{ padding:"12px 28px", borderRadius:12, border:"none", background:"linear-gradient(135deg,#e8654a,#d4523a)", color:"#fff", fontSize:fs(14), fontWeight:700, cursor:"pointer" }}>
           데이터 초기화 후 재시작
         </button>
       </div>
