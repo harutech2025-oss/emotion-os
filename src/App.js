@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useReducer, useContext, createContext, useCallback, useMemo, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   Stato v4.9.2 — Powered by Emotion OS — Standalone (Auto-generated)
+   Stato v5.0.0 — Powered by Emotion OS — Standalone (Auto-generated)
    Haru-Tech Lab
 
    ╔═══════════════════════════════════════════════════════════════╗
@@ -19,6 +19,12 @@ import React, { useState, useEffect, useRef, useReducer, useContext, createConte
    ╚═══════════════════════════════════════════════════════════════╝
 
    생성 시각: 2026-03-25T09:00:00.000Z
+
+   v5.0.0 변경 사항:
+   - 패치 강도/길이 인디케이터(GainTag) 추가
+   - 재점검 피드백 2중화(결과 + 체감) 추가
+   - 재점검 데이터에 패치 메타데이터(patchMeta) snapshot 저장
+   - GAIN 임계값 상수화(GAIN_LIGHT_MAX_SEC, GAIN_STANDARD_MAX_SEC)
 
    v4.9.2 변경 사항:
    - Fix 1: state 변수 fs → fullScan (유틸 함수 fs() 섀도잉 해소)
@@ -40,6 +46,31 @@ const ALOG_KEY_OLD = "emotion-os-actionlog";
 const PERSONAL_KEY = "stato-personal-v1";
 const ONBOARD_KEY = "stato-onboard-done";
 const FONT_CDN = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css";
+
+// ─── Gain 임계값 상수 ───
+const GAIN_LIGHT_MAX_SEC = 180;
+const GAIN_STANDARD_MAX_SEC = 300;
+
+function getGainLevel(durationSec) {
+  if (!durationSec || durationSec <= 0) {
+    return { level: "unknown", label: "패치", duration: null, color: "#6B7280", known: false };
+  }
+  let displayTime;
+  if (durationSec < 60)       displayTime = `${durationSec}초`;
+  else if (durationSec < 90)  displayTime = "1분";
+  else if (durationSec < 150) displayTime = "2분";
+  else if (durationSec < 210) displayTime = "3분";
+  else if (durationSec < 360) displayTime = "5분";
+  else                        displayTime = `${Math.round(durationSec / 60)}분`;
+
+  if (durationSec <= GAIN_LIGHT_MAX_SEC) {
+    return { level: "light", label: "가벼운 패치", duration: displayTime, color: "#10B981", known: true };
+  }
+  if (durationSec <= GAIN_STANDARD_MAX_SEC) {
+    return { level: "standard", label: "표준 패치", duration: displayTime, color: "#3B82F6", known: true };
+  }
+  return { level: "deep", label: "깊은 패치", duration: displayTime, color: "#8B5CF6", known: true };
+}
 
 
 // ═══ M1: DATA ════════════════════════════════════════════════════
@@ -188,6 +219,20 @@ function getBugDisplay(src) {
   return { bugId:src?.bug, bugL:src?.bugL, patch:src?.patch, patchL:src?.patchL, ...meta, bugHref:BLinks[src?.bug], patchHref:PLinks[src?.patch] };
 }
 
+// ─── Patch Meta Snapshot (for Recheck feedback) ───
+function getLastCompletedPatchMeta() {
+  const ps = loadPersonalState();
+  if (!ps.lastCompletedPatchRef) return null;
+  const hf = HOTFIX_DB.find(h => h.ref === ps.lastCompletedPatchRef);
+  if (!hf) return null;
+  return {
+    patchRef: hf.ref,
+    patchLabel: hf.label,
+    durationSec: hf.durationSec,
+    gainLevel: getGainLevel(hf.durationSec).level,
+  };
+}
+
 // ═══ M2: THEME ═══════════════════════════════════════════════════
 // M2: THEME — 색상 팔레트, 밴드 정의, 폰트
 
@@ -293,8 +338,6 @@ function calcFull(a) {
   if (hi === 0) {
     return { nm:n, pq:"Q1", sq:"Q2", hi:0, mean:0, band:"stable", avail:100, spread:false, leak:null, r1:null, bug:null, bugL:null, patch:null, patchL:null, mode:"안정 모드", modeD:"현재 유의미한 누수 패턴이 감지되지 않았습니다. 좋은 상태를 유지하세요.", ts:Date.now(), type:"full", noSignificantPattern:true };
   }
-  return { nm:n, pq, sq, hi, mean:mn, band:bd, avail:av, spread:sp, leak:d?.leak, r1:d?.r1, bug:d?.bug, bugL:d?.bugL, patch:d?.patch, patchL:d?.patchL, mode:d?.mode, modeD:d?.modeD, ts:Date.now(), type:"full" };
-}
 
 function getRecheckQs(r) {
   // Recheck에서 rcP는 Q유형별로 동일하므로, 유형당 1문항만 선택
@@ -325,7 +368,7 @@ function getRecheckQs(r) {
 /**
  * Recheck 진단 계산
  *
- * ── pq/sq 재산정 정책 (v4.9.2) ──
+ * ── pq/sq 재산정 정책 (v4.9.2→v5.0.0 유지) ──
  * 재점검은 3~5문항 소표본이므로, 두 가지 안정화를 적용한다:
  * 1) Q축 점수 블렌딩: 이전 50% + 재점검 50%로 급등락 댐핑
  * 2) pq/sq 전환 방어: 재점검 결과가 기존 pq를 **10%p 이상** 초과해야 전환
@@ -868,6 +911,18 @@ const MiniBar = ({ pct, color, h=5 }) => (
   </div>
 );
 
+// ─── GainTag — 패치 강도/길이 인디케이터 ───
+const GainTag = ({ durationSec }) => {
+  const g = getGainLevel(durationSec);
+  if (!g.known) return null;
+  return (
+    <span style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"3px 8px", borderRadius:6, background:`${g.color}12`, border:`1px solid ${g.color}30`, fontSize:fs(9.5), fontWeight:600, color:g.color, whiteSpace:"nowrap" }}>
+      <span style={{ width:6, height:6, borderRadius:"50%", background:g.color, flexShrink:0 }} />
+      {g.label} · {g.duration}
+    </span>
+  );
+};
+
 const Btn = ({ children, onClick, primary, small, style:s, disabled }) => (
   <button disabled={disabled} onClick={onClick} style={{
     padding:small?"10px 18px":"14px 24px", borderRadius:12,
@@ -911,6 +966,7 @@ function ConfirmModal({ open, message, onConfirm, onCancel }) {
 function BugSignalCard({ hs, onGoReset }) {
   if (!hs?.bug) return null;
   const d = getBugDisplay(hs);
+  const matchedHf = HOTFIX_DB.find(h => h.qMatch && h.qMatch.includes(hs.pq));
   return (
     <Card>
       <div style={{ fontSize:fs(11), fontWeight:700, color:C.muted, marginBottom:10 }}>지금 가동률이 떨어진 이유</div>
@@ -919,11 +975,14 @@ function BugSignalCard({ hs, onGoReset }) {
           <div style={{ fontSize:fs(18), fontWeight:800, color:C.text, lineHeight:1.25 }}>{d.userName}</div>
           <div style={{ fontSize:fs(11), color:C.dim, marginTop:3 }}>{d.subName ? `${d.subName} · ${d.bugId}` : d.bugId}</div>
         </div>
-        {d.patchHref ? (
-          <a href={d.patchHref} target="_blank" rel="noopener noreferrer" style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap", textDecoration:"none" }}>{d.patchL}</a>
-        ) : (
-          <span style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap" }}>{d.patchL}</span>
-        )}
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
+          {d.patchHref ? (
+            <a href={d.patchHref} target="_blank" rel="noopener noreferrer" style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap", textDecoration:"none" }}>{d.patchL}</a>
+          ) : (
+            <span style={{ padding:"6px 10px", borderRadius:999, background:`${C.accent}14`, border:`1px solid ${C.accent}33`, color:C.accent, fontSize:fs(10), fontWeight:700, whiteSpace:"nowrap" }}>{d.patchL}</span>
+          )}
+          <GainTag durationSec={matchedHf?.durationSec} />
+        </div>
       </div>
       <div style={{ marginTop:12, fontSize:fs(13), color:C.text, lineHeight:1.6 }}>{d.oneLiner}</div>
       <div style={{ marginTop:8, fontSize:fs(11.5), color:C.dim, lineHeight:1.55 }}>이 상태가 계속되면 하루의 리듬이 더 흔들릴 수 있습니다.</div>
@@ -1772,8 +1831,10 @@ function DrillCenter({ pq, onClose, onTimer }) {
         {dr.patch && (
           <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05`, marginBottom:22 }}>
             <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>추천 패치</div>
-            <div style={{ fontSize:fs(16), fontWeight:800, color:C.teal, marginBottom:4 }}>{dr.patch.title}</div>
-            <p style={{ fontSize:fs(11), color:C.dim, marginBottom:12 }}>예상 소요 {dr.patch.eta}분</p>
+            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:4 }}>
+              <span style={{ fontSize:fs(16), fontWeight:800, color:C.teal }}>{dr.patch.title}</span>
+              <GainTag durationSec={dr.patch.eta * 60} />
+            </div>
             <Btn primary onClick={() => { if (dr.patch.hotfixRef && onTimer) onTimer(dr.patch.hotfixRef); }}>
               지금 실행하기
             </Btn>
@@ -1963,7 +2024,10 @@ function Home() {
       })() : showExecTop ? (
         <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
           <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
-          <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{execTop.label}</div>
+          <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:4 }}>
+            <span style={{ fontSize:fs(15), fontWeight:700, color:C.teal }}>{execTop.label}</span>
+            <GainTag durationSec={execTop.durationSec} />
+          </div>
           <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>큰 해결보다 지금 상태를 먼저 조정합니다.</p>
           <div style={{ marginTop:10 }}><Btn primary small style={{ maxWidth:220 }} onClick={() => onTimer && onTimer(execTop.ref)}>{execTop.cta}</Btn></div>
         </Card>
@@ -2077,7 +2141,7 @@ function Home() {
       <div style={{ marginTop:12, textAlign:"center" }}>
         <p style={{ fontSize:fs(9), color:C.muted, opacity:0.7, lineHeight:1.45, marginBottom:8 }}>현재 운영 기록은 이 기기에 저장됩니다. 브라우저 초기화 시 기록이 삭제될 수 있습니다.</p>
         <div style={{ display:"flex", gap:12, justifyContent:"center", alignItems:"center", flexWrap:"wrap" }}>
-          <button onClick={() => { try { const data = { state:JSON.parse(localStorage.getItem(STORAGE_KEY)), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY)), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY)), exportedAt:new Date().toISOString(), version:"v4.9.2" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download=`stato-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 백업 저장</button>
+          <button onClick={() => { try { const data = { state:JSON.parse(localStorage.getItem(STORAGE_KEY)), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY)), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY)), exportedAt:new Date().toISOString(), version:"v5.0.0" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download=`stato-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 백업 저장</button>
           <button onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".json"; input.onchange = (e) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if (!data.state && !data.actionLog) { alert("유효하지 않은 백업 파일입니다."); return; } if (!window.confirm("현재 기록을 백업 파일로 덮어씁니다.\n계속하시겠습니까?")) return; if (data.state) localStorage.setItem(STORAGE_KEY, JSON.stringify(data.state)); if (data.actionLog) localStorage.setItem(ALOG_KEY, JSON.stringify(data.actionLog)); if (data.personal) localStorage.setItem(PERSONAL_KEY, JSON.stringify(data.personal)); alert("복원이 완료되었습니다. 페이지를 새로고침합니다."); window.location.reload(); } catch(err) { alert("파일을 읽을 수 없습니다: " + err.message); } }; reader.readAsText(file); }; input.click(); }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.teal, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 복원</button>
           <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
         </div>
@@ -2286,8 +2350,9 @@ function ActionTab() {
             <div key={rt.ref} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:10, border:`1px solid ${rt.color}20`, background:`${rt.color}04`, marginBottom:6 }}>
               <span style={{ fontSize:fs(18), flexShrink:0 }}>{rt.icon}</span>
               <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:5, flexWrap:"wrap" }}>
                   <span style={{ fontSize:fs(12), fontWeight:700, color:C.text }}>{rt.hf.label}</span>
+                  <GainTag durationSec={rt.hf.durationSec} />
                   <span style={{ fontSize:fs(8), color:rt.color, fontWeight:600, background:`${rt.color}12`, padding:"1px 5px", borderRadius:6 }}>{rt.type}</span>
                 </div>
                 <p style={{ fontSize:fs(10.5), color:C.dim, margin:"2px 0 0", lineHeight:1.4 }}>{rt.hf.desc}</p>
@@ -2578,7 +2643,10 @@ function Result({ result, onDone, isRc, onCp }) {
         return (
           <Card accent={`${C.teal}30`} style={{ background:`${C.teal}05` }}>
             <div style={{ fontSize:fs(11), color:C.muted, marginBottom:6 }}>지금 가장 먼저 할 것</div>
-            <div style={{ fontSize:fs(15), fontWeight:700, color:C.teal, marginBottom:4 }}>{topFx.label}</div>
+            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:4 }}>
+              <span style={{ fontSize:fs(15), fontWeight:700, color:C.teal }}>{topFx.label}</span>
+              <GainTag durationSec={topFx.durationSec} />
+            </div>
             <p style={{ fontSize:fs(12), color:C.dim, lineHeight:1.5 }}>큰 해결보다 지금 상태를 먼저 조정합니다.</p>
             <div style={{ marginTop:10 }}><Btn primary small onClick={onDone} style={{ maxWidth:240 }}>Today에서 실행하기</Btn></div>
           </Card>
@@ -2810,6 +2878,91 @@ function TimerScreen({ timer, onComplete, onCancel }) {
   );
 }
 
+// ═══ M7-k: RECHECK FEEDBACK ═════════════════════════════════════
+// 재점검 2중화 — 결과(필수) + 체감(선택) 피드백
+
+function RecheckFeedback({ result, onDone, onSkip }) {
+  const [step, setStep] = useState(0);
+  const [resultVal, setResultVal] = useState(null);
+  const [feelingVal, setFeelingVal] = useState(null);
+
+  const delta = result?.delta;
+  const deltaText = delta > 0 ? `+${delta}` : delta < 0 ? `${delta}` : "±0";
+
+  const resultOptions = [
+    { key:"improved", label:"조금 나아짐",  emoji:"↗️", color:"#10B981" },
+    { key:"nochange", label:"변화 없음",    emoji:"→",  color:"#6B7280" },
+    { key:"worse",    label:"오히려 악화",  emoji:"↘️", color:"#EF4444" },
+  ];
+  const feelingOptions = [
+    { key:"light",     label:"가벼움", sub:"더 짧아도 됐을 것 같다", color:"#10B981" },
+    { key:"justright", label:"딱 맞음", sub:"적절했다",              color:"#3B82F6" },
+    { key:"heavy",     label:"버거움", sub:"좀 부담스러웠다",        color:"#EF4444" },
+  ];
+
+  const OptBtn = ({ opt, selected, onClick }) => (
+    <button onClick={() => onClick(opt.key)} style={{
+      padding:"16px 20px", borderRadius:14, width:"100%",
+      border: selected ? `2px solid ${opt.color}` : `1px solid ${C.border}`,
+      background: selected ? `${opt.color}08` : C.card,
+      cursor:"pointer", display:"flex", alignItems:"center", gap:12,
+      fontFamily:FF, transition:"all 0.15s", textAlign:"left",
+    }}>
+      {opt.emoji && <span style={{ fontSize:fs(18) }}>{opt.emoji}</span>}
+      <div>
+        <div style={{ fontSize:fs(14), fontWeight:700, color:C.text }}>{opt.label}</div>
+        {opt.sub && <div style={{ fontSize:fs(11), color:C.dim, marginTop:2 }}>{opt.sub}</div>}
+      </div>
+    </button>
+  );
+
+  if (step === 0) return (
+    <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 20px 100px", textAlign:"center" }}>
+      <div style={{ maxWidth:360, width:"100%" }}>
+        <div style={{ fontSize:fs(11), color:C.muted, marginBottom:8 }}>재점검 피드백 1/2</div>
+        <h2 style={{ fontSize:fs(18), fontWeight:800, color:C.text, marginBottom:4 }}>패치 실행 후 어떤 변화가 있었나요?</h2>
+        {delta != null && (
+          <div style={{ fontSize:fs(12), color:C.dim, marginBottom:24 }}>
+            가동률 변화: <span style={{ fontWeight:700, color: delta > 0 ? "#10B981" : delta < 0 ? "#EF4444" : C.dim }}>{deltaText}</span>
+          </div>
+        )}
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          {resultOptions.map(opt => <OptBtn key={opt.key} opt={opt} selected={resultVal === opt.key} onClick={setResultVal} />)}
+        </div>
+        <button onClick={() => resultVal && setStep(1)} disabled={!resultVal} style={{
+          width:"100%", marginTop:20, padding:"14px", borderRadius:12, border:"none",
+          background: resultVal ? C.accent : `${C.accent}40`, color:"#fff",
+          fontSize:fs(13), fontWeight:700, fontFamily:FF,
+          cursor: resultVal ? "pointer" : "default", transition:"all 0.15s"
+        }}>다음</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 20px 100px", textAlign:"center" }}>
+      <div style={{ maxWidth:360, width:"100%" }}>
+        <div style={{ fontSize:fs(11), color:C.muted, marginBottom:8 }}>재점검 피드백 2/2</div>
+        <h2 style={{ fontSize:fs(18), fontWeight:800, color:C.text, marginBottom:4 }}>패치의 강도와 길이는 어땠나요?</h2>
+        <div style={{ fontSize:fs(12), color:C.dim, marginBottom:24 }}>체감 부담도를 알려주세요</div>
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          {feelingOptions.map(opt => <OptBtn key={opt.key} opt={opt} selected={feelingVal === opt.key} onClick={setFeelingVal} />)}
+        </div>
+        <div style={{ display:"flex", gap:8, marginTop:20 }}>
+          <button onClick={() => setStep(0)} style={{ flex:1, padding:"12px", borderRadius:12, border:`1px solid ${C.border}`, background:"transparent", color:C.dim, fontSize:fs(12), fontWeight:600, fontFamily:FF, cursor:"pointer" }}>이전</button>
+          <button onClick={() => onSkip(resultVal)} style={{ flex:1, padding:"12px", borderRadius:12, border:`1px solid ${C.border}`, background:"transparent", color:C.dim, fontSize:fs(12), fontWeight:600, fontFamily:FF, cursor:"pointer" }}>건너뛰기</button>
+          <button onClick={() => feelingVal && onDone({ result:resultVal, feeling:feelingVal })} disabled={!feelingVal} style={{
+            flex:2, padding:"12px", borderRadius:12, border:"none",
+            background: feelingVal ? C.accent : `${C.accent}40`, color:"#fff",
+            fontSize:fs(13), fontWeight:700, fontFamily:FF,
+            cursor: feelingVal ? "pointer" : "default", transition:"all 0.15s"
+          }}>완료</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ═══ M7-j: REDUCER + CONTEXT ═════════════════════════════════════
 // App 전역 상태를 useReducer로 통합, Context로 하위 컴포넌트에 전달
 // ── Fix 1: 'fs' → 'fullScan' (유틸 함수 fs() 섀도잉 해소)
@@ -2829,7 +2982,8 @@ const INIT_APP = {
   activeTimer:  null,
   actionLog:    [],
   confirmOpen:  false,
-  drillPq:      null, 
+  drillPq:      null,
+  pendingRcEntry: null,
 };
 
 /**
@@ -2853,8 +3007,18 @@ function appReducer(s, a) {
       return { ...s, fullScan: a.result, lastResult: a.result, hist: h, scr: "res" };
     }
     case "RECHECK_DONE": {
-      const h = [...s.hist.slice(-(MAX_HIST - 1)), a.entry];
-      return { ...s, lastResult: a.result, hist: h, scr: "rcRes" };
+      const patchMeta = a.patchMeta || null;
+      return { ...s, lastResult: a.result, pendingRcEntry: { ...a.entry, patchMeta }, scr: "rcFeedback" };
+    }
+    case "RC_FEEDBACK_DONE": {
+      const finalEntry = { ...s.pendingRcEntry, feedback: a.feedback };
+      const h = [...s.hist.slice(-(MAX_HIST - 1)), finalEntry];
+      return { ...s, hist: h, pendingRcEntry: null, scr: "rcRes" };
+    }
+    case "RC_FEEDBACK_SKIP": {
+      const entry = { ...s.pendingRcEntry, feedback: { result: a.partialResult || null, feeling: null } };
+      const h = [...s.hist.slice(-(MAX_HIST - 1)), entry];
+      return { ...s, hist: h, pendingRcEntry: null, scr: "rcRes" };
     }
     case "SET_RC_QS":  return { ...s, rcQs: a.rcQs };
 
@@ -2894,7 +3058,7 @@ function useApp() {
 
 // ═══ M8: APP ═════════════════════════════════════════════════════
 // M8: APP — 메인 앱 (useReducer + Context)
-// Stato v4.9.2 — Powered by Emotion OS
+// Stato v5.0.0 — Powered by Emotion OS
 
 function EmotionOSApp() {
   const [state, dispatch] = useReducer(appReducer, {
@@ -3115,7 +3279,8 @@ function EmotionOSApp() {
         setTimeout(() => {
           const r = calcRecheck(a, q, b);
           const entry = { avail:r.avail, band:r.band, pq:r.pq, type:r.type, ts:r.ts };
-          dispatch({ type:"RECHECK_DONE", result:r, entry });
+          const patchMeta = getLastCompletedPatchMeta();
+          dispatch({ type:"RECHECK_DONE", result:r, entry, patchMeta });
           // D3-alpha: 마지막 실행 패치에 avail 변화 연결
           const ps = loadPersonalState();
           if (ps.lastCompletedPatchRef && r.delta !== undefined) {
@@ -3126,6 +3291,13 @@ function EmotionOSApp() {
 
       {scr === "ld" && <Loading msg="시스템 패턴 분석 중" />}
       {scr === "res" && cr && <Result result={cr} onDone={() => dispatch({ type:"NAV_HOME" })} onCp={onCp} />}
+      {scr === "rcFeedback" && cr && (
+        <RecheckFeedback
+          result={cr}
+          onDone={(feedback) => dispatch({ type:"RC_FEEDBACK_DONE", feedback })}
+          onSkip={(partialResult) => dispatch({ type:"RC_FEEDBACK_SKIP", partialResult })}
+        />
+      )}
       {scr === "rcRes" && cr && <Result result={cr} onDone={() => dispatch({ type:"NAV_HOME" })} isRc onCp={onCp} />}
       {scr === "cp" && <Couple onBack={() => dispatch({ type:"NAV_HOME" })} />}
       {scr === "drill" && state.drillPq && <DrillCenter pq={state.drillPq} onClose={() => dispatch({ type:"CLOSE_DRILL" })} onTimer={onTimer} />}
