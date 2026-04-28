@@ -39,6 +39,11 @@ const ALOG_KEY_V3 = "emotion-os-v3-actionlog";
 const ALOG_KEY_OLD = "emotion-os-actionlog";
 const PERSONAL_KEY = "stato-personal-v1";
 const ONBOARD_KEY = "stato-onboard-done";
+const PILOT_ID_KEY = "stato-pilot-participant-id";
+const PILOT_ENTRY_DONE_KEY = "stato-pilot-entry-done";
+const PILOT_STARTED_AT_KEY = "stato-pilot-started-at";
+// 1차 파일럿 ID 유효성 검증: P001~P030만 통과 (대소문자 무관, 공백 허용)
+const isValidPilotId = (s) => /^P0(0[1-9]|[12]\d|30)$/.test((s || "").trim().toUpperCase());
 const FONT_CDN = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css";
 
 
@@ -1454,6 +1459,93 @@ function HistoryGraphInner({ history, actionLog }) {
 
 const HistoryGraph = memo(HistoryGraphInner);
 
+// ─── 1차 파일럿 입구 (P001~P030 참여자 ID 입력 / 일반 사용자 분기) ───
+function ParticipantIdEntry({ onDone }) {
+  const [id, setId] = useState("");
+  const [err, setErr] = useState("");
+
+  const handleSubmitPilot = () => {
+    const cleaned = (id || "").trim().toUpperCase();
+    if (!cleaned) { setErr("참여자 ID를 입력해 주세요."); return; }
+    if (!isValidPilotId(cleaned)) {
+      setErr("ID 형식이 올바르지 않습니다. 안내받으신 ID(예: P001)를 확인해 주세요.");
+      return;
+    }
+    try {
+      localStorage.setItem(PILOT_ID_KEY, cleaned);
+      localStorage.setItem(PILOT_ENTRY_DONE_KEY, "1");
+      // 파일럿 시작 시각은 한 번만 기록 (재설정 시에도 최초 시각 유지)
+      if (!localStorage.getItem(PILOT_STARTED_AT_KEY)) {
+        localStorage.setItem(PILOT_STARTED_AT_KEY, new Date().toISOString());
+      }
+    } catch(e) {}
+    onDone();
+  };
+
+  return (
+    <div style={{ minHeight:"76vh", padding:"28px 20px 112px", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ width:"100%", maxWidth:360 }}>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:18 }}>
+          <div style={{ width:64, height:64, borderRadius:20, background:"linear-gradient(135deg, #0c8a89 0%, #2eb5a5 100%)", border:`1px solid ${C.borderL}`, boxShadow:"0 12px 28px rgba(0,0,0,0.26)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:12 }}>
+            <svg width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M23.8 17.8C20.1 17.8 16.7 20.2 15.4 23.7C19.4 24.4 22.4 22.8 24.2 19.4C24.4 19 24.1 17.8 23.8 17.8Z" fill="#B9F58F"/><path d="M26.1 16.8C31.7 16.8 35.7 20.5 36.7 25.8C31.8 26.6 28.2 24.7 25.9 20.5C25.6 20 25.8 16.8 26.1 16.8Z" fill="#B9F58F"/><path d="M24.7 23.5C24.7 23.1 23.3 23.1 23.3 23.5V35.5C23.3 36.4 24 37.1 24.9 37.1H25.1C26 37.1 26.7 36.4 26.7 35.5V24.7C26.7 24 25.6 23.5 24.7 23.5Z" fill="#B9F58F"/></svg>
+          </div>
+          <div style={{ fontSize:fs(15), letterSpacing:1.0, color:C.accent, textTransform:"uppercase", fontWeight:850, lineHeight:1.0 }}>Stato</div>
+        </div>
+
+        <div style={{ fontSize:fs(15), color:C.text, fontWeight:700, textAlign:"center", marginBottom:8, lineHeight:1.4 }}>
+          Stato 1기 운영 파트너 입구
+        </div>
+        <div style={{ fontSize:fs(11), color:C.muted, textAlign:"center", marginBottom:18, lineHeight:1.55 }}>
+          1차 파일럿(2026.05.07~05.21)에 참여하시는 분께서는<br/>안내받으신 참여자 ID를 입력해 주세요.
+        </div>
+
+        <input
+          type="text"
+          value={id}
+          onChange={(e) => { setId(e.target.value); setErr(""); }}
+          placeholder="예: P001"
+          maxLength={4}
+          autoCapitalize="characters"
+          style={{ width:"100%", boxSizing:"border-box", padding:"14px 14px", fontSize:fs(14), fontFamily:FF, background:C.bg2, border:`1px solid ${err ? "#c47" : C.borderL}`, borderRadius:10, color:C.text, textAlign:"center", letterSpacing:2, marginBottom:err ? 6 : 14 }}
+        />
+        {err && <div style={{ fontSize:fs(10), color:"#e88", textAlign:"center", marginBottom:14, lineHeight:1.4 }}>{err}</div>}
+
+        <div style={{ background:C.bg2, border:`1px solid ${C.borderL}`, borderRadius:10, padding:"12px 14px", marginBottom:14 }}>
+          <div style={{ fontSize:fs(10), color:C.muted, lineHeight:1.6 }}>
+            <div style={{ color:C.text, fontWeight:600, marginBottom:6 }}>참여 전 확인 사항</div>
+            Stato는 의료적 진단이나 치료 도구가 아닙니다.<br/>
+            본 파일럿은 일상 속 자기조절 루틴을 실험하는 생활형 AI 활용 테스트입니다.<br/><br/>
+            파일럿 기간 동안의 사용 기록은 현재 기기의 브라우저에 저장되며, 종료 시 참여자 ID와 함께 본인이 직접 내보내 운영자에게 제출하실 수 있습니다. 이름·주소·진단명·병력 등 민감정보는 수집하지 않습니다.<br/><br/>
+            참여 중 심각한 불편감이 발생하면 즉시 사용을 중단하고, 필요 시 전문가 또는 위기 지원 자원의 도움을 받으시기 바랍니다.
+          </div>
+        </div>
+
+        <Btn primary onClick={handleSubmitPilot} style={{ width:"100%", marginBottom:14 }}>
+          동의하고 시작하기
+        </Btn>
+
+        <div style={{ marginBottom:14, padding:"10px 12px", background:"rgba(255,255,255,0.02)", border:`1px dashed ${C.borderL}`, borderRadius:8, textAlign:"center" }}>
+          <div style={{ fontSize:fs(9.5), color:C.muted, lineHeight:1.55 }}>
+            파일럿 참여자가 아니신 경우<br/>
+            <a href="/" style={{ color:C.teal, textDecoration:"underline" }}>stato.kr</a>로 접속해 주세요.
+          </div>
+        </div>
+
+        <div style={{ background:"rgba(220,80,80,0.06)", border:"1px solid rgba(220,80,80,0.18)", borderRadius:10, padding:"10px 12px" }}>
+          <div style={{ fontSize:fs(9.5), color:C.muted, lineHeight:1.6 }}>
+            <div style={{ color:"#e99", fontWeight:600, marginBottom:4 }}>도움이 필요한 경우</div>
+            응급·구급(자해/타해 위험): 119<br/>
+            폭력·범죄 긴급 상황: 112<br/>
+            자살예방상담: 109<br/>
+            정신건강위기상담: 1577-0199<br/>
+            청소년상담: 1388 / 한국생명의전화: 1588-9191
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Onboarding (최초 1회, 3페이지) ───
 function Onboarding({ onDone, onScan }) {
   const [page, setPage] = useState(0);
@@ -1806,8 +1898,27 @@ function DrillCenter({ pq, onClose, onTimer }) {
 
 function Home() {
  const { hs, hist, onScan, onRc, onCp, onClear, onTimer, onGoReset, actionLog, cr, dispatch } = useApp();
+  const [pilotEntryDone, setPilotEntryDone] = useState(() => { try { return !!localStorage.getItem(PILOT_ENTRY_DONE_KEY); } catch(e) { return false; } });
+  const finishPilotEntry = () => { setPilotEntryDone(true); };
   const [onboardDone, setOnboardDone] = useState(() => { try { return !!localStorage.getItem(ONBOARD_KEY); } catch(e) { return false; } });
   const finishOnboard = () => { try { localStorage.setItem(ONBOARD_KEY, "1"); } catch(e) {} setOnboardDone(true); };
+
+  // 1차 파일럿 입구 표시 조건: /pilot 경로이거나 ?pilot=1 쿼리이며, 아직 ID가 없는 경우
+  const isPilotPath = (() => {
+    try {
+      return window.location.pathname.startsWith("/pilot") ||
+             window.location.search.includes("pilot=1") ||
+             window.location.hash.includes("pilot");
+    } catch(e) { return false; }
+  })();
+  const hasPilotId = (() => { 
+    try { 
+      const v = localStorage.getItem(PILOT_ID_KEY);
+      // 단순 존재 여부가 아니라 P001~P030 유효성으로 판단.
+      // localStorage에 잘못된 값(이전 테스트 잔여, 수동 조작 등)이 있어도 다시 입력하도록 유도.
+      return isValidPilotId(v);
+    } catch(e) { return false; } 
+  })();
 
   // D3-beta: 내부 개인화 점수 계산 (콘솔 전용, UI 미노출)
   // ⚠️ React Hook 순서 보장: 모든 useEffect는 조기 반환 전에 배치
@@ -1819,6 +1930,10 @@ function Home() {
     const personalized = getPersonalizedCandidates(fx, ps);
     debugPersonalization(fx, personalized);
   }, [hs.avail]);
+
+  // 파일럿 입구는 /pilot 경로로 들어왔고 아직 ID가 없을 때만 표시
+  // (기존 사용자도 /pilot으로 접속하면 ID 입력 가능. 일반 사용자는 표시 안 됨.)
+  if (isPilotPath && !hasPilotId) return <ParticipantIdEntry onDone={finishPilotEntry} />;
 
   if (hs.source === "empty" && !onboardDone) return <Onboarding onDone={finishOnboard} onScan={() => { finishOnboard(); onScan(); }} />;
 
@@ -2077,8 +2192,28 @@ function Home() {
       </div>
       <div style={{ marginTop:12, textAlign:"center" }}>
         <p style={{ fontSize:fs(9), color:C.muted, opacity:0.7, lineHeight:1.45, marginBottom:8 }}>현재 운영 기록은 이 기기에 저장됩니다. 브라우저 초기화 시 기록이 삭제될 수 있습니다.</p>
+        {(() => {
+          let currentPid = "";
+          try { currentPid = (localStorage.getItem(PILOT_ID_KEY) || "").trim().toUpperCase(); } catch(e) {}
+          // 유효한 P001~P030만 표시. 잘못된 값이 있으면 ID 표시 영역 자체를 숨김.
+          if (!isValidPilotId(currentPid)) return null;
+          return (
+            <div style={{ marginBottom:10, padding:"8px 12px", background:"rgba(46,181,165,0.08)", border:"1px solid rgba(46,181,165,0.25)", borderRadius:8, display:"inline-flex", gap:10, alignItems:"center", flexWrap:"wrap", justifyContent:"center" }}>
+              <span style={{ fontSize:fs(10), color:C.muted }}>현재 파일럿 ID:</span>
+              <span style={{ fontSize:fs(11), color:C.accent, fontWeight:700, letterSpacing:1 }}>{currentPid}</span>
+              <button onClick={() => {
+                if (!window.confirm("파일럿 ID를 다시 입력하시겠습니까?\n\n현재 기록은 그대로 유지되며, 다음 화면에서 새 ID를 입력하실 수 있습니다.")) return;
+                try {
+                  localStorage.removeItem(PILOT_ID_KEY);
+                  localStorage.removeItem(PILOT_ENTRY_DONE_KEY);
+                } catch(e) {}
+                try { window.location.href = "/pilot"; } catch(e) { window.location.reload(); }
+              }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.teal, cursor:"pointer", fontFamily:FF, padding:"2px 6px", textDecoration:"underline" }}>ID 다시 입력</button>
+            </div>
+          );
+        })()}
         <div style={{ display:"flex", gap:12, justifyContent:"center", alignItems:"center", flexWrap:"wrap" }}>
-          <button onClick={() => { try { const data = { state:JSON.parse(localStorage.getItem(STORAGE_KEY)), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY)), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY)), exportedAt:new Date().toISOString(), version:"v4.9.2" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download=`stato-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 백업 저장</button>
+          <button onClick={() => { try { const rawPid = (localStorage.getItem(PILOT_ID_KEY) || "").trim().toUpperCase(); const pid = isValidPilotId(rawPid) ? rawPid : null; const pilotStartedAt = localStorage.getItem(PILOT_STARTED_AT_KEY) || null; const data = { participantId:pid, pilotStartedAt:pilotStartedAt, state:JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY) || "[]"), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY) || "null"), exportedAt:new Date().toISOString(), version:"v4.9.6" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; const dateStr = new Date().toISOString().slice(0,10); a.download = pid ? `stato_pilot_${pid}_${dateStr}.json` : `stato-backup-${dateStr}.json`; a.click(); URL.revokeObjectURL(url); if (pid) { setTimeout(() => { alert("파일럿 기록 파일이 저장되었습니다.\n이 파일을 하루테크랩 메일(harutechlab@naver.com)로 보내주세요."); }, 200); } } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>{(() => { try { return isValidPilotId(localStorage.getItem(PILOT_ID_KEY)) ? "파일럿 기록 내보내기" : "기록 백업 저장"; } catch(e) { return "기록 백업 저장"; } })()}</button>
           <button onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".json"; input.onchange = (e) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if (!data.state && !data.actionLog) { alert("유효하지 않은 백업 파일입니다."); return; } if (!window.confirm("현재 기록을 백업 파일로 덮어씁니다.\n계속하시겠습니까?")) return; if (data.state) localStorage.setItem(STORAGE_KEY, JSON.stringify(data.state)); if (data.actionLog) localStorage.setItem(ALOG_KEY, JSON.stringify(data.actionLog)); if (data.personal) localStorage.setItem(PERSONAL_KEY, JSON.stringify(data.personal)); alert("복원이 완료되었습니다. 페이지를 새로고침합니다."); window.location.reload(); } catch(err) { alert("파일을 읽을 수 없습니다: " + err.message); } }; reader.readAsText(file); }; input.click(); }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.teal, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 복원</button>
           <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
         </div>
@@ -3079,6 +3214,12 @@ function EmotionOSApp() {
 
   const executeClear = useCallback(() => {
     clearState(); clearActionLog(); clearPersonalState();
+    // 파일럿 키도 함께 정리 (재시작 시 깨끗한 상태 보장)
+    try {
+      localStorage.removeItem(PILOT_ID_KEY);
+      localStorage.removeItem(PILOT_ENTRY_DONE_KEY);
+      localStorage.removeItem(PILOT_STARTED_AT_KEY);
+    } catch(e) {}
     dispatch({ type:"FULL_RESET" });
   }, []);
 
