@@ -95,12 +95,24 @@ const LD = {
   "회복단":"에너지 복구와 가동성 재확보가 잘 이루어지지 않는 구간입니다.",
   "갱신단":"반복 패턴을 업데이트하지 못해 같은 오류가 재생되는 구간입니다.",
 };
-const SCALE = [
+// 시간 기준에 따른 응답 척도 분리 (v4.9.8)
+// - SCALE_FREQ: 빈도 척도 (21문항 / "최근 2주 기준" 시간 범위에 적용)
+// - SCALE_INTENSITY: 강도 척도 (재점검 / "지금 이 순간 기준" 단일 시점에 적용)
+// 점수값(0~3)은 동일. 라벨만 시간 기준에 맞춰 다름.
+const SCALE_FREQ = [
   { v:0, l:"전혀 아니다" },
   { v:1, l:"가끔 그렇다" },
   { v:2, l:"자주 그렇다" },
   { v:3, l:"거의 항상 그렇다" },
 ];
+const SCALE_INTENSITY = [
+  { v:0, l:"전혀 아니다" },
+  { v:1, l:"약간 그렇다" },
+  { v:2, l:"꽤 그렇다" },
+  { v:3, l:"매우 그렇다" },
+];
+// 하위 호환성: 기존 SCALE 변수명 참조하는 코드 보호 (v4.9.7 이전 코드 호환)
+const SCALE = SCALE_FREQ;
 
 // ─── Hot Fix DB (exec: 실행형 여부) ───
 const HOTFIX_DB = [
@@ -2213,7 +2225,7 @@ function Home() {
           );
         })()}
         <div style={{ display:"flex", gap:12, justifyContent:"center", alignItems:"center", flexWrap:"wrap" }}>
-          <button onClick={() => { try { const rawPid = (localStorage.getItem(PILOT_ID_KEY) || "").trim().toUpperCase(); const pid = isValidPilotId(rawPid) ? rawPid : null; const pilotStartedAt = localStorage.getItem(PILOT_STARTED_AT_KEY) || null; const data = { participantId:pid, pilotStartedAt:pilotStartedAt, state:JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY) || "[]"), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY) || "null"), exportedAt:new Date().toISOString(), version:"v4.9.7" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; const dateStr = new Date().toISOString().slice(0,10); a.download = pid ? `stato_pilot_${pid}_${dateStr}.json` : `stato-backup-${dateStr}.json`; a.click(); URL.revokeObjectURL(url); if (pid) { setTimeout(() => { alert("파일럿 기록 파일이 저장되었습니다.\n이 파일을 하루테크랩 메일(harutechlab@naver.com)로 보내주세요."); }, 200); } } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>{(() => { try { return isValidPilotId(localStorage.getItem(PILOT_ID_KEY)) ? "파일럿 기록 내보내기" : "기록 백업 저장"; } catch(e) { return "기록 백업 저장"; } })()}</button>
+          <button onClick={() => { try { const rawPid = (localStorage.getItem(PILOT_ID_KEY) || "").trim().toUpperCase(); const pid = isValidPilotId(rawPid) ? rawPid : null; const pilotStartedAt = localStorage.getItem(PILOT_STARTED_AT_KEY) || null; const data = { participantId:pid, pilotStartedAt:pilotStartedAt, state:JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY) || "[]"), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY) || "null"), exportedAt:new Date().toISOString(), version:"v4.9.8" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; const dateStr = new Date().toISOString().slice(0,10); a.download = pid ? `stato_pilot_${pid}_${dateStr}.json` : `stato-backup-${dateStr}.json`; a.click(); URL.revokeObjectURL(url); if (pid) { setTimeout(() => { alert("파일럿 기록 파일이 저장되었습니다.\n이 파일을 하루테크랩 메일(harutechlab@naver.com)로 보내주세요."); }, 200); } } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>{(() => { try { return isValidPilotId(localStorage.getItem(PILOT_ID_KEY)) ? "파일럿 기록 내보내기" : "기록 백업 저장"; } catch(e) { return "기록 백업 저장"; } })()}</button>
           <button onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".json"; input.onchange = (e) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if (!data.state && !data.actionLog) { alert("유효하지 않은 백업 파일입니다."); return; } if (!window.confirm("현재 기록을 백업 파일로 덮어씁니다.\n계속하시겠습니까?")) return; if (data.state) localStorage.setItem(STORAGE_KEY, JSON.stringify(data.state)); if (data.actionLog) localStorage.setItem(ALOG_KEY, JSON.stringify(data.actionLog)); if (data.personal) localStorage.setItem(PERSONAL_KEY, JSON.stringify(data.personal)); alert("복원이 완료되었습니다. 페이지를 새로고침합니다."); window.location.reload(); } catch(err) { alert("파일을 읽을 수 없습니다: " + err.message); } }; reader.readAsText(file); }; input.click(); }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.teal, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 복원</button>
           <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
         </div>
@@ -2264,7 +2276,7 @@ function ScanFlow({ onComplete, isRc, rcQs }) {
           )}
           <p style={{ fontSize:fs(15), color:C.text, lineHeight:1.75, marginBottom:26, minHeight:54 }}>{isRc ? (q.rcP || q.p) : q.p}</p>
           <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
-            {SCALE.map(o => {
+            {(isRc ? SCALE_INTENSITY : SCALE_FREQ).map(o => {
               const sel = ans[idx] === o.v;
               return (
                 <button key={o.v} onClick={() => pick(o.v)} style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 16px", borderRadius:11, border:`1px solid ${sel?C.accent:C.border}`, background:sel?C.accentD:C.card, color:sel?C.text:C.dim, fontSize:fs(14), fontFamily:FF, cursor:"pointer", textAlign:"left" }}>
