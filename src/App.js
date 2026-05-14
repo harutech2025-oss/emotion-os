@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useReducer, useContext, createContext, useCallback, useMemo, memo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════
-   Stato v4.9.2 — Powered by Emotion OS — Standalone (Auto-generated)
-   Haru-Tech Lab
+   Stato v4.9.9 — Powered by Emotion OS — Standalone (Auto-generated)
+   Haru-Tech Lab — 1차 파일럿 후반 최소 보정본 (2026-05-15 D+8)
 
    ╔═══════════════════════════════════════════════════════════════╗
    ║  ⛔ 이 파일을 직접 수정하지 마세요!                           ║
@@ -95,7 +95,7 @@ const LD = {
   "회복단":"에너지 복구와 가동성 재확보가 잘 이루어지지 않는 구간입니다.",
   "갱신단":"반복 패턴을 업데이트하지 못해 같은 오류가 재생되는 구간입니다.",
 };
-// 시간 기준에 따른 응답 척도 분리 (v4.9.8)
+// 시간 기준에 따른 응답 척도 분리 (v4.9.9)
 // - SCALE_FREQ: 빈도 척도 (21문항 / "최근 2주 기준" 시간 범위에 적용)
 // - SCALE_INTENSITY: 강도 척도 (재점검 / "지금 이 순간 기준" 단일 시점에 적용)
 // 점수값(0~3)은 동일. 라벨만 시간 기준에 맞춰 다름.
@@ -2005,8 +2005,58 @@ function Home() {
         {hs.isRc && hs.delta != null && <DBadge delta={hs.delta} />}
       </div>
 
-      {/* 1. 상단 Full Scan CTA */}
-      <Btn primary onClick={onScan} style={{ width:"100%", marginBottom:14 }}>새 Full Scan</Btn>
+      {/* v4.9.9 신규: Today 상단 ID 표시 (F-010 대응) — 사용자 신뢰감 + 익명 원칙 동시 보호 */}
+      {(() => {
+        let currentPid = "";
+        try { currentPid = (localStorage.getItem(PILOT_ID_KEY) || "").trim().toUpperCase(); } catch(e) {}
+        if (!isValidPilotId(currentPid)) return null;
+        return (
+          <div style={{ marginBottom:10, padding:"6px 10px", background:`${C.teal}06`, border:`1px solid ${C.teal}15`, borderRadius:8, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:6 }}>
+            <span style={{ fontSize:fs(9.5), color:C.muted }}>현재 파일럿 ID: <span style={{ color:C.accent, fontWeight:700, letterSpacing:0.6 }}>{currentPid}</span></span>
+            <span style={{ fontSize:fs(9), color:C.dim }}>이 기기에 저장 중</span>
+          </div>
+        );
+      })()}
+
+      {/* v4.9.9 신규: 오늘은 이것만 해보세요 안내 카드 (F-007 + F-008 + F-013 대응, E-001/E-002 Re-check 발견성 강화) */}
+      {/* v4.9.9 정합 패치: todayCount > 0 시 "여기서 마쳐도 됩니다"로 분기 — F-013 해결 완성도 격상 */}
+      {/* v4.9.9 Re-check 정합 패치: 재점검 완료도 todayCount에 포함 (외부 AI 1번 권고 반영) */}
+      {hs.source !== "empty" && (() => {
+        const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+        const todayStartTs = todayStart.getTime();
+        const todayPatchCount = (actionLog || []).filter(a => {
+          const t = a.completedAt;
+          return t && t >= todayStartTs && a.status === "completed";
+        }).length;
+        const todayRecheckCount = (hist || []).filter(h => h && h.type === "recheck" && h.ts && h.ts >= todayStartTs).length;
+        const done = todayPatchCount > 0 || todayRecheckCount > 0;
+        // 표현 분기: 패치 완료 우선 > 재점검 완료 > 미시작
+        const headline = todayPatchCount > 0
+          ? `오늘 ${todayPatchCount}회 완료했습니다`
+          : todayRecheckCount > 0
+            ? "오늘 상태 재점검을 마쳤습니다"
+            : "오늘은 이것만 해보세요";
+        return (
+          <Card style={{ padding:"14px 16px", marginBottom:14, background:`${C.teal}06`, border:`1px solid ${C.teal}20` }}>
+            <div style={{ fontSize:fs(11), fontWeight:700, color:C.teal, marginBottom:6 }}>{headline}</div>
+            <p style={{ fontSize:fs(12), color:C.text, lineHeight:1.55, margin:"0 0 10px" }}>
+              {todayPatchCount > 0 ? (
+                <>지금은 여기서 마쳐도 됩니다.<br/>상태가 다시 흔들릴 때만 짧게 재점검해 주세요.</>
+              ) : todayRecheckCount > 0 ? (
+                <>가능하면 추천 패치 하나만 짧게 실행해 보세요.<br/>지금 여력이 없다면 여기서 마쳐도 됩니다.</>
+              ) : (
+                <>매일 21문항을 다시 하지 않아도 됩니다.<br/>최근 스캔을 기준으로 지금 상태만 1~2분 재점검해 보세요.</>
+              )}
+            </p>
+            <Btn onClick={onRc} style={{ width:"100%", background:C.teal, color:"#fff", fontSize:fs(12), padding:"10px 12px" }}>
+              {done ? "필요할 때 재점검하기" : "가동률 재점검하기 (1~2분)"}
+            </Btn>
+          </Card>
+        );
+      })()}
+
+      {/* 1. 상단 Full Scan CTA — v4.9.9 정합 패치: 문구 낮춤 (F-008 정합) */}
+      <Btn primary onClick={onScan} style={{ width:"100%", marginBottom:14 }}>새 Full Scan 다시 하기 (필요할 때만)</Btn>
 
       {/* 2. TodayHeroCard: 상태 요약 + 가동률 */}
       {(() => {
@@ -2020,14 +2070,24 @@ function Home() {
         return (
           <Card style={{ padding:"16px" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-              <span style={{ fontSize:fs(11), color:C.muted }}>오늘의 상태</span>
+              <span style={{ fontSize:fs(11), color:C.muted }}>최근 운영 기반 상태</span>
               <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                <span style={{ fontSize:fs(10), color:C.dim }}>현재 가동률</span>
+              <span style={{ fontSize:fs(10), color:C.dim }}>{hs.isRc ? "현재 재점검 가동률" : "최근 스캔 가동률"}</span>
                 <ANum value={hs.avail} color={b.c} size={18} suffix="%" />
               </div>
             </div>
             <p style={{ fontSize:fs(14), fontWeight:700, color:C.text, lineHeight:1.5, marginBottom:8 }}>{headline}</p>
             <div style={{ fontSize:fs(12), color:C.accent, fontWeight:700, lineHeight:1.45, marginBottom:10 }}>오늘은 5%만 올려보세요</div>
+            {/* v4.9.9 신규: 오늘 완료 횟수 객관적 표시 (F-013 대응) */}
+            {(() => {
+              const todayCount = (actionLog || []).filter(a => { const t = a.completedAt; return t && new Date(t).toDateString() === new Date().toDateString() && a.status === "completed"; }).length;
+              if (todayCount === 0) return null;
+              return (
+                <div style={{ fontSize:fs(10.5), color:C.teal, fontWeight:600, marginBottom:10, padding:"4px 8px", background:`${C.teal}08`, border:`1px solid ${C.teal}20`, borderRadius:6, display:"inline-block" }}>
+                  ✓ 오늘 {todayCount}회 회복 완료
+                </div>
+              );
+            })()}
             <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
               {badges.map((bg,i) => (
                 <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"4px 8px", borderRadius:999, fontSize:fs(10), fontWeight:600, color:bg.t.fg, background:bg.t.bg, border:`1px solid ${bg.t.border}` }}>
@@ -2225,7 +2285,7 @@ function Home() {
           );
         })()}
         <div style={{ display:"flex", gap:12, justifyContent:"center", alignItems:"center", flexWrap:"wrap" }}>
-          <button onClick={() => { try { const rawPid = (localStorage.getItem(PILOT_ID_KEY) || "").trim().toUpperCase(); const pid = isValidPilotId(rawPid) ? rawPid : null; const pilotStartedAt = localStorage.getItem(PILOT_STARTED_AT_KEY) || null; const data = { participantId:pid, pilotStartedAt:pilotStartedAt, state:JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY) || "[]"), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY) || "null"), exportedAt:new Date().toISOString(), version:"v4.9.8" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; const dateStr = new Date().toISOString().slice(0,10); a.download = pid ? `stato_pilot_${pid}_${dateStr}.json` : `stato-backup-${dateStr}.json`; a.click(); URL.revokeObjectURL(url); if (pid) { setTimeout(() => { alert("파일럿 기록 파일이 저장되었습니다.\n이 파일을 하루테크랩 메일(harutechlab@naver.com)로 보내주세요."); }, 200); } } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>{(() => { try { return isValidPilotId(localStorage.getItem(PILOT_ID_KEY)) ? "파일럿 기록 내보내기" : "기록 백업 저장"; } catch(e) { return "기록 백업 저장"; } })()}</button>
+          <button onClick={() => { try { const rawPid = (localStorage.getItem(PILOT_ID_KEY) || "").trim().toUpperCase(); const pid = isValidPilotId(rawPid) ? rawPid : null; const pilotStartedAt = localStorage.getItem(PILOT_STARTED_AT_KEY) || null; const data = { participantId:pid, pilotStartedAt:pilotStartedAt, state:JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"), actionLog:JSON.parse(localStorage.getItem(ALOG_KEY) || "[]"), personal:JSON.parse(localStorage.getItem(PERSONAL_KEY) || "null"), exportedAt:new Date().toISOString(), version:"v4.9.9" }; const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; const dateStr = new Date().toISOString().slice(0,10); a.download = pid ? `stato_pilot_${pid}_${dateStr}.json` : `stato-backup-${dateStr}.json`; a.click(); URL.revokeObjectURL(url); if (pid) { setTimeout(() => { alert("파일럿 기록 파일이 저장되었습니다.\n이 파일을 하루테크랩 메일(harutechlab@naver.com)로 보내주세요."); }, 200); } } catch(e) { console.error("Export failed", e); } }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.dim, cursor:"pointer", fontFamily:FF, padding:4 }}>{(() => { try { return isValidPilotId(localStorage.getItem(PILOT_ID_KEY)) ? "파일럿 기록 내보내기" : "기록 백업 저장"; } catch(e) { return "기록 백업 저장"; } })()}</button>
           <button onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".json"; input.onchange = (e) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if (!data.state && !data.actionLog) { alert("유효하지 않은 백업 파일입니다."); return; } if (!window.confirm("현재 기록을 백업 파일로 덮어씁니다.\n계속하시겠습니까?")) return; if (data.state) localStorage.setItem(STORAGE_KEY, JSON.stringify(data.state)); if (data.actionLog) localStorage.setItem(ALOG_KEY, JSON.stringify(data.actionLog)); if (data.personal) localStorage.setItem(PERSONAL_KEY, JSON.stringify(data.personal)); alert("복원이 완료되었습니다. 페이지를 새로고침합니다."); window.location.reload(); } catch(err) { alert("파일을 읽을 수 없습니다: " + err.message); } }; reader.readAsText(file); }; input.click(); }} style={{ background:"none", border:"none", fontSize:fs(10), color:C.teal, cursor:"pointer", fontFamily:FF, padding:4 }}>기록 복원</button>
           <button onClick={onClear} style={{ background:"none", border:"none", fontSize:fs(10), color:C.muted, cursor:"pointer", fontFamily:FF, padding:4 }}>데이터 초기화</button>
         </div>
@@ -3042,7 +3102,7 @@ function useApp() {
 
 // ═══ M8: APP ═════════════════════════════════════════════════════
 // M8: APP — 메인 앱 (useReducer + Context)
-// Stato v4.9.2 — Powered by Emotion OS
+// Stato v4.9.9 — Powered by Emotion OS
 
 function EmotionOSApp() {
   const [state, dispatch] = useReducer(appReducer, {
